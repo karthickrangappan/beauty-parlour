@@ -1,18 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { collections, products } from "../data/products";
-import { Filter, Star, X } from "lucide-react";
+import { collections } from "../data/products"; // Only collections now
+import { Filter, Star, X, Search, Loader2 } from "lucide-react";
 import ProductCard from "../components/products/ProductCard";
+import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 
 const Shop = () => {
   const [activeCollection, setActiveCollection] = useState("all");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 200]);
   const [minRating, setMinRating] = useState(0);
+  const [searchText, setSearchText] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const { products: filteredProducts, loading, hasMore, loadMore } = useInfiniteProducts({
+    collectionId: activeCollection,
+    categories: selectedCategories,
+    priceRange,
+    minRating,
+    searchText
+  });
 
   const displayCollections = [
     { id: "all", name: "All Collections" },
@@ -23,16 +33,6 @@ const Shop = () => {
     "Cleansers", "Serums", "Moisturizers", "Conditioners", 
     "Treatments", "Exfoliants", "Oils", "Lotions"
   ];
-
-  // Filtering Logic
-  const filteredProducts = products.filter((product) => {
-    const matchesCollection = activeCollection === "all" || product.collection === activeCollection;
-    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category);
-    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-    const matchesRating = product.rating >= minRating;
-    
-    return matchesCollection && matchesCategory && matchesPrice && matchesRating;
-  });
 
   const toggleCategory = (category) => {
     setSelectedCategories(prev => 
@@ -45,11 +45,25 @@ const Shop = () => {
     setPriceRange([0, 200]);
     setMinRating(0);
     setActiveCollection("all");
+    setSearchText("");
   };
 
   const handleCollectionChange = (id) => {
     setActiveCollection(id);
   };
+
+  // Implement Infinite Scroll logic (fires when user scrolls near the bottom)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+        if (hasMore && !loading) {
+          loadMore();
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasMore, loading, loadMore]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-100 pt-32 pb-28">
@@ -65,9 +79,20 @@ const Shop = () => {
             >
               The Collection
             </motion.h1>
-            <p className="text-neutral-500 text-lg font-light leading-relaxed">
+            <p className="text-neutral-500 text-lg font-light leading-relaxed mb-6">
               Curated elixirs designed to restore and perfect your natural radiance.
             </p>
+            {/* Search Input */}
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-3 w-5 h-5 text-neutral-400" />
+              <input 
+                type="text" 
+                placeholder="Search elixirs, treatments..." 
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="w-full bg-white border border-neutral-200 pl-10 pr-4 py-3 rounded-full text-sm focus:outline-none focus:border-gold-500 shadow-sm transition-all text-neutral-800"
+              />
+            </div>
           </div>
           
           <button 
@@ -167,18 +192,36 @@ const Shop = () => {
           {/* Product Grid */}
           <div className="flex-1">
             {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-12 mb-12">
                 <AnimatePresence>
                   {filteredProducts.map((product, idx) => (
                     <ProductCard key={product.id} product={product} index={idx} />
                   ))}
                 </AnimatePresence>
               </div>
-            ) : (
+            ) : !loading && (
               <div className="py-32 text-center bg-white rounded-3xl border border-dashed border-neutral-200">
                  <p className="text-neutral-400 font-light italic">No products match your current filters.</p>
                  <button onClick={clearFilters} className="mt-4 text-xs text-gold-500 underline uppercase tracking-widest">Clear all</button>
               </div>
+            )}
+            
+            {/* Loading / Load More state */}
+            {loading && (
+              <div className="flex justify-center py-12">
+                 <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
+              </div>
+            )}
+            
+            {!loading && hasMore && filteredProducts.length > 0 && (
+               <div className="flex justify-center pt-8">
+                 <button 
+                   onClick={() => loadMore()}
+                   className="px-8 py-4 bg-neutral-900 text-white uppercase tracking-[0.2em] text-xs hover:bg-gold-500 transition-colors duration-300"
+                 >
+                   Load More Secrets
+                 </button>
+               </div>
             )}
           </div>
         </div>
