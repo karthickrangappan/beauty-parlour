@@ -1,95 +1,114 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, Star, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 
 const ProductCard = ({ product, index }) => {
-  const { addItemToCart } = useCart();
+  const { addItemToCart, toggleCartDrawer } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     addItemToCart({
       ...product,
       quantity: 1,
     });
-    navigate("/cart");
+
+    toggleCartDrawer();
   };
 
   const handleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    isInWishlist(product.id) ? removeFromWishlist(product.id) : addToWishlist(product);
+
+    isInWishlist(product.id)
+      ? removeFromWishlist(product.id)
+      : addToWishlist(product);
   };
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
-      className="group"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ delay: index * 0.05, duration: 0.5 }}
+      className="group cursor-pointer transition-all duration-500 hover:-translate-y-2"
     >
-      <Link to={`/product/${product.id}`} className="block">
-        <div className="aspect-[3/4] bg-white overflow-hidden relative mb-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 border border-neutral-100">
+      <Link to={`/product/${product.id}`}>
+
+        {/* Product Card */}
+        <div className="aspect-[4/5] bg-white overflow-hidden relative mb-6 rounded-xl shadow-xl shadow-gold-300/5 hover:shadow-2xl hover:shadow-gold-300/10 transition-all duration-500 border border-gold-300/10 group-hover:border-gold-300/30">
+
+          {/* Product Image */}
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transform duration-[2.5s] ease-out group-hover:scale-110"
           />
-          
-          {/* Wishlist Heart */}
+
+          {/* Quick View (Eye) Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate(`/product/${product.id}`);
+            }}
+            className="absolute top-4 left-4 z-30 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition opacity-0 group-hover:opacity-100 duration-300"
+            title="Quick View"
+          >
+            <Eye className="w-4 h-4 text-neutral-500" />
+          </button>
+
+          {/* Wishlist Button */}
           <button
             onClick={handleWishlist}
-            className="absolute top-4 right-4 z-30 p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:scale-110 transition"
+            className="absolute top-4 right-4 z-30 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition opacity-0 group-hover:opacity-100 duration-300"
           >
-            <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? "fill-red-400 text-red-400" : "text-neutral-400"}`} />
+            <Heart
+              className={`w-4 h-4 ${
+                isInWishlist(product.id)
+                  ? "fill-red-500 text-red-500"
+                  : "text-neutral-500"
+              }`}
+            />
           </button>
 
           {/* Add to Cart Overlay */}
-          <div className="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/20 to-transparent">
+          <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20 border-t border-neutral-200">
             <button
               onClick={handleAddToCart}
-              className="w-full py-4 bg-white text-neutral-900 text-[10px] uppercase tracking-widest font-bold shadow-lg hover:bg-neutral-900 hover:text-white transition-all duration-300 rounded-lg flex items-center justify-center gap-2"
+              className="w-full py-4 text-xs uppercase tracking-[0.25em] text-neutral-800 hover:text-white hover:bg-neutral-900 transition-all duration-300 font-medium flex items-center justify-center gap-2"
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              Quick Add
+              <ShoppingBag className="w-3 h-3" />
+              Add to Cart
             </button>
           </div>
+
         </div>
 
-        <div className="text-center space-y-2 px-2">
-          {/* Collection Label (Small) */}
-          <div className="flex items-center justify-center gap-1 mb-1">
-             <span className="text-[10px] text-gold-600 font-bold uppercase tracking-widest">{product.collection.replace('-', ' ')}</span>
-          </div>
+        {/* Product Info */}
+        <div className="text-center space-y-2">
 
-          {/* Rating */}
-          <div className="flex items-center justify-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                className={`w-3 h-3 ${i < Math.floor(product.rating) ? "fill-gold-500 text-gold-500" : "text-neutral-200 fill-neutral-200"}`} 
-              />
-            ))}
-            <span className="text-[10px] text-neutral-400 ml-1 font-medium">{product.rating}</span>
-          </div>
-
-          <h3 className="text-neutral-900 uppercase tracking-[0.2em] text-sm font-medium group-hover:text-gold-600 transition-colors leading-tight min-h-[40px] flex items-center justify-center">
+          <h3 className="text-neutral-900 uppercase tracking-[0.25em] text-sm font-medium">
             {product.name}
           </h3>
-          
-          <p className="text-neutral-400 font-serif italic text-xs">{product.category}</p>
-          
-          <div className="pt-2">
-            <p className="text-neutral-900 text-lg font-light">${product.price.toFixed(2)}</p>
-          </div>
+
+          <p className="text-neutral-500 font-serif italic text-sm">
+            {product.category}
+          </p>
+
+          <p className="text-neutral-900 text-base font-medium mt-2">
+            ${product.price.toFixed(2)}
+          </p>
+
         </div>
+
       </Link>
     </motion.div>
   );

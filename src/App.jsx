@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
 import Cart from './pages/Cart';
 import ProductDetails from './pages/ProductDetails';
+import OurStory from './pages/OurStory';
 
 function App() {
 
@@ -32,6 +33,7 @@ function App() {
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/about" element={<OurStory />} />
             {/* Additional routes will be added here as we expand */}
           </Routes>
         </main>

@@ -1,6 +1,25 @@
 import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
+const homeData = {
+  hero: {
+    tagline: "The Art of Radiance",
+    titleLine1: "Awaken your",
+    titleItalic: "purest essence",
+    description: "Step into a sun-drenched sanctuary of calm where pearl and silk meet flawless precision.",
+    backgroundImage: "/hero-img.png",
+    scrollText: "Scroll to explore"
+  },
+  sanctuary: {
+    tagline: "Our Sanctuary",
+    titleLine1: "Bathed in",
+    titleLine2: "Golden Hour",
+    description: "Experience the profound calm of our meticulously designed spa. Marble floors meet brushed gold accents, harmonizing with natural light to create an atmosphere of serene luxury.",
+    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2000&auto=format&fit=crop",
+    ctaText: "Reserve a Moment"
+  }
+};
+
 const CinematicSequence = () => {
   const { scrollYProgress } = useScroll();
 
@@ -20,7 +39,7 @@ const CinematicSequence = () => {
           style={{ scale: scaleImage }}
         >
           <img
-            src="/hero-img.png"
+            src={homeData.hero.backgroundImage}
             alt="Cinematic sanctuary"
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -72,7 +91,7 @@ const CinematicSequence = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 1 }}
           >
-            The Art of Radiance
+            {homeData.hero.tagline}
           </motion.h3>
 
           <motion.h1
@@ -82,10 +101,10 @@ const CinematicSequence = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 1.4 }}
           >
-            Awaken your
+            {homeData.hero.titleLine1}
             <br />
             <span className="italic text-neutral-600">
-              purest essence
+              {homeData.hero.titleItalic}
             </span>
           </motion.h1>
 
@@ -95,8 +114,7 @@ const CinematicSequence = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.4 }}
           >
-            Step into a sun-drenched sanctuary of calm where pearl and silk
-            meet flawless precision.
+            {homeData.hero.description}
           </motion.p>
 
           {/* Scroll indicator */}
@@ -107,7 +125,7 @@ const CinematicSequence = () => {
             transition={{ delay: 2 }}
           >
             <span className="text-xs uppercase tracking-widest text-neutral-400">
-              Scroll to explore
+              {homeData.hero.scrollText}
             </span>
 
             <motion.div
@@ -135,7 +153,7 @@ const CinematicSequence = () => {
           <div className="relative aspect-[4/5] overflow-hidden rounded-t-full shadow-2xl group">
 
             <motion.img
-              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2000&auto=format&fit=crop"
+              src={homeData.sanctuary.image}
               alt="Luxury spa"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out group-hover:scale-110"
             />
@@ -150,29 +168,27 @@ const CinematicSequence = () => {
           <div className="space-y-8">
 
             <h3 className="uppercase tracking-[0.3em] text-sm text-gold-500">
-              Our Sanctuary
+              {homeData.sanctuary.tagline}
             </h3>
 
             <h2
               className="text-4xl md:text-5xl lg:text-6xl font-light text-neutral-900 leading-tight"
               style={{ fontFamily: "ui-serif, Georgia, serif" }}
             >
-              Bathed in
+              {homeData.sanctuary.titleLine1}
               <br />
-              Golden Hour
+              {homeData.sanctuary.titleLine2}
             </h2>
 
             <p className="text-neutral-500 text-lg leading-relaxed max-w-lg">
-              Experience the profound calm of our meticulously designed spa.
-              Marble floors meet brushed gold accents, harmonizing with
-              natural light to create an atmosphere of serene luxury.
+              {homeData.sanctuary.description}
             </p>
 
             <motion.button
               className="inline-flex items-center gap-4 text-sm uppercase tracking-[0.2em] text-neutral-900 border-b border-neutral-300 pb-2 hover:border-neutral-900 transition"
               whileHover={{ x: 6 }}
             >
-              Reserve a Moment →
+              {homeData.sanctuary.ctaText} →
             </motion.button>
 
           </div>
