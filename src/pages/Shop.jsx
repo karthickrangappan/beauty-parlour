@@ -4,226 +4,273 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { collections, products } from "../data/products";
-import { Heart } from "lucide-react";
+import { Filter, Star, X } from "lucide-react";
+import ProductCard from "../components/products/ProductCard";
 
 const Shop = () => {
-  const { addItemToCart } = useCart();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const [activeCollection, setActiveCollection] = useState("all");
-  const [activeCategory, setActiveCategory] = useState("All");
-  const navigate = useNavigate();
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 200]);
+  const [minRating, setMinRating] = useState(0);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const handleAddToCart = (product) => {
-    addItemToCart({
-      id: product.id,
-      name: product.name,
-      category: product.category,
-      price: product.price,
-      image: product.image,
-      quantity: 1,
-    });
-
-    navigate("/cart");
-  };
-
-  // Prepend "All" to collections for the UI
   const displayCollections = [
-    { id: "all", name: "All" },
+    { id: "all", name: "All Collections" },
     ...collections
   ];
 
-  // Get products for the current collection
-  const currentCollectionProducts = activeCollection === "all" 
-    ? products 
-    : products.filter((p) => p.collection === activeCollection);
-
-  // Extract unique categories for the current collection
-  const availableCategories = [
-    "All",
-    ...new Set(currentCollectionProducts.map((p) => p.category)),
+  const allCategories = [
+    "Cleansers", "Serums", "Moisturizers", "Conditioners", 
+    "Treatments", "Exfoliants", "Oils", "Lotions"
   ];
 
-  // Filter products by selected category
-  const filteredProducts =
-    activeCategory === "All"
-      ? currentCollectionProducts
-      : currentCollectionProducts.filter((p) => p.category === activeCategory);
+  // Filtering Logic
+  const filteredProducts = products.filter((product) => {
+    const matchesCollection = activeCollection === "all" || product.collection === activeCollection;
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category);
+    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+    const matchesRating = product.rating >= minRating;
+    
+    return matchesCollection && matchesCategory && matchesPrice && matchesRating;
+  });
 
-  // Reset category when collection changes
-  const handleCollectionChange = (collectionId) => {
-    setActiveCollection(collectionId);
-    setActiveCategory("All");
+  const toggleCategory = (category) => {
+    setSelectedCategories(prev => 
+      prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedCategories([]);
+    setPriceRange([0, 200]);
+    setMinRating(0);
+    setActiveCollection("all");
+  };
+
+  const handleCollectionChange = (id) => {
+    setActiveCollection(id);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-100 pt-32 pb-28">
-      {/* Hero Header */}
-      <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9 }}
-        >
-          <h1
-            className="text-5xl md:text-6xl text-neutral-900 font-light mb-6 tracking-wide"
-            style={{ fontFamily: "ui-serif, Georgia, serif" }}
-          >
-            The Collection
-          </h1>
-
-          <p className="text-neutral-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
-            Curated elixirs and essences designed to restore, illuminate, and
-            perfect your natural radiance.
-          </p>
-        </motion.div>
-
-        {/* Collection Tabs */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex justify-center flex-wrap gap-8 md:gap-16 mt-16 border-b border-neutral-200"
-        >
-          {displayCollections.map((col) => (
-            <button
-              key={col.id}
-              onClick={() => handleCollectionChange(col.id)}
-              className={`pb-4 text-sm uppercase tracking-[0.25em] transition-all duration-300 relative hover:scale-105 ${
-                activeCollection === col.id
-                  ? "text-neutral-900 font-medium"
-                  : "text-neutral-400 hover:text-neutral-800"
-              }`}
-            >
-              {col.name}
-
-              {activeCollection === col.id && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-neutral-900"
-                />
-              )}
-            </button>
-          ))}
-        </motion.div>
-
-        {/* Category Selection Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="flex flex-wrap justify-center gap-4 mt-10 px-4"
-        >
-          {availableCategories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-6 py-2 text-xs uppercase tracking-[0.15em] transition-all duration-300 rounded-full border ${
-                activeCategory === cat
-                  ? "bg-neutral-900 text-white border-neutral-900 shadow-md"
-                  : "bg-white/50 text-neutral-500 border-neutral-200 hover:border-neutral-400 hover:text-neutral-800"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* Products Grid */}
       <div className="max-w-7xl mx-auto px-6">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`${activeCollection}-${activeCategory}`}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.5 }}
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
+          <div className="max-w-2xl">
+            <motion.h1 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-5xl md:text-6xl text-neutral-900 font-light mb-6 tracking-wide"
+              style={{ fontFamily: "ui-serif, Georgia, serif" }}
+            >
+              The Collection
+            </motion.h1>
+            <p className="text-neutral-500 text-lg font-light leading-relaxed">
+              Curated elixirs designed to restore and perfect your natural radiance.
+            </p>
+          </div>
+          
+          <button 
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="flex items-center gap-3 px-8 py-4 bg-white border border-neutral-200 rounded-full shadow-sm hover:shadow-md transition-all lg:hidden"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 lg:gap-14">
-              {filteredProducts.map((product, idx) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{
-                    delay: idx * 0.05,
-                    duration: 0.6,
-                    ease: "easeOut",
-                  }}
-                  className="group cursor-pointer transition-all duration-500 hover:-translate-y-2"
-                >
-                  {/* Product Card */}
-                  <div className="aspect-[4/5] bg-white overflow-hidden relative mb-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover transform duration-[2.5s] ease-out group-hover:scale-110"
-                    />
+            <Filter className="w-4 h-4 text-gold-500" />
+            <span className="text-xs uppercase tracking-widest font-medium">Filters</span>
+          </button>
+        </div>
 
-                    {/* Dark Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition duration-500" />
-
-                    {/* Wishlist Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        isInWishlist(product.id)
-                          ? removeFromWishlist(product.id)
-                          : addToWishlist(product);
-                      }}
-                      className="absolute top-4 right-4 z-30 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition"
-                    >
-                      <Heart
-                        className={`w-4 h-4 ${
-                          isInWishlist(product.id)
-                            ? "fill-red-400 text-red-400"
-                            : "text-neutral-500"
-                        }`}
-                      />
-                    </button>
-
-                    {/* Add to Cart */}
-                    <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20 border-t border-neutral-200">
-                      <button
-                        onClick={() => handleAddToCart(product)}
-                        className="w-full py-4 text-xs uppercase tracking-[0.25em] text-neutral-800 hover:text-white hover:bg-neutral-900 transition-all duration-300 font-medium"
-                      >
-                        Add to Cart
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="text-center space-y-2">
-                    <div className="flex flex-col items-center">
-                        <span className="text-[10px] uppercase tracking-widest text-gold-500 mb-1">{product.collection.replace('-', ' ')}</span>
-                        <h3 className="text-neutral-900 uppercase tracking-[0.25em] text-sm font-medium">
-                        {product.name}
-                        </h3>
-                    </div>
-
-                    <p className="text-neutral-500 font-serif italic text-sm">
-                      {product.shortDesc}
-                    </p>
-
-                    <p className="text-neutral-900 text-base font-medium mt-2">
-                      ${product.price.toFixed(2)}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+        <div className="flex gap-12">
+          {/* Sidebar Filter Panel (Desktop) */}
+          <aside className="hidden lg:block w-64 flex-shrink-0 space-y-10">
+            {/* Collections */}
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 font-semibold">Collections</h3>
+              <div className="space-y-3">
+                {displayCollections.map(col => (
+                  <button
+                    key={col.id}
+                    onClick={() => handleCollectionChange(col.id)}
+                    className={`block text-sm transition-colors ${
+                      activeCollection === col.id ? "text-gold-600 font-medium" : "text-neutral-500 hover:text-neutral-900"
+                    }`}
+                  >
+                    {col.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {filteredProducts.length === 0 && (
-              <div className="text-center py-20">
-                <p className="text-neutral-400 font-light italic">
-                  No products found matching your criteria.
-                </p>
+            {/* Categories */}
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 font-semibold">Categories</h3>
+              <div className="space-y-3">
+                {allCategories.map(cat => (
+                  <label key={cat} className="flex items-center gap-3 cursor-pointer group">
+                    <input 
+                      type="checkbox"
+                      checked={selectedCategories.includes(cat)}
+                      onChange={() => toggleCategory(cat)}
+                      className="w-4 h-4 accent-neutral-900 border-neutral-300 rounded"
+                    />
+                    <span className={`text-sm transition-colors ${
+                      selectedCategories.includes(cat) ? "text-neutral-900 font-medium" : "text-neutral-500 group-hover:text-neutral-900"
+                    }`}>
+                      {cat}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Range */}
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-neutral-400 font-semibold">Price Range</h3>
+                <span className="text-[10px] text-neutral-400">${priceRange[0]} - ${priceRange[1]}</span>
+              </div>
+              <input 
+                type="range"
+                min="0"
+                max="200"
+                value={priceRange[1]}
+                onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                className="w-full accent-neutral-900 h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+
+            {/* Rating */}
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 font-semibold">Minimum Rating</h3>
+              <div className="flex gap-2">
+                {[4, 3, 2, 1].map(stars => (
+                  <button
+                    key={stars}
+                    onClick={() => setMinRating(stars)}
+                    className={`flex-1 py-2 rounded border text-xs transition-all ${
+                      minRating === stars ? "bg-neutral-900 text-white border-neutral-900" : "bg-white text-neutral-500 border-neutral-200 hover:border-neutral-400"
+                    }`}
+                  >
+                    {stars}+ <Star className="w-2.5 h-2.5 inline-block ml-1 fill-current" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button 
+              onClick={clearFilters}
+              className="w-full py-4 text-[10px] uppercase tracking-widest text-neutral-400 hover:text-red-500 border-t border-neutral-100 pt-6 transition-colors"
+            >
+              Reset All Filters
+            </button>
+          </aside>
+
+          {/* Product Grid */}
+          <div className="flex-1">
+            {filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-12">
+                <AnimatePresence>
+                  {filteredProducts.map((product, idx) => (
+                    <ProductCard key={product.id} product={product} index={idx} />
+                  ))}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="py-32 text-center bg-white rounded-3xl border border-dashed border-neutral-200">
+                 <p className="text-neutral-400 font-light italic">No products match your current filters.</p>
+                 <button onClick={clearFilters} className="mt-4 text-xs text-gold-500 underline uppercase tracking-widest">Clear all</button>
               </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </div>
       </div>
+
+      {/* Mobile Filter Overlay */}
+      <AnimatePresence>
+        {isFilterOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsFilterOpen(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] lg:hidden"
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 w-full max-w-sm bg-white z-[70] shadow-2xl p-8 overflow-y-auto lg:hidden"
+            >
+              <div className="flex items-center justify-between mb-12">
+                <h2 className="text-2xl font-light font-serif">Filters</h2>
+                <button onClick={() => setIsFilterOpen(false)}><X className="w-6 h-6" /></button>
+              </div>
+              
+              <div className="space-y-12">
+                <div>
+                  <h3 className="text-xs uppercase tracking-widest text-neutral-400 mb-6 font-semibold">Collections</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {displayCollections.map(col => (
+                      <button
+                        key={col.id}
+                        onClick={() => handleCollectionChange(col.id)}
+                        className={`px-4 py-2 rounded-full text-xs transition-all ${
+                          activeCollection === col.id ? "bg-neutral-900 text-white" : "bg-neutral-50 text-neutral-500"
+                        }`}
+                      >
+                        {col.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xs uppercase tracking-widest text-neutral-400 mb-6 font-semibold">Categories</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {allCategories.map(cat => (
+                      <label key={cat} className="flex items-center gap-3 cursor-pointer">
+                        <input 
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat)}
+                          onChange={() => toggleCategory(cat)}
+                          className="w-4 h-4 accent-neutral-900"
+                        />
+                        <span className="text-sm text-neutral-600">{cat}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Rating & Price */}
+                <div className="pt-8 space-y-8 border-t border-neutral-100">
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span className="text-xs uppercase tracking-widest text-neutral-400 font-semibold">Price Limit</span>
+                      <span className="text-sm font-medium">${priceRange[1]}</span>
+                    </div>
+                    <input 
+                      type="range"
+                      min="0"
+                      max="200"
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
+                      className="w-full accent-neutral-900"
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setIsFilterOpen(false)}
+                  className="w-full py-5 bg-neutral-900 text-white uppercase tracking-widest text-xs font-bold rounded-xl"
+                >
+                  Apply & See Products
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -6,7 +6,6 @@ export const collections = [
 
 export const products = [
   // --- SKIN CARE ---
-  // Cleansers
   {
     id: 's1',
     collection: 'skin-care',
@@ -14,6 +13,7 @@ export const products = [
     name: 'Pearl Essence Cleanser',
     shortDesc: 'Purifying & Illuminating',
     price: 65,
+    rating: 4.8,
     image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=800&auto=format&fit=crop',
   },
   {
@@ -23,9 +23,9 @@ export const products = [
     name: 'Botanical Foam',
     shortDesc: 'Gentle Daily Wash',
     price: 45,
+    rating: 4.5,
     image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=800&auto=format&fit=crop',
   },
-  // Serums
   {
     id: 's3',
     collection: 'skin-care',
@@ -33,6 +33,7 @@ export const products = [
     name: 'Luminous Glow Serum',
     shortDesc: 'Vitamin C & Hyaluronic',
     price: 120,
+    rating: 4.9,
     image: 'https://images.unsplash.com/photo-1629198688000-71f23e745b6e?q=80&w=800&auto=format&fit=crop',
   },
   {
@@ -42,9 +43,9 @@ export const products = [
     name: 'Midnight Renewal',
     shortDesc: 'Nighttime Restoration',
     price: 135,
+    rating: 4.7,
     image: 'https://images.unsplash.com/photo-1615397323136-230eb19ad4ef?q=80&w=800&auto=format&fit=crop',
   },
-  // Moisturizers
   {
     id: 's5',
     collection: 'skin-care',
@@ -52,11 +53,21 @@ export const products = [
     name: 'Silk Barrier Cream',
     shortDesc: 'Deep Hydration',
     price: 95,
+    rating: 4.6,
     image: 'https://images.unsplash.com/photo-1556228720-192b9b5f9095?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    id: 's6',
+    collection: 'skin-care',
+    category: 'Moisturizers',
+    name: 'Velvety Night Balm',
+    shortDesc: 'Rich Nourishing Repair',
+    price: 110,
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1611080541599-8c6dbde6ed28?q=80&w=800&auto=format&fit=crop',
   },
 
   // --- HAIR CARE ---
-  // Shampoos
   {
     id: 'h1',
     collection: 'hair-care',
@@ -64,9 +75,9 @@ export const products = [
     name: 'Oud Wood Shampoo',
     shortDesc: 'Fortifying Wash',
     price: 55,
+    rating: 4.4,
     image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?q=80&w=800&auto=format&fit=crop',
   },
-  // Conditioners
   {
     id: 'h2',
     collection: 'hair-care',
@@ -74,9 +85,9 @@ export const products = [
     name: 'Cashmere Conditioner',
     shortDesc: 'Weightless Moisture',
     price: 60,
+    rating: 4.7,
     image: 'https://images.unsplash.com/photo-1599305090598-fe179d501227?q=80&w=800&auto=format&fit=crop',
   },
-  // Treatments
   {
     id: 'h3',
     collection: 'hair-care',
@@ -84,11 +95,21 @@ export const products = [
     name: 'Argan Scalp Elixir',
     shortDesc: 'Nourish & Restore',
     price: 85,
+    rating: 4.9,
     image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    id: 'h4',
+    collection: 'hair-care',
+    category: 'Treatments',
+    name: 'Silk Mask',
+    shortDesc: 'Deep Conditioning',
+    price: 75,
+    rating: 4.5,
+    image: 'https://images.unsplash.com/photo-1527799822340-304cf662a3bb?q=80&w=800&auto=format&fit=crop',
   },
 
   // --- BODY CARE ---
-  // Scrubs
   {
     id: 'b1',
     collection: 'body-care',
@@ -96,9 +117,9 @@ export const products = [
     name: 'Crushed Amber Scrub',
     shortDesc: 'Resurfacing Polish',
     price: 75,
+    rating: 4.6,
     image: 'https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=800&auto=format&fit=crop',
   },
-  // Oils
   {
     id: 'b2',
     collection: 'body-care',
@@ -106,9 +127,9 @@ export const products = [
     name: 'Golden Hour Body Oil',
     shortDesc: 'Radiant Finish',
     price: 90,
+    rating: 4.8,
     image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bb22d9c?q=80&w=800&auto=format&fit=crop',
   },
-  // Lotions
   {
     id: 'b3',
     collection: 'body-care',
@@ -116,6 +137,17 @@ export const products = [
     name: 'Whipped Shea Butter',
     shortDesc: 'Intense Moisture',
     price: 65,
+    rating: 4.7,
     image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    id: 'b4',
+    collection: 'body-care',
+    category: 'Exfoliants',
+    name: 'Rose Sand Polish',
+    shortDesc: 'Silky Skin Surface',
+    price: 45,
+    rating: 4.3,
+    image: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=800&auto=format&fit=crop',
   },
 ];

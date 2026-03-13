@@ -20,8 +20,8 @@ const CinematicSequence = () => {
           style={{ scale: scaleImage }}
         >
           <img
-            src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?q=80&w=2000&auto=format&fit=crop"
-            alt="Pearl cream"
+            src="/hero-img.png"
+            alt="Cinematic sanctuary"
             className="absolute inset-0 w-full h-full object-cover"
           />
 
