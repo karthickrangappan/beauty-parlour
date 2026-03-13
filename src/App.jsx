@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
 import Cart from './pages/Cart';
 import ProductDetails from './pages/ProductDetails';
+import OurStory from './pages/OurStory';
 
 function App() {
 
@@ -30,6 +31,12 @@ function App() {
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/our-story" element={<OurStory />} />
+            {/* Fallback route */}
+            <Route path="*" element={<Home />} />
             {/* Additional routes will be added here as we expand */}
           </Routes>
         </main>
