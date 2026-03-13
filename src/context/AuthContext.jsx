@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
 
 const AuthContext = createContext();
 
@@ -19,14 +20,37 @@ export const AuthProvider = ({ children }) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setUser({
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName,
-                });
-                setIsAuthenticated(true);
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                try {
+                    const userDocRef = doc(db, 'users', firebaseUser.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        setUser({
+                            uid: firebaseUser.uid,
+                            email: firebaseUser.email,
+                            displayName: firebaseUser.displayName || userData.name,
+                            role: userData.role || 'customer',
+                            loyaltyPoints: userData.loyaltyPoints || 0,
+                            wishlist: userData.wishlist || []
+                        });
+                    } else {
+                        setUser({
+                            uid: firebaseUser.uid,
+                            email: firebaseUser.email,
+                            displayName: firebaseUser.displayName,
+                            role: 'customer',
+                            loyaltyPoints: 0,
+                            wishlist: []
+                        });
+                    }
+                    setIsAuthenticated(true);
+                } catch (err) {
+                    console.error("Error fetching user document:", err);
+                    setError("Failed to fetch user data.");
+                }
             } else {
                 setUser(null);
                 setIsAuthenticated(false);

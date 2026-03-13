@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../../lib/firebase';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -31,10 +32,22 @@ const Register = () => {
         displayName: `${formData.firstName} ${formData.lastName}`
       });
 
+      // Write default values to firestore
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        role: 'customer',
+        loyaltyPoints: 0,
+        wishlist: []
+      });
+
       setUser({
         uid: userCredential.user.uid,
         email: userCredential.user.email,
         displayName: `${formData.firstName} ${formData.lastName}`,
+        role: 'customer',
+        loyaltyPoints: 0,
+        wishlist: []
       });
       
       navigate('/profile');

@@ -13,7 +13,6 @@ import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
 import Cart from './pages/Cart';
 import ProductDetails from './pages/ProductDetails';
-import OurStory from './pages/OurStory';
 
 function App() {
 
@@ -23,17 +22,14 @@ function App() {
         <Navbar />
         <main className="flex-1 w-full flex flex-col bg-cream-50">
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/services" element={<Services />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/cart" element={<Cart />} />
             <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/about" element={<OurStory />} />
             {/* Additional routes will be added here as we expand */}
           </Routes>
         </main>

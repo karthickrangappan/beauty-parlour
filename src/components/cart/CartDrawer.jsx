@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { loadRazorpay } from '../../utils/loadRazorpay';
 
 const CartDrawer = () => {
-  const { isDrawerOpen, items, totalAmount, toggleCartDrawer, removeItemFromCart, updateQuantity, clearCart } = useCart();
+  const { isDrawerOpen, items, subtotal, totalAmount, toggleCartDrawer, removeItemFromCart, updateQuantity, clearCart } = useCart();
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -159,7 +159,7 @@ const CartDrawer = () => {
                 <div className="flex items-center justify-between text-neutral-800">
                   <span className="text-sm uppercase tracking-widest">Subtotal</span>
                   <span className="text-xl font-light" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-                    ${totalAmount.toFixed(2)}
+                    ${subtotal?.toFixed(2) || '0.00'}
                   </span>
                 </div>
                 <p className="text-xs text-neutral-500 font-light">

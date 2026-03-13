@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -7,10 +7,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { loadRazorpay } from '../utils/loadRazorpay';
 
 const Cart = () => {
-    const { items, totalAmount, removeItemFromCart, updateQuantity, clearCart } = useCart();
+    const { items, subtotal, gst, delivery, totalAmount, removeItemFromCart, updateQuantity, clearCart } = useCart();
     const { user } = useAuth();
     const [isProcessing, setIsProcessing] = useState(false);
     const navigate = useNavigate();
+
+    // Redirect guest users
+    useEffect(() => {
+        if (!user) {
+            navigate('/auth/login');
+        }
+    }, [user, navigate]);
 
     const handleCheckout = async () => {
         setIsProcessing(true);
@@ -166,21 +173,25 @@ const Cart = () => {
                             <div className="space-y-6">
                                 <div className="flex justify-between text-neutral-500 text-sm italic font-serif">
                                     <span>Subtotal</span>
-                                    <span>${totalAmount.toFixed(2)}</span>
+                                    <span>${subtotal?.toFixed(2) || '0.00'}</span>
                                 </div>
                                 <div className="flex justify-between text-neutral-500 text-sm italic font-serif">
                                     <span>Shipping</span>
-                                    <span className="text-gold-500 uppercase tracking-widest text-[10px]">Complimentary</span>
+                                    {delivery === 0 ? (
+                                        <span className="text-gold-500 uppercase tracking-widest text-[10px]">Complimentary</span>
+                                    ) : (
+                                        <span>${delivery?.toFixed(2)}</span>
+                                    )}
                                 </div>
                                 <div className="flex justify-between text-neutral-500 text-sm italic font-serif border-b border-gold-300/20 pb-6">
-                                    <span>Estimated Tax</span>
-                                    <span>$0.00</span>
+                                    <span>Estimated Tax (5% GST)</span>
+                                    <span>${gst?.toFixed(2) || '0.00'}</span>
                                 </div>
                                 
                                 <div className="flex justify-between items-end pt-2">
                                     <span className="text-sm uppercase tracking-widest text-neutral-800 font-medium">Total</span>
                                     <span className="text-3xl text-neutral-800 font-light" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-                                        ${totalAmount.toFixed(2)}
+                                        ${totalAmount?.toFixed(2) || '0.00'}
                                     </span>
                                 </div>
 
