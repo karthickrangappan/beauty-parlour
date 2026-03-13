@@ -7,7 +7,7 @@ const homeData = {
     titleLine1: "Awaken your",
     titleItalic: "purest essence",
     description: "Step into a sun-drenched sanctuary of calm where pearl and silk meet flawless precision.",
-    backgroundImage: "/hero-img.png",
+    backgroundImage: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=2000&auto=format&fit=crop",
     scrollText: "Scroll to explore"
   },
   sanctuary: {
@@ -30,10 +30,10 @@ const CinematicSequence = () => {
   return (
     <div className="relative bg-gradient-to-b from-cream-50 via-white to-cream-100 w-full min-h-screen overflow-hidden">
 
-      {/* ---------- SCENE 1 ---------- */}
+
       <div className="relative h-screen w-full flex items-center justify-center overflow-hidden">
 
-        {/* Background Image */}
+
         <motion.div
           className="absolute inset-0"
           style={{ scale: scaleImage }}
@@ -44,15 +44,15 @@ const CinematicSequence = () => {
             className="absolute inset-0 w-full h-full object-cover"
           />
 
-          {/* cinematic color grading */}
+
           <div className="absolute inset-0 bg-gradient-to-tr from-blush-200/40 via-transparent to-gold-300/30 mix-blend-overlay" />
 
-          {/* vignette */}
+
           <div className="absolute inset-0 bg-black/20" />
         </motion.div>
 
 
-        {/* Floating particles */}
+
         <div className="absolute inset-0 pointer-events-none">
           {[...Array(14)].map((_, i) => (
             <motion.div
@@ -80,7 +80,7 @@ const CinematicSequence = () => {
         </div>
 
 
-        {/* Main Text */}
+
         <motion.div
           className="relative z-20 text-center px-6 max-w-4xl"
           style={{ opacity: opacityText, y: yText }}
@@ -117,7 +117,7 @@ const CinematicSequence = () => {
             {homeData.hero.description}
           </motion.p>
 
-          {/* Scroll indicator */}
+
           <motion.div
             className="mt-16 flex flex-col items-center"
             initial={{ opacity: 0 }}
@@ -138,7 +138,7 @@ const CinematicSequence = () => {
       </div>
 
 
-      {/* ---------- SCENE 2 ---------- */}
+
       <div className="relative py-32 md:py-48 px-6 md:px-12 max-w-7xl mx-auto">
 
         <motion.div
@@ -149,7 +149,7 @@ const CinematicSequence = () => {
           transition={{ duration: 1.2 }}
         >
 
-          {/* Image */}
+
           <div className="relative aspect-[4/5] overflow-hidden rounded-t-full shadow-2xl group">
 
             <motion.img
@@ -158,13 +158,13 @@ const CinematicSequence = () => {
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out group-hover:scale-110"
             />
 
-            {/* gold glow */}
+
             <div className="absolute inset-0 bg-gradient-to-tr from-gold-200/20 to-transparent mix-blend-overlay" />
 
           </div>
 
 
-          {/* Text */}
+
           <div className="space-y-8">
 
             <h3 className="uppercase tracking-[0.3em] text-sm text-gold-500">
@@ -196,7 +196,7 @@ const CinematicSequence = () => {
       </div>
 
 
-      {/* Ambient bottom glow */}
+
       <motion.div
         className="fixed bottom-0 left-0 right-0 h-64 pointer-events-none mix-blend-multiply"
         style={{

@@ -22,7 +22,7 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Is it the home page? We want transparent navbar on home page top.
+
   const isHome = location.pathname === '/';
   const navBackground = isScrolled || !isHome ? 'bg-cream-50/90 backdrop-blur-md shadow-sm border-b border-gold-300/20' : 'bg-transparent';
   const textColor = isScrolled || !isHome ? 'text-neutral-800' : 'text-neutral-800 md:text-white';
@@ -44,7 +44,7 @@ const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto px-6 h-20 md:h-24 flex items-center justify-between">
           
-          {/* Mobile Menu Toggle */}
+
           <button 
             className={`md:hidden p-2 -ml-2 ${textColor}`}
             onClick={() => setIsMobileMenuOpen(true)}
@@ -52,7 +52,7 @@ const Navbar = () => {
             <Menu className="w-6 h-6 stroke-[1.5]" />
           </button>
 
-          {/* Navigation Links - Left (Desktop only) */}
+
           <div className="hidden md:flex flex-1 items-center gap-8">
             {navLinks.slice(0, 2).map((link) => (
               <Link 
@@ -65,7 +65,7 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Logo - Center */}
+
           <div className="flex-1 md:flex-none flex justify-center">
             <Link to="/" className="text-2xl md:text-3xl tracking-widest uppercase font-light text-center">
               <span className={`block transition-colors duration-500 ${isScrolled || !isHome ? 'text-gold-500' : 'text-gold-300'}`} style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
@@ -74,7 +74,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Navigation Links & Icons - Right */}
+
           <div className="flex-1 flex items-center justify-end gap-6 md:gap-8">
             <div className="hidden md:flex items-center gap-8">
               {navLinks.slice(2, 4).map((link) => (
@@ -116,7 +116,7 @@ const Navbar = () => {
         </div>
       </motion.nav>
 
-      {/* Mobile Menu Overlay */}
+
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div

@@ -5,13 +5,13 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return (
     <footer className="bg-neutral-900 pt-24 pb-12 relative overflow-hidden">
-      {/* Decorative Gold Elements */}
+
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gold-500/50 to-transparent" />
       <div className="absolute top-0 right-1/4 w-px h-32 bg-gradient-to-b from-gold-500/50 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8">
         
-        {/* Brand Section */}
+
         <div className="col-span-1 md:col-span-4 space-y-6">
           <Link to="/" className="text-3xl text-gold-300 tracking-widest uppercase font-light inline-block" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
             Lumière
@@ -33,7 +33,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Links: Explore */}
+
         <div className="col-span-1 md:col-span-2 md:col-start-7 space-y-6 flex flex-col">
           <h4 className="text-white text-xs uppercase tracking-[0.2em] font-medium">Explore</h4>
           <Link to="/shop" className="text-neutral-400 hover:text-gold-300 transition-colors font-light">The Collection</Link>
@@ -42,7 +42,7 @@ const Footer = () => {
           <Link to="/appointments" className="text-neutral-400 hover:text-gold-300 transition-colors font-light">Appointments</Link>
         </div>
 
-        {/* Links: Client Care */}
+
         <div className="col-span-1 md:col-span-2 space-y-6 flex flex-col">
           <h4 className="text-white text-xs uppercase tracking-[0.2em] font-medium">Client Care</h4>
           <Link to="/faq" className="text-neutral-400 hover:text-gold-300 transition-colors font-light">FAQ</Link>
@@ -50,7 +50,7 @@ const Footer = () => {
           <Link to="/contact" className="text-neutral-400 hover:text-gold-300 transition-colors font-light">Contact</Link>
         </div>
 
-        {/* Newsletter */}
+
         <div className="col-span-1 md:col-span-2 space-y-6">
           <h4 className="text-white text-xs uppercase tracking-[0.2em] font-medium">The Newsletter</h4>
           <p className="text-neutral-400 text-sm font-light">
@@ -73,7 +73,7 @@ const Footer = () => {
         
       </div>
 
-      {/* Footer Bottom */}
+
       <div className="max-w-7xl mx-auto px-6 mt-24 pt-8 border-t border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-neutral-500 text-xs font-light">
           © {new Date().getFullYear()} Lumière. All rights reserved.

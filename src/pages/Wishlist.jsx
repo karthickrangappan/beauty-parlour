@@ -23,7 +23,6 @@ const Wishlist = () => {
     <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-100 pt-32 pb-28">
       <div className="max-w-7xl mx-auto px-6">
 
-        {/* Header */}
         <div className="text-center mb-20">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -43,7 +42,7 @@ const Wishlist = () => {
           </motion.div>
         </div>
 
-        {/* Empty Wishlist */}
+        
         {wishlistItems.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -85,7 +84,7 @@ const Wishlist = () => {
                   className="group cursor-pointer transition-all duration-500 hover:-translate-y-2"
                 >
 
-                  {/* Product Card */}
+                  
                   <div className="aspect-[4/5] bg-white overflow-hidden relative mb-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200">
 
                     <img
@@ -94,7 +93,7 @@ const Wishlist = () => {
                       className="w-full h-full object-cover transform duration-[2.5s] ease-out group-hover:scale-110"
                     />
 
-                    {/* Remove from wishlist */}
+                    
                     <button
                       onClick={() => removeFromWishlist(product.id)}
                       className="absolute top-4 right-4 z-30 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition"
@@ -102,7 +101,7 @@ const Wishlist = () => {
                       <Trash2 className="w-4 h-4 text-neutral-500 hover:text-red-500" />
                     </button>
 
-                    {/* Move to Cart Overlay */}
+                    
                     <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20 border-t border-neutral-200">
                       <button
                         onClick={() => handleMoveToCart(product)}
@@ -114,7 +113,7 @@ const Wishlist = () => {
                     </div>
                   </div>
 
-                  {/* Product Info */}
+                  
                   <div className="text-center space-y-2">
 
                     <h3 className="text-neutral-900 uppercase tracking-[0.25em] text-sm font-medium">

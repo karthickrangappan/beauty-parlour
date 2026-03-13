@@ -12,7 +12,7 @@ const Cart = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const navigate = useNavigate();
 
-    // Redirect guest users
+
     useEffect(() => {
         if (!user) {
             navigate('/auth/login');
@@ -64,7 +64,7 @@ const Cart = () => {
     return (
         <div className="min-h-screen bg-cream-50 pt-32 pb-24">
             <div className="max-w-7xl mx-auto px-6">
-                {/* Header */}
+                
                 <div className="text-center mb-16">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -102,7 +102,7 @@ const Cart = () => {
                     </motion.div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-start">
-                        {/* Cart Items List */}
+                        
                         <div className="lg:col-span-2 space-y-8">
                             <div className="hidden md:grid grid-cols-4 pb-6 border-b border-gold-300/20 text-xs uppercase tracking-widest text-neutral-400">
                                 <div className="col-span-2">Product</div>
@@ -163,7 +163,7 @@ const Cart = () => {
                             </AnimatePresence>
                         </div>
 
-                        {/* Order Summary */}
+
                         <div className="bg-white p-10 shadow-xl shadow-gold-300/5 relative overflow-hidden border border-gold-300/10">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-blush-50/50 blur-3xl rounded-full pointer-events-none" />
                             <h2 className="text-2xl text-neutral-800 font-light mb-8 pb-4 border-b border-gold-300/20" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>

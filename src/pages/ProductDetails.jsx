@@ -47,7 +47,7 @@ const ProductDetails = () => {
   return (
     <div className="min-h-screen bg-white pb-24">
       
-      <div className="bg-cream-50 py-4 mt-20">
+      <div className="bg-cream-50 py-4 mt-25">
         <div className="max-w-7xl mx-auto px-6 flex items-center gap-2 text-[10px] uppercase tracking-widest text-neutral-400">
           <Link to="/" className="hover:text-neutral-900 transition font-medium">Home</Link>
           <ChevronRight className="w-3 h-3" />
@@ -66,7 +66,7 @@ const ProductDetails = () => {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <div className="aspect-[4/5] bg-neutral-50 rounded-3xl overflow-hidden border border-neutral-100 shadow-sm group">
+            <div className="aspect-[2/2] bg-neutral-50 rounded-3xl overflow-hidden border border-neutral-100 shadow-sm group">
               <img
                 src={product.image}
                 alt={product.name}
@@ -83,8 +83,8 @@ const ProductDetails = () => {
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-blush-50/50 blur-3xl rounded-full pointer-events-none" />
             
-            <div className="space-y-8 relative z-10">
-              <div className="space-y-4">
+            <div className="space-y-1 relative z-10">
+              <div className="space-y-1">
                 <div className="flex items-center gap-4">
                   <span className="px-3 py-1 bg-gold-50 text-gold-600 text-[10px] uppercase tracking-widest font-bold rounded-full border border-gold-200">
                     {product.collection.replace('-', ' ')}
@@ -107,7 +107,7 @@ const ProductDetails = () => {
               </div>
 
 
-              <div className="space-y-6 pt-6 border-t border-gold-300/10">
+              <div className="space-y-6 pt-3 border-t border-gold-300/10">
                 <div className="flex items-center gap-6">
                   <div className="flex items-center border border-neutral-200 rounded-full bg-neutral-50 p-1">
                     <button
@@ -148,7 +148,7 @@ const ProductDetails = () => {
               </div>
 
 
-              <div className="grid grid-cols-3 gap-4 py-8 border-y border-gold-300/10 mt-12">
+              <div className="grid grid-cols-3 gap-4 py-1 border-y border-gold-300/10 mt-12">
                 <div className="flex flex-col items-center text-center gap-2">
                   <div className="p-3 bg-cream-100 rounded-2xl">
                     <ShieldCheck className="w-5 h-5 text-neutral-600" />
@@ -173,7 +173,7 @@ const ProductDetails = () => {
         </div>
 
 
-        <div className="mt-28">
+        <div className="mt-8">
           <div className="flex gap-12 border-b border-neutral-100 mb-10">
             {["description", "how to use", "ingredients"].map(tab => (
               <button
@@ -215,7 +215,7 @@ const ProductDetails = () => {
 
 
         {relatedProducts.length > 0 && (
-          <div className="mt-32">
+          <div className="mt-8">
             <h2 className="text-3xl font-light mb-12" style={{ fontFamily: "ui-serif, Georgia, serif" }}>You May Also Like</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
               {relatedProducts.map((p, idx) => (

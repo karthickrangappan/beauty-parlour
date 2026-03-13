@@ -5,7 +5,6 @@ export const collections = [
 ];
 
 export const products = [
-  // --- SKIN CARE ---
   {
     id: 's1',
     collection: 'skin-care',
@@ -67,7 +66,6 @@ export const products = [
     image: 'https://images.unsplash.com/photo-1611080541599-8c6dbde6ed28?q=80&w=800&auto=format&fit=crop',
   },
 
-  // --- HAIR CARE ---
   {
     id: 'h1',
     collection: 'hair-care',
@@ -109,7 +107,6 @@ export const products = [
     image: 'https://images.unsplash.com/photo-1527799822340-304cf662a3bb?q=80&w=800&auto=format&fit=crop',
   },
 
-  // --- BODY CARE ---
   {
     id: 'b1',
     collection: 'body-care',

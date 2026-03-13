@@ -13,7 +13,7 @@ const AdminRoute = ({ children }) => {
     );
   }
 
-  // If there's no user, direct to Login. If not admin, direct to regular homepage.
+
   if (!user) {
     return <Navigate to="/auth/login" replace />;
   }

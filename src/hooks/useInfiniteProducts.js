@@ -29,18 +29,16 @@ export const useInfiniteProducts = (filters) => {
       let q = collection(db, 'products');
       let constraints = [where('isActive', '==', true)];
 
-      // Apply Collection
+
       if (filters.collectionId && filters.collectionId !== 'all') {
         constraints.push(where('collection', '==', filters.collectionId));
       }
 
-      // Apply Categories - Firestore allows 'in' up to 10 items
+
       if (filters.categories && filters.categories.length > 0) {
         constraints.push(where('category', 'in', filters.categories));
       }
 
-      // We cannot easily do both inequality filter on price AND another field locally
-      // We will do it locally due to Firestore constraints.
 
       let firestoreQuery = query(q, ...constraints, limit(12));
 
@@ -51,7 +49,7 @@ export const useInfiniteProducts = (filters) => {
       const snapshot = await getDocs(firestoreQuery);
       let fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-      // Local Filter for Price & Rating (to avoid composite index issues)
+
       if (filters.priceRange) {
         fetchedDocs = fetchedDocs.filter(p => p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]);
       }
@@ -59,7 +57,7 @@ export const useInfiniteProducts = (filters) => {
         fetchedDocs = fetchedDocs.filter(p => p.rating >= filters.minRating);
       }
 
-      // Local Filter for Search
+
       if (debouncedSearch) {
         const lowerSearch = debouncedSearch.toLowerCase();
         fetchedDocs = fetchedDocs.filter(p => 
@@ -70,7 +68,7 @@ export const useInfiniteProducts = (filters) => {
 
       lastDocRef.current = snapshot.docs[snapshot.docs.length - 1];
       
-      // If fewer than 12 docs returned from Firebase, hasMore is false
+
       setHasMore(snapshot.docs.length === 12);
       
       setProducts(prev => isNextPage ? [...prev, ...fetchedDocs] : fetchedDocs);
@@ -82,7 +80,6 @@ export const useInfiniteProducts = (filters) => {
     }
   }, [
     filters.collectionId, 
-    // Need to primitive stringify categories array:
     filters.categories?.join(','), 
     filters.priceRange?.[0], 
     filters.priceRange?.[1], 
@@ -91,7 +88,7 @@ export const useInfiniteProducts = (filters) => {
   ]);
 
   useEffect(() => {
-    // Reset products and fetch first page on filter change
+
     lastDocRef.current = null;
     fetchProducts(false);
   }, [fetchProducts]);
