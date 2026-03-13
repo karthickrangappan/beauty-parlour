@@ -28,7 +28,6 @@ const Profile = () => {
     <div className="min-h-screen bg-cream-50 pt-32 pb-24">
       <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
         
-        {/* Sidebar Menu */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -59,7 +58,6 @@ const Profile = () => {
           </button>
         </motion.div>
 
-        {/* Main Content Area */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

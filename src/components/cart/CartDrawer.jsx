@@ -13,7 +13,7 @@ const CartDrawer = () => {
   const handleCheckout = async () => {
     setIsProcessing(true);
     
-    // 1. Load Razorpay script dynamically
+    
     const res = await loadRazorpay();
     if (!res) {
       alert("Razorpay SDK failed to load. Are you online?");
@@ -21,18 +21,18 @@ const CartDrawer = () => {
       return;
     }
 
-    // 2. Options for Razorpay (In a real app, order_id is generated securely on the backend)
+    
     const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY || "rzp_test_MockKeyForDevelopment", // Enter the Key ID generated from the Dashboard
-      amount: Math.round(totalAmount * 100), // Amount is in currency subunits (paise for INR). Ensure it's an integer.
+      key: import.meta.env.VITE_RAZORPAY_KEY || "rzp_test_MockKeyForDevelopment", 
+      amount: Math.round(totalAmount * 100), 
       currency: "usd",
       name: "Lumière Spa & Salon",
       description: "Luxury Collection Checkout",
       image: "https://your-logo-url.com/logo.png",
       handler: function (response) {
-        // This fires after a successful payment
+        
         console.log("Payment Successful!", response);
-        // Dispatch success actions
+        
         clearCart();
         toggleCartDrawer();
         alert("Payment Successful! Your order has been placed.");
@@ -43,11 +43,11 @@ const CartDrawer = () => {
         contact: "9999999999",
       },
       theme: {
-        color: "#D4AF37", // Matching our Gold-500 luxury accent
+        color: "#D4AF37", 
       },
     };
 
-    // 3. Mount and open the checkout modal
+    
     const paymentObject = new window.Razorpay(options);
     paymentObject.on("payment.failed", function (response) {
       console.error("Payment Failed!", response.error);
@@ -62,7 +62,7 @@ const CartDrawer = () => {
     <AnimatePresence>
       {isDrawerOpen && (
         <>
-          {/* Backdrop Overlay */}
+          
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -71,7 +71,7 @@ const CartDrawer = () => {
             className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50"
           />
 
-          {/* Side Drawer */}
+          
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -79,7 +79,7 @@ const CartDrawer = () => {
             transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
             className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-cream-50 z-50 shadow-2xl flex flex-col"
           >
-            {/* Header */}
+            
             <div className="flex items-center justify-between p-6 border-b border-gold-300/30 bg-white">
               <div className="flex items-center gap-3">
                 <ShoppingBag className="w-5 h-5 text-neutral-800" />
@@ -95,7 +95,7 @@ const CartDrawer = () => {
               </button>
             </div>
 
-            {/* Cart Items */}
+            
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-70">
@@ -153,7 +153,7 @@ const CartDrawer = () => {
               )}
             </div>
 
-            {/* Footer / Checkout */}
+            
             {items.length > 0 && (
               <div className="p-6 border-t border-gold-300/30 bg-white space-y-4">
                 <div className="flex items-center justify-between text-neutral-800">

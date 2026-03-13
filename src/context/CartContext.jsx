@@ -25,11 +25,11 @@ export const CartProvider = ({ children }) => {
         totalItems: 0,
     });
     
-    // Hardcoded for now, assuming no coupon system integrated yet
+    
     const couponDiscount = 0;
     const loyaltyDiscount = 0;
 
-    // Real-time Firestore sync listener
+    
     useEffect(() => {
         if (!user) {
             setItems([]);
@@ -48,13 +48,13 @@ export const CartProvider = ({ children }) => {
         return () => unsubscribe();
     }, [user]);
 
-    // UI calculation updates
+    
     useEffect(() => {
         const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const count = items.reduce((sum, item) => sum + item.quantity, 0);
         
         const taxableAmount = Math.max(0, subtotal - couponDiscount);
-        const gst = taxableAmount * 0.05; // 5% GST for beauty products
+        const gst = taxableAmount * 0.05; 
         const delivery = subtotal > 0 && subtotal < 500 ? 49 : 0;
         const totalAmount = subtotal > 0 ? subtotal - couponDiscount - loyaltyDiscount + gst + delivery : 0;
 
@@ -89,7 +89,7 @@ export const CartProvider = ({ children }) => {
             let nextItems;
             const existingItem = prevItems.find(item => item.id === newItem.id);
             if (existingItem) {
-                // Ensure max quantity doesn't exceed stock if stock is provided
+                
                 nextItems = prevItems.map(item => {
                     if (item.id === newItem.id) {
                         const nextObj = { ...item, quantity: item.quantity + (newItem.quantity || 1) };

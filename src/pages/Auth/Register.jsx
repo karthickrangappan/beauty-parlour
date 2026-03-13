@@ -27,12 +27,12 @@ const Register = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       
-      // Update their display name
+      
       await updateProfile(userCredential.user, {
         displayName: `${formData.firstName} ${formData.lastName}`
       });
 
-      // Write default values to firestore
+      
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
@@ -58,7 +58,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-cream-50 flex">
-      {/* Left side Image - Hidden on mobile */}
+      
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gold-400/10 mix-blend-overlay z-10" />
         <img 
@@ -69,7 +69,7 @@ const Register = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-cream-50/90 z-20" />
       </div>
 
-      {/* Right side form */}
+      
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 relative">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}

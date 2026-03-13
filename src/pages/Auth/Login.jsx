@@ -8,7 +8,7 @@ import { auth, db } from '../../lib/firebase';
 import { Mail, Phone, Lock, KeyRound } from 'lucide-react';
 
 const Login = () => {
-  const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'phone'
+  const [loginMethod, setLoginMethod] = useState('email'); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -19,13 +19,13 @@ const Login = () => {
   const { setUser, setLoading, setError, loading, error } = useAuth();
   const navigate = useNavigate();
 
-  // Initialize reCAPTCHA on load
-  useEffect(() => {
+    
+    useEffect(() => {
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
         callback: (response) => {
-          // reCAPTCHA solved
+          
         }
       });
     }
@@ -113,7 +113,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-cream-50 flex">
-      {/* Left side Image - Hidden on mobile */}
+      
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gold-400/10 mix-blend-overlay z-10" />
         <img 
@@ -124,7 +124,7 @@ const Login = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-cream-50/90 z-20" />
       </div>
 
-      {/* Right side form */}
+      
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 relative">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
@@ -143,7 +143,7 @@ const Login = () => {
 
           <div id="recaptcha-container"></div>
 
-          {/* Toggle Login Methods */}
+          
           <div className="flex bg-cream-50 rounded-sm mb-6 p-1">
             <button
               onClick={() => setLoginMethod('email')}

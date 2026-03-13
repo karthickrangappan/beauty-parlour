@@ -55,7 +55,6 @@ const storyData = {
 const OurStory = () => {
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
         <motion.div
           initial={{ scale: 1.1, opacity: 0 }}
@@ -92,7 +91,6 @@ const OurStory = () => {
         </div>
       </section>
 
-      {/* Philosophy Section */}
       <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
           <motion.div
@@ -130,13 +128,11 @@ const OurStory = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            {/* Abstract decorative element */}
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-gold-200/20 rounded-full blur-3xl -z-10" />
           </motion.div>
         </div>
       </section>
 
-      {/* Values Section */}
       <section className="bg-cream-50 py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="text-center mb-20">
@@ -163,7 +159,6 @@ const OurStory = () => {
         </div>
       </section>
 
-      {/* Deep Story Section */}
       <section className="py-24 px-6 md:px-12 overflow-hidden">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
           <motion.div
@@ -206,7 +201,6 @@ const OurStory = () => {
         </div>
       </section>
 
-      {/* Call to Action */}
       <section className="py-24 bg-neutral-900 text-white text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

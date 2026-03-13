@@ -29,7 +29,6 @@ const Services = () => {
   return (
     <section className="min-h-screen bg-[#fdf8f3] pt-32 pb-28">
 
-      {/* HEADER */}
       <div className="max-w-4xl mx-auto text-center px-6 mb-24">
         <motion.div
           initial={{ opacity: 0, y: 40 }}

@@ -42,17 +42,17 @@ const ProductCard = ({ product, index }) => {
     >
       <Link to={`/product/${product.id}`}>
 
-        {/* Product Card */}
+
         <div className="aspect-[4/5] bg-white overflow-hidden relative mb-6 rounded-xl shadow-xl shadow-gold-300/5 hover:shadow-2xl hover:shadow-gold-300/10 transition-all duration-500 border border-gold-300/10 group-hover:border-gold-300/30">
 
-          {/* Product Image */}
+
           <img
             src={product.image}
             alt={product.name}
             className="w-full h-full object-cover transform duration-[2.5s] ease-out group-hover:scale-110"
           />
 
-          {/* Quick View (Eye) Button */}
+
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -65,7 +65,7 @@ const ProductCard = ({ product, index }) => {
             <Eye className="w-4 h-4 text-neutral-500" />
           </button>
 
-          {/* Wishlist Button */}
+
           <button
             onClick={handleWishlist}
             className="absolute top-4 right-4 z-30 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition opacity-0 group-hover:opacity-100 duration-300"
@@ -79,7 +79,7 @@ const ProductCard = ({ product, index }) => {
             />
           </button>
 
-          {/* Add to Cart Overlay */}
+
           <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20 border-t border-neutral-200">
             <button
               onClick={handleAddToCart}
@@ -92,7 +92,7 @@ const ProductCard = ({ product, index }) => {
 
         </div>
 
-        {/* Product Info */}
+
         <div className="text-center space-y-2">
 
           <h3 className="text-neutral-900 uppercase tracking-[0.25em] text-sm font-medium">
