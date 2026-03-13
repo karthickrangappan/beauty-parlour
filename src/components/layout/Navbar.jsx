@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, User, Search, Menu, X, Heart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -11,6 +12,7 @@ const Navbar = () => {
   const location = useLocation();
   const { totalItems } = useCart();
   const { wishlistItems } = useWishlist();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +31,7 @@ const Navbar = () => {
     { name: 'Shop', path: '/shop' },
     { name: 'Services', path: '/services' },
     { name: 'Appointments', path: '/appointments' },
-    { name: 'Our Story', path: '/about' }
+    { name: 'Our Story', path: '/our-story' }
   ];
 
   return (
@@ -98,7 +100,7 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
-              <Link to="/auth/login" className="hover:text-gold-500 transition-colors">
+              <Link to={user ? "/profile" : "/auth/login"} className="hover:text-gold-500 transition-colors">
                 <User className="w-5 h-5 stroke-[1.5]" />
               </Link>
               <Link to="/cart" className="hover:text-gold-500 transition-colors relative">
