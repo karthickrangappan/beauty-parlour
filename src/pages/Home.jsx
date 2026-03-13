@@ -1,0 +1,204 @@
+import React from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+
+const CinematicSequence = () => {
+  const { scrollYProgress } = useScroll();
+
+  const scaleImage = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
+  const opacityText = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const yText = useTransform(scrollYProgress, [0, 0.2], [0, 60]);
+
+  return (
+    <div className="relative bg-gradient-to-b from-cream-50 via-white to-cream-100 w-full min-h-screen overflow-hidden">
+
+      {/* ---------- SCENE 1 ---------- */}
+      <div className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+
+        {/* Background Image */}
+        <motion.div
+          className="absolute inset-0"
+          style={{ scale: scaleImage }}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?q=80&w=2000&auto=format&fit=crop"
+            alt="Pearl cream"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          {/* cinematic color grading */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-blush-200/40 via-transparent to-gold-300/30 mix-blend-overlay" />
+
+          {/* vignette */}
+          <div className="absolute inset-0 bg-black/20" />
+        </motion.div>
+
+
+        {/* Floating particles */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(14)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-white/70 blur-[2px]"
+              style={{
+                width: Math.random() * 6 + 2,
+                height: Math.random() * 6 + 2,
+                left: Math.random() * 100 + "%",
+                top: Math.random() * 100 + "%",
+              }}
+              animate={{
+                y: [0, -150],
+                x: [0, Math.random() * 40 - 20],
+                opacity: [0, 1, 0],
+              }}
+              transition={{
+                duration: Math.random() * 6 + 8,
+                repeat: Infinity,
+                ease: "linear",
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
+        </div>
+
+
+        {/* Main Text */}
+        <motion.div
+          className="relative z-20 text-center px-6 max-w-4xl"
+          style={{ opacity: opacityText, y: yText }}
+        >
+          <motion.h3
+            className="uppercase tracking-[0.35em] text-xs md:text-sm text-gold-500 mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 1 }}
+          >
+            The Art of Radiance
+          </motion.h3>
+
+          <motion.h1
+            className="text-5xl md:text-7xl lg:text-8xl text-neutral-900 font-light leading-[1.05]"
+            style={{ fontFamily: "ui-serif, Georgia, serif" }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 1.4 }}
+          >
+            Awaken your
+            <br />
+            <span className="italic text-neutral-600">
+              purest essence
+            </span>
+          </motion.h1>
+
+          <motion.p
+            className="mt-8 text-lg md:text-xl text-neutral-500 max-w-xl mx-auto leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4 }}
+          >
+            Step into a sun-drenched sanctuary of calm where pearl and silk
+            meet flawless precision.
+          </motion.p>
+
+          {/* Scroll indicator */}
+          <motion.div
+            className="mt-16 flex flex-col items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2 }}
+          >
+            <span className="text-xs uppercase tracking-widest text-neutral-400">
+              Scroll to explore
+            </span>
+
+            <motion.div
+              className="w-[1px] h-16 bg-gradient-to-b from-neutral-400 to-transparent mt-3"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </motion.div>
+        </motion.div>
+      </div>
+
+
+      {/* ---------- SCENE 2 ---------- */}
+      <div className="relative py-32 md:py-48 px-6 md:px-12 max-w-7xl mx-auto">
+
+        <motion.div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center"
+          initial={{ opacity: 0, y: 80 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.2 }}
+        >
+
+          {/* Image */}
+          <div className="relative aspect-[4/5] overflow-hidden rounded-t-full shadow-2xl group">
+
+            <motion.img
+              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2000&auto=format&fit=crop"
+              alt="Luxury spa"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out group-hover:scale-110"
+            />
+
+            {/* gold glow */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-gold-200/20 to-transparent mix-blend-overlay" />
+
+          </div>
+
+
+          {/* Text */}
+          <div className="space-y-8">
+
+            <h3 className="uppercase tracking-[0.3em] text-sm text-gold-500">
+              Our Sanctuary
+            </h3>
+
+            <h2
+              className="text-4xl md:text-5xl lg:text-6xl font-light text-neutral-900 leading-tight"
+              style={{ fontFamily: "ui-serif, Georgia, serif" }}
+            >
+              Bathed in
+              <br />
+              Golden Hour
+            </h2>
+
+            <p className="text-neutral-500 text-lg leading-relaxed max-w-lg">
+              Experience the profound calm of our meticulously designed spa.
+              Marble floors meet brushed gold accents, harmonizing with
+              natural light to create an atmosphere of serene luxury.
+            </p>
+
+            <motion.button
+              className="inline-flex items-center gap-4 text-sm uppercase tracking-[0.2em] text-neutral-900 border-b border-neutral-300 pb-2 hover:border-neutral-900 transition"
+              whileHover={{ x: 6 }}
+            >
+              Reserve a Moment →
+            </motion.button>
+
+          </div>
+        </motion.div>
+      </div>
+
+
+      {/* Ambient bottom glow */}
+      <motion.div
+        className="fixed bottom-0 left-0 right-0 h-64 pointer-events-none mix-blend-multiply"
+        style={{
+          background:
+            "radial-gradient(ellipse at bottom, rgba(255,210,210,0.5), transparent 70%)",
+        }}
+        animate={{
+          scale: [1, 1.1, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+    </div>
+  );
+};
+
+export default CinematicSequence;
