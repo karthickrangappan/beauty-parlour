@@ -30,7 +30,7 @@ const Navbar = () => {
 
   const isHome = location.pathname === '/';
   const navBackground = isScrolled || !isHome
-    ? 'bg-cream-50/95 backdrop-blur-md shadow-sm border-b border-gold-300/20'
+    ? 'bg-cream-50/95 backdrop-blur-md shadow-sm  border-gold-300/20'
     : 'bg-transparent';
   const textColor = isScrolled || !isHome ? 'text-neutral-800' : 'text-neutral-800 lg:text-white';
 
