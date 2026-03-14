@@ -140,7 +140,7 @@ export default function Checkout() {
 
   if (!cart || Object.keys(cart).length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-40 text-center animate-in fade-in duration-700">
+      <div className="max-w-7xl mx-auto px-6 bg-cream-50 py-40 text-center animate-in fade-in duration-700">
         <div className="w-32 h-32 bg-white/5 border border-white/5 rounded-[48px] flex items-center justify-center mx-auto mb-10 text-6xl shadow-inner animate-bounce opacity-30">
           🛒
         </div>
