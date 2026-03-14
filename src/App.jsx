@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
+import HeroTwo from './pages/HeroTwo';
 import Shop from './pages/Shop';
 import Services from './pages/Services';
 import Appointments from './pages/Appointments';
@@ -14,7 +15,8 @@ import Wishlist from './pages/Wishlist';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import ProductDetails from './pages/ProductDetails';
-
+import Hero from './pages/Hero';
+import About from './pages/About';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 import AdminDashboard from './pages/AdminDashboard';
@@ -29,12 +31,15 @@ function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
+            <Route path="/hero" element={<Hero />} />
+            <Route path="/herotwo" element={<HeroTwo />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/services" element={<Services />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/about" element={<About />} /> 
 
             {/* Protected User Routes */}
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

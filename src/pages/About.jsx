@@ -52,7 +52,7 @@ const storyData = {
   }
 };
 
-const OurStory = () => {
+const About = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* 1. Hero Section */}
@@ -263,4 +263,4 @@ const OurStory = () => {
   );
 };
 
-export default OurStory;
+export default About;
