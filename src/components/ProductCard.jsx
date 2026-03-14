@@ -2,17 +2,24 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, ShoppingBag, Eye } from "lucide-react";
-import { useCart } from "../../context/CartContext";
-import { useWishlist } from "../../context/WishlistContext";
+import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 
 const ProductCard = ({ product, index }) => {
   const { addItemToCart, toggleCartDrawer } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!user) {
+      navigate("/auth/login", { state: { from: `/product/${product.id}` } });
+      return;
+    }
 
     addItemToCart({
       ...product,
@@ -25,6 +32,11 @@ const ProductCard = ({ product, index }) => {
   const handleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!user) {
+      navigate("/auth/login", { state: { from: `/product/${product.id}` } });
+      return;
+    }
 
     isInWishlist(product.id)
       ? removeFromWishlist(product.id)
@@ -49,6 +61,7 @@ const ProductCard = ({ product, index }) => {
           <img
             src={product.image}
             alt={product.name}
+            onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }}
             className="w-full h-full object-cover transform duration-[2.5s] ease-out group-hover:scale-110"
           />
 
@@ -104,7 +117,7 @@ const ProductCard = ({ product, index }) => {
           </p>
 
           <p className="text-neutral-900 text-base font-medium mt-2">
-            ${product.price.toFixed(2)}
+            ${(product.price || 0).toFixed(2)}
           </p>
 
         </div>

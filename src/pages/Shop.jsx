@@ -3,242 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { collections } from "../data/products";
-import { Filter, Star, X, Search, Loader2 } from "lucide-react";
-import ProductCard from "../components/products/ProductCard";
-import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 
-const productsData = [
-  {
-    id: 's1',
-    collection: 'skin-care',
-    category: 'Cleansers',
-    name: 'Pearl Essence Cleanser',
-    shortDesc: 'Purifying & Illuminating',
-    price: 65,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's2',
-    collection: 'skin-care',
-    category: 'Cleansers',
-    name: 'Botanical Foam',
-    shortDesc: 'Gentle Daily Wash',
-    price: 45,
-    rating: 4.5,
-    image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's3',
-    collection: 'skin-care',
-    category: 'Serums',
-    name: 'Luminous Glow Serum',
-    shortDesc: 'Vitamin C & Hyaluronic',
-    price: 120,
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1629198688000-71f23e745b6e?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's4',
-    collection: 'skin-care',
-    category: 'Serums',
-    name: 'Midnight Renewal',
-    shortDesc: 'Nighttime Restoration',
-    price: 135,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1615397323136-230eb19ad4ef?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's5',
-    collection: 'skin-care',
-    category: 'Moisturizers',
-    name: 'Silk Barrier Cream',
-    shortDesc: 'Deep Hydration',
-    price: 95,
-    rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1556228720-192b9b5f9095?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's6',
-    collection: 'skin-care',
-    category: 'Moisturizers',
-    name: 'Velvety Night Balm',
-    shortDesc: 'Rich Nourishing Repair',
-    price: 110,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1611080541599-8c6dbde6ed28?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'h1',
-    collection: 'hair-care',
-    category: 'Cleansers',
-    name: 'Oud Wood Shampoo',
-    shortDesc: 'Fortifying Wash',
-    price: 55,
-    rating: 4.4,
-    image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'h2',
-    collection: 'hair-care',
-    category: 'Conditioners',
-    name: 'Cashmere Conditioner',
-    shortDesc: 'Weightless Moisture',
-    price: 60,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1599305090598-fe179d501227?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'h3',
-    collection: 'hair-care',
-    category: 'Treatments',
-    name: 'Argan Scalp Elixir',
-    shortDesc: 'Nourish & Restore',
-    price: 85,
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'h4',
-    collection: 'hair-care',
-    category: 'Treatments',
-    name: 'Silk Mask',
-    shortDesc: 'Deep Conditioning',
-    price: 75,
-    rating: 4.5,
-    image: 'https://images.unsplash.com/photo-1527799822340-304cf662a3bb?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'b1',
-    collection: 'body-care',
-    category: 'Exfoliants',
-    name: 'Crushed Amber Scrub',
-    shortDesc: 'Resurfacing Polish',
-    price: 75,
-    rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'b2',
-    collection: 'body-care',
-    category: 'Oils',
-    name: 'Golden Hour Body Oil',
-    shortDesc: 'Radiant Finish',
-    price: 90,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bb22d9c?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'b3',
-    collection: 'body-care',
-    category: 'Lotions',
-    name: 'Whipped Shea Butter',
-    shortDesc: 'Intense Moisture',
-    price: 65,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'b4',
-    collection: 'body-care',
-    category: 'Exfoliants',
-    name: 'Rose Sand Polish',
-    shortDesc: 'Silky Skin Surface',
-    price: 45,
-    rating: 4.3,
-    image: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's7',
-    collection: 'skin-care',
-    category: 'Treatments',
-    name: 'Clay Detox Mask',
-    shortDesc: 'Deep Pore Cleansing',
-    price: 55,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's8',
-    collection: 'skin-care',
-    category: 'Oils',
-    name: 'Vitamin E Lip Oil',
-    shortDesc: 'Nutrient Rich Shine',
-    price: 28,
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1625034714144-8da19084020a?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'h5',
-    collection: 'hair-care',
-    category: 'Treatments',
-    name: 'Biotin Hair Serum',
-    shortDesc: 'Growth & Strength',
-    price: 110,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1631730450584-1f651c178904?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'b5',
-    collection: 'body-care',
-    category: 'Oils',
-    name: 'Lavender Bath Salts',
-    shortDesc: 'Calming Mineral Soak',
-    price: 42,
-    rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1603517409249-14a938c3529b?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'b6',
-    collection: 'body-care',
-    category: 'Treatments',
-    name: 'Eucalyptus Shower Mist',
-    shortDesc: 'Spa-like Aroma',
-    price: 35,
-    rating: 4.5,
-    image: 'https://images.unsplash.com/photo-1616683693504-37860237b61e?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's9',
-    collection: 'skin-care',
-    category: 'Moisturizers',
-    name: 'Pearl Night Cream',
-    shortDesc: 'Overnight Radiance',
-    price: 85,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1596755094514-b8d985734631?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 's10',
-    collection: 'skin-care',
-    category: 'Exfoliants',
-    name: 'Gold Glow Peel',
-    shortDesc: 'Luxury Resurfacing',
-    price: 150,
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1601049541289-9b1b7bb22d9c?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'h6',
-    collection: 'hair-care',
-    category: 'Oils',
-    name: 'Marula Shine Oil',
-    shortDesc: 'Glossy Finish',
-    price: 65,
-    rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1626015383913-68f4458d924d?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'b7',
-    collection: 'body-care',
-    category: 'Lotions',
-    name: 'Velvet Body Milk',
-    shortDesc: 'Instant Absorption',
-    price: 58,
-    rating: 4.4,
-    image: 'https://images.unsplash.com/photo-1611080541599-8c6dbde6ed28?q=80&w=800&auto=format&fit=crop',
-  },
+import { Filter, Star, X, Search, Loader2 } from "lucide-react";
+import ProductCard from '../components/ProductCard';
+import { useInfiniteProducts } from "../utils/useInfiniteProducts";
+
+export const collections = [
+  { id: 'skin-care', name: 'Skin Care' },
+  { id: 'hair-care', name: 'Hair Care' },
+  { id: 'body-care', name: 'Body Care' },
 ];
 
 const Shop = () => {
@@ -249,31 +22,14 @@ const Shop = () => {
   const [searchText, setSearchText] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-
-  /*
+  // Fetch products dynamically from Firebase
   const { products: filteredProducts, loading, hasMore, loadMore } = useInfiniteProducts({
     collectionId: activeCollection,
     categories: selectedCategories,
     priceRange,
     minRating,
-    searchText
+    searchText,
   });
-  */
-
-  const filteredProducts = React.useMemo(() => {
-    return productsData.filter(p => {
-      if (activeCollection !== 'all' && p.collection !== activeCollection) return false;
-      if (selectedCategories.length > 0 && !selectedCategories.includes(p.category)) return false;
-      if (p.price < priceRange[0] || p.price > priceRange[1]) return false;
-      if (p.rating < minRating) return false;
-      if (searchText && !p.name.toLowerCase().includes(searchText.toLowerCase())) return false;
-      return true;
-    });
-  }, [activeCollection, selectedCategories, priceRange, minRating, searchText]);
-
-  const loading = false;
-  const hasMore = false;
-  const loadMore = () => {};
 
   const displayCollections = [
     { id: "all", name: "All Collections" },
@@ -302,7 +58,6 @@ const Shop = () => {
   const handleCollectionChange = (id) => {
     setActiveCollection(id);
   };
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -334,16 +89,43 @@ const Shop = () => {
               Curated elixirs designed to restore and perfect your natural radiance.
             </p>
 
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-neutral-400" />
+            <div className="relative max-w-md w-full bg-white rounded-full shadow-sm hover:shadow-md transition-shadow group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 group-hover:text-gold-500 transition-colors" />
               <input
                 type="text"
                 placeholder="Search elixirs, treatments..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                className="w-full bg-white border border-neutral-200 pl-10 pr-4 py-3 rounded-full text-sm focus:outline-none focus:border-gold-500 shadow-sm transition-all text-neutral-800"
+                className="w-full bg-transparent border border-neutral-200 pl-12 pr-12 py-3 rounded-full text-sm focus:outline-none focus:border-gold-500 transition-all text-neutral-800"
               />
+              <AnimatePresence>
+                {searchText && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    onClick={() => setSearchText("")}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-900 transition-colors bg-neutral-100 rounded-full p-1"
+                  >
+                    <X className="w-3 h-3" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
             </div>
+            
+            {/* Show results count if searching */}
+            <AnimatePresence>
+               {searchText && (
+                 <motion.p 
+                   initial={{ opacity: 0, y: -5 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   exit={{ opacity: 0, y: -5 }}
+                   className="mt-3 ml-4 text-[10px] uppercase tracking-widest text-gold-600 font-bold"
+                 >
+                   {loading ? "Searching..." : `Found results for "${searchText}"`}
+                 </motion.p>
+               )}
+            </AnimatePresence>
           </div>
 
           <button
@@ -375,7 +157,6 @@ const Shop = () => {
               </div>
             </div>
 
-
             <div>
               <h3 className="text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 font-semibold">Categories</h3>
               <div className="space-y-3">
@@ -396,7 +177,6 @@ const Shop = () => {
               </div>
             </div>
 
-
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xs uppercase tracking-[0.2em] text-neutral-400 font-semibold">Price Range</h3>
@@ -411,7 +191,6 @@ const Shop = () => {
                 className="w-full accent-neutral-900 h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
               />
             </div>
-
 
             <div>
               <h3 className="text-xs uppercase tracking-[0.2em] text-neutral-400 mb-6 font-semibold">Minimum Rating</h3>
@@ -453,7 +232,6 @@ const Shop = () => {
                 <button onClick={clearFilters} className="mt-4 text-xs text-gold-500 underline uppercase tracking-widest">Clear all</button>
               </div>
             )}
-
 
             {loading && (
               <div className="flex justify-center py-12">
@@ -531,7 +309,6 @@ const Shop = () => {
                     ))}
                   </div>
                 </div>
-
 
                 <div className="pt-8 space-y-8 border-t border-neutral-100">
                   <div className="space-y-4">

@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { db } from "../lib/firebase";
+import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, Timestamp } from "firebase/firestore";
-import { Star, Edit3, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { Star, Edit3, Send, CheckCircle, AlertCircle, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateNewAverage } from "../utils/logicUtils";
+import { useToaster } from "../context/ToastContext";
 
 const ProductReviews = ({ productId }) => {
     const { user } = useAuth();
     
+    const { toast } = useToaster();
+    
     const [reviews, setReviews] = useState([]);
     const [isEligible, setIsEligible] = useState(false);
     const [existingReview, setExistingReview] = useState(null);
+    const [stats, setStats] = useState({ avg: 0, count: 0 });
     
     // Form state
     const [rating, setRating] = useState(5);
@@ -31,9 +36,20 @@ const ProductReviews = ({ productId }) => {
             const q = query(collection(db, "reviews"), where("productId", "==", productId));
             const querySnapshot = await getDocs(q);
             const fetched = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            // sort by date descending
-            fetched.sort((a, b) => b.createdAt?.toDate() - a.createdAt?.toDate());
+            fetched.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
             setReviews(fetched);
+            
+            // Get stats from product doc
+            const pSnap = await getDocs(query(collection(db, "products"), where("id", "==", productId)));
+            if (!pSnap.empty) {
+                const data = pSnap.docs[0].data();
+                setStats({ avg: data.averageRating || 0, count: data.reviewCount || 0 });
+            } else {
+                // fallback to calculation if product doc doesn't have it
+                const count = fetched.length;
+                const avg = count > 0 ? fetched.reduce((a, b) => a + b.rating, 0) / count : 0;
+                setStats({ avg: parseFloat(avg.toFixed(1)), count });
+            }
         } catch (error) {
             console.error("Error fetching reviews", error);
         }
@@ -85,38 +101,97 @@ const ProductReviews = ({ productId }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isEligible && !existingReview) return;
+        if (comment.length < 10) {
+            toast("Description must be at least 10 characters.", "error");
+            return;
+        }
+
+        // Check 30 day window for edit
+        if (existingReview) {
+            const created = existingReview.createdAt?.toDate() || new Date();
+            const diff = (new Date() - created) / (1000 * 60 * 60 * 24);
+            if (diff > 30) {
+                toast("Editing is only allowed within 30 days of submission.", "error");
+                return;
+            }
+        }
         
         setIsSubmitting(true);
-        setSuccessMsg("");
-
         try {
-            const reviewData = {
-                productId,
-                userId: user.uid,
-                userName: user.displayName || "Anonymous",
-                rating,
-                comment,
-                updatedAt: Timestamp.now()
-            };
+            await runTransaction(db, async (transaction) => {
+                const productRef = doc(db, "products", productId);
+                const pSnap = await transaction.get(productRef);
+                const pData = pSnap.exists() ? pSnap.data() : { averageRating: 0, reviewCount: 0 };
+                
+                const mode = existingReview ? "edit" : "add";
+                const { nextAvg, nextCount } = calculateNewAverage(
+                    pData.averageRating, 
+                    pData.reviewCount, 
+                    rating, 
+                    existingReview?.rating, 
+                    mode
+                );
 
-            if (existingReview) {
-                // Edit
-                const ref = doc(db, "reviews", existingReview.id);
-                await updateDoc(ref, reviewData);
-                setSuccessMsg("Review updated gracefully. Rating will sync shortly.");
-            } else {
-                // Create
-                reviewData.createdAt = Timestamp.now();
-                await addDoc(collection(db, "reviews"), reviewData);
-                setSuccessMsg("Review published. Thank you for sharing your experience.");
-                setExistingReview(reviewData); // mark as existing now
-            }
-            
-            fetchReviews(); // refresh
+                // Update Product
+                transaction.update(productRef, {
+                    averageRating: nextAvg,
+                    reviewCount: nextCount
+                });
+
+                // Update/Create Review Doc
+                const revId = existingReview?.id || `${user.uid}_${productId}`;
+                const revRef = doc(db, "reviews", revId);
+                const reviewData = {
+                    productId,
+                    userId: user.uid,
+                    userName: user.displayName || "Anonymous",
+                    rating,
+                    comment,
+                    updatedAt: Timestamp.now(),
+                    ...(existingReview ? {} : { createdAt: Timestamp.now() })
+                };
+                transaction.set(revRef, reviewData, { merge: true });
+            });
+
+            toast(existingReview ? "Review updated." : "Experience published.", "success");
+            setSuccessMsg(existingReview ? "Review updated." : "Experience published.");
+            fetchReviews();
         } catch (error) {
-            console.error("Failed to submit review", error);
+            console.error("Review submission failed", error);
+            toast("Failed to save review.", "error");
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const deleteReview = async (review) => {
+        if (!window.confirm("Delete this experience?")) return;
+        try {
+            await runTransaction(db, async (transaction) => {
+                const productRef = doc(db, "products", productId);
+                const pSnap = await transaction.get(productRef);
+                const pData = pSnap.data();
+
+                const { nextAvg, nextCount } = calculateNewAverage(
+                    pData.averageRating, 
+                    pData.reviewCount, 
+                    null, 
+                    review.rating, 
+                    "delete"
+                );
+
+                transaction.update(productRef, {
+                    averageRating: nextAvg,
+                    reviewCount: nextCount
+                });
+
+                transaction.delete(doc(db, "reviews", review.id));
+            });
+            toast("Review removed.", "info");
+            setExistingReview(null);
+            fetchReviews();
+        } catch (error) {
+            toast("Deletion failed.", "error");
         }
     };
 
@@ -126,8 +201,8 @@ const ProductReviews = ({ productId }) => {
                 <h2 className="text-3xl font-light text-neutral-800" style={{ fontFamily: "ui-serif, Georgia, serif" }}>Client Experiences</h2>
                 <div className="flex items-center gap-2">
                     <Star className="w-5 h-5 fill-gold-500 text-gold-500" />
-                    <span className="text-xl font-medium">{reviews.length > 0 ? (reviews.reduce((a,b)=>a+b.rating,0)/reviews.length).toFixed(1) : "0.0"}</span>
-                    <span className="text-neutral-400 text-sm ml-2">({reviews.length} reviews)</span>
+                    <span className="text-xl font-medium">{stats.avg}</span>
+                    <span className="text-neutral-400 text-sm ml-2">({stats.count} reviews)</span>
                 </div>
             </div>
 
@@ -226,10 +301,20 @@ const ProductReviews = ({ productId }) => {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex gap-1">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-gold-500 text-gold-500' : 'text-neutral-200'}`} />
-                                            ))}
+                                        <div className="flex flex-col items-end gap-2">
+                                            <div className="flex gap-1">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-gold-500 text-gold-500' : 'text-neutral-200'}`} />
+                                                ))}
+                                            </div>
+                                            {user && user.uid === review.userId && (
+                                                <button 
+                                                    onClick={() => deleteReview(review)}
+                                                    className="text-[9px] text-red-400 uppercase tracking-widest hover:text-red-600 transition-colors flex items-center gap-1"
+                                                >
+                                                    <Trash2 size={10} /> Delete
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                     <p className="text-sm text-neutral-600 leading-relaxed font-light pl-14">

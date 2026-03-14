@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { collection, query, where, orderBy, limit, startAfter, getDocs } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db } from '../firebase';
 
 export function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);

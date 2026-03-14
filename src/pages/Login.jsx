@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../../lib/firebase';
+import { auth, db } from '../firebase';
 import { Mail, Phone, Lock, KeyRound } from 'lucide-react';
 
 const Login = () => {
@@ -106,7 +106,11 @@ const Login = () => {
       await initializeUserDocIfNeeded(result.user);
       navigate('/profile');
     } catch (err) {
-      setError(err.message);
+      if (err.code === 'auth/popup-closed-by-user') {
+          setError('Google Sign-in was cancelled.');
+      } else {
+          setError(err.message);
+      }
       setLoading(false);
     }
   };

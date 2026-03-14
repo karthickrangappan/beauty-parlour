@@ -90,6 +90,7 @@ const Wishlist = () => {
                     <img
                       src={product.image}
                       alt={product.name}
+                      onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }}
                       className="w-full h-full object-cover transform duration-[2.5s] ease-out group-hover:scale-110"
                     />
 
