@@ -112,19 +112,19 @@ const Shop = () => {
                 )}
               </AnimatePresence>
             </div>
-            
+
             {/* Show results count if searching */}
             <AnimatePresence>
-               {searchText && (
-                 <motion.p 
-                   initial={{ opacity: 0, y: -5 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   exit={{ opacity: 0, y: -5 }}
-                   className="mt-3 ml-4 text-[10px] uppercase tracking-widest text-gold-600 font-bold"
-                 >
-                   {loading ? "Searching..." : `Found results for "${searchText}"`}
-                 </motion.p>
-               )}
+              {searchText && (
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="mt-3 ml-4 text-[10px] uppercase tracking-widest text-gold-600 font-bold"
+                >
+                  {loading ? "Searching..." : `Found results for "${searchText}"`}
+                </motion.p>
+              )}
             </AnimatePresence>
           </div>
 
