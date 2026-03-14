@@ -144,15 +144,25 @@ export const CartProvider = ({ children }) => {
     
     try {
       await runTransaction(db, async (transaction) => {
-        // 1. Stock Decrement
+        // 1. Gather all product snapshots (READS MUST COME FIRST)
+        const snaps = [];
         for (const item of items) {
           const productRef = doc(db, "products", item.id);
           const productSnap = await transaction.get(productRef);
-          if (!productSnap.exists()) throw new Error(`Product ${item.name} not found.`);
-          const currentStock = productSnap.data().stock || 0;
-          if (currentStock < item.quantity) throw new Error(`Not enough stock for ${item.name}`);
-          
-          transaction.update(productRef, { stock: increment(-item.quantity) });
+          snaps.push({ item, productSnap, productRef });
+        }
+
+        // 2. Perform all stock updates (WRITES AFTER ALL READS)
+        for (const { item, productSnap, productRef } of snaps) {
+          if (productSnap.exists()) {
+            const currentStock = productSnap.data().stock || 0;
+            if (currentStock < item.quantity) {
+              throw new Error(`Insufficient stock for ${item.name}. Available: ${currentStock}`);
+            }
+            transaction.update(productRef, { stock: increment(-item.quantity) });
+          } else {
+            console.warn(`Product ${item.id} (${item.name}) not found in inventory. Skipping stock decrement.`);
+          }
         }
 
         // 2. Prepare Order

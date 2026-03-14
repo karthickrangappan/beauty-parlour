@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Priya Sharma",
+    "role": "Master Bridal Artist",
+    "specializations": ["Bridal", "Pre-Wedding", "Traditional"],
+    "experience": "8 years",
+    "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+    "bio": "Expert in North Indian and Bengali bridal transformations.",
+    "rating": 4.9,
+    "isActive": true
+  },
+  {
+    "name": "Ananya Iyer",
+    "role": "South Indian Specialist",
+    "specializations": ["Bridal", "Traditional", "Hair"],
+    "experience": "10 years",
+    "image": "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=400",
+    "bio": "Specializes in traditional Kanjeevaram styling and temple jewellery looks.",
+    "rating": 5.0,
+    "isActive": true
+  },
+  {
+    "name": "Rohan Mehra",
+    "role": "Editorial & Fashion Expert",
+    "specializations": ["Editorial", "Party", "Shoots"],
+    "experience": "6 years",
+    "image": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400",
+    "bio": "Worked with top fashion magazines for high-glam editorial shoots.",
+    "rating": 4.8,
+    "isActive": true
+  },
+  {
+    "name": "Sana Khan",
+    "role": "Muslim Bridal Specialist",
+    "specializations": ["Bridal", "Party"],
+    "experience": "7 years",
+    "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400",
+    "bio": "Expert in glowing skin and intricate eye artistry for Nikah and Valima.",
+    "rating": 4.9,
+    "isActive": true
+  },
+  {
+    "name": "Vikram Singh",
+    "role": "Celebrity Makeup Artist",
+    "specializations": ["Editorial", "Shoots", "Bridal"],
+    "experience": "12 years",
+    "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
+    "bio": "Brings a red-carpet touch to every transformation.",
+    "rating": 5.0,
+    "isActive": true
+  },
+  {
+    "name": "Deepika Das",
+    "role": "Skin & Natural Glam Expert",
+    "specializations": ["Natural", "Pre-Wedding", "Party"],
+    "experience": "5 years",
+    "image": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400",
+    "bio": "Believes in enhancing natural features with a dewy, radiant finish.",
+    "rating": 4.7,
+    "isActive": true
+  },
+  {
+    "name": "Arjun Kapoor",
+    "role": "Senior Hair Stylist",
+    "specializations": ["Hair", "Traditional"],
+    "experience": "9 years",
+    "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
+    "bio": "Known for contemporary bridal updos and classic floral braids.",
+    "rating": 4.9,
+    "isActive": true
+  },
+  {
+    "name": "Ishani Verma",
+    "role": "HD & Airbrush Specialist",
+    "specializations": ["Bridal", "Editorial"],
+    "experience": "6 years",
+    "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
+    "bio": "Flawless skin preparation and long-lasting waterproof techniques.",
+    "rating": 4.8,
+    "isActive": true
+  },
+  {
+    "name": "Karan Johar",
+    "role": "Party & Cocktail Specialist",
+    "specializations": ["Party", "Shoots"],
+    "experience": "4 years",
+    "image": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
+    "bio": "Expert in smokey eyes and bold evening transformations.",
+    "rating": 4.6,
+    "isActive": true
+  },
+  {
+    "name": "Meera Joshi",
+    "role": "Traditional Saree Drapist",
+    "specializations": ["Traditional", "Add-on"],
+    "experience": "15 years",
+    "image": "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=400",
+    "bio": "Master of 50+ regional saree draping styles.",
+    "rating": 5.0,
+    "isActive": true
+  }
+]
