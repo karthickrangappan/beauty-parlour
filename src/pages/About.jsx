@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import PageHeader from "../components/PageHeader";
 
 const storyData = {
   hero: {
@@ -55,43 +56,12 @@ const storyData = {
 const About = () => {
   return (
     <div className="bg-white min-h-screen">
-      {/* 1. Hero Section */}
-      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] xl:h-[85vh] w-full flex items-center justify-center overflow-hidden">
-        <motion.div
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.8, ease: "easeOut" }}
-          className="absolute inset-0"
-        >
-          <img
-            src={storyData.hero.image}
-            alt="Nature and Wellness"
-            className="w-full h-full object-cover object-center"
-          />
-          <div className="absolute inset-0 bg-neutral-900/40 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-neutral-900/40" />
-        </motion.div>
-
-        <div className="relative text-center px-6 sm:px-8 w-full max-w-7xl mx-auto z-10 pt-20">
-          <motion.h1
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 1.2, ease: "easeOut" }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white font-light tracking-tight leading-[0.9] drop-shadow-2xl"
-            style={{ fontFamily: "Playfair Display, serif" }}
-          >
-            {storyData.hero.title}
-          </motion.h1>
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6, duration: 1, ease: "easeOut" }}
-            className="text-white/95 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl mt-6 sm:mt-8 tracking-[0.3em] font-medium uppercase drop-shadow-md"
-          >
-            {storyData.hero.subtitle}
-          </motion.p>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="A Legacy of Radiance & Serenity"
+        titleStart="The Art of"
+        titleItalic="Lumière"
+        description="Where the raw power of botanical ingredients meets the sophisticated precision of modern skincare science."
+      />
 
       {/* 2. Philosophy Section */}
       <section className="py-20 sm:py-24 md:py-32 lg:py-40 px-6 sm:px-10 lg:px-16 xl:px-24 w-full max-w-[1600px] mx-auto overflow-hidden">
@@ -245,13 +215,13 @@ const About = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 w-full">
             <Link
               to="/shop"
-              className="w-full sm:w-auto px-12 py-5 sm:py-6 bg-gold-500 hover:bg-gold-400 text-white uppercase tracking-[0.25em] text-[10px] sm:text-xs font-bold transition-all duration-500 rounded-full shadow-[0_10px_30px_-5px_rgba(201,169,106,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(201,169,106,0.6)] hover:-translate-y-1"
+              className="w-full sm:w-auto px-12 py-5 sm:py-6 bg-gold-400 hover:bg-gold-400 text-white uppercase tracking-[0.25em] text-[10px] sm:text-xs font-bold transition-all duration-500 rounded-full shadow-[0_10px_30px_-5px_rgba(201,169,106,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(201,169,106,0.6)] hover:-translate-y-1"
             >
               {storyData.cta.shopText}
             </Link>
             <Link
               to="/appointments"
-              className="w-full sm:w-auto px-12 py-5 sm:py-6 border border-white/20 text-white hover:bg-white hover:text-neutral-900 uppercase tracking-[0.25em] text-[10px] sm:text-xs font-bold transition-all duration-500 rounded-full hover:-translate-y-1"
+              className="w-full sm:w-auto px-12 py-5 sm:py-6 bg-gold-400  hover:bg-gold-400 text-white uppercase tracking-[0.25em] text-[10px] sm:text-xs font-bold transition-all duration-500 rounded-full shadow-[0_10px_30px_-5px_rgba(201,169,106,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(201,169,106,0.6)] hover:-translate-y-1"
             >
               {storyData.cta.bookingText}
             </Link>

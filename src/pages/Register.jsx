@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import PageHeader from '../components/PageHeader';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -57,32 +58,27 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream-50 flex">
-      
-      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gold-400/10 mix-blend-overlay z-10" />
-        <img 
-          src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=1600&auto=format&fit=crop"
-          alt="Natural organic beauty"
-          className="w-full h-full object-cover grayscale-[10%]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-cream-50/90 z-20" />
-      </div>
+    <div className="min-h-screen bg-cream-50 pb-24">
+      <PageHeader
+        eyebrow="A New Journey"
+        titleStart="Create"
+        titleItalic="Account"
+        description="Join our sanctuary to track your curated orders and effortlessly book luxury treatments."
+      />
 
-      
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 relative">
+      <div className="max-w-7xl mx-auto px-6 flex justify-center -mt-10 relative z-20">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-md bg-white p-10 shadow-xl shadow-gold-300/5 relative z-10"
+          className="w-full max-w-md bg-white p-10 shadow-2xl shadow-gold-300/10 border border-gold-300/20"
         >
           <div className="text-center mb-10">
-            <h2 className="text-3xl text-neutral-800 font-light mb-2" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-              Join the Sanctuary
+            <h2 className="text-2xl text-neutral-800 font-light mb-2 uppercase tracking-widest">
+              Join Us
             </h2>
-            <p className="text-neutral-500 text-sm font-light">
-              Create an account to track your orders and book appointments.
+            <p className="text-neutral-500 text-sm font-light italic font-serif">
+              Begin your journey to wellness.
             </p>
           </div>
 

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { X, Minus, Plus, ShoppingBag, ArrowRight, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { loadRazorpay } from '../utils/loadRazorpay';
+import PageHeader from '../components/PageHeader';
 
 const Cart = () => {
     const { items, subtotal, gst, delivery, totalAmount, removeItemFromCart, updateQuantity, clearCart } = useCart();
@@ -52,23 +53,14 @@ const Cart = () => {
     };
 
     return (
-        <div className="min-h-screen bg-cream-50 pt-32 pb-24">
+        <div className="min-h-screen bg-cream-50 pb-24">
+            <PageHeader
+              eyebrow="Your Sanctuary Bag"
+              titleStart="Shopping"
+              titleItalic="Bag"
+              description="Review your curated selection of luxury treatments and elixirs before checkout."
+            />
             <div className="max-w-7xl mx-auto px-6">
-                
-                <div className="text-center mb-16">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                        <h1 className="text-5xl md:text-6xl text-neutral-800 font-light mb-6" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-                            Shopping Bag
-                        </h1>
-                        <p className="text-neutral-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
-                            Review your curated selection of luxury treatments and elixirs.
-                        </p>
-                    </motion.div>
-                </div>
 
                 {items.length === 0 ? (
                     <motion.div 
