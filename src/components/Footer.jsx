@@ -33,86 +33,93 @@ const Footer = () => {
   return (
     <footer className="bg-neutral-900 pt-24 pb-12 relative overflow-hidden">
 
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gold-500/50 to-transparent" />
-      <div className="absolute top-0 right-1/4 w-px h-32 bg-gradient-to-b from-gold-500/50 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
+      <div className="absolute top-0 right-1/4 w-px h-32 bg-gradient-to-b from-gold-500/20 to-transparent hidden md:block" />
       
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8">
-        
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-12 sm:gap-16 lg:gap-8">
+          
+          {/* Brand Identity - Full width on mobile, half on tablet, 1/3 on desktop */}
+          <div className="lg:col-span-4 space-y-8">
+            <Link to="/" className="text-3xl sm:text-4xl text-gold-300 tracking-[0.2em] uppercase font-light inline-block" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
+              {footerData.brand.name}
+            </Link>
+            <p className="text-neutral-400 font-light leading-relaxed max-w-sm lg:pr-8 text-sm sm:text-base">
+              {footerData.brand.description}
+            </p>
+            <div className="flex items-center gap-6 pt-2">
+              {footerData.socialLinks.map((social) => (
+                <a 
+                  key={social} 
+                  href="#" 
+                  className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-gold-500 hover:text-gold-300 transition-all duration-300 hover:-translate-y-1"
+                >
+                  {social}
+                </a>
+              ))}
+            </div>
+          </div>
 
-        <div className="col-span-1 md:col-span-4 space-y-6">
-          <Link to="/" className="text-3xl text-gold-300 tracking-widest uppercase font-light inline-block" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-            {footerData.brand.name}
-          </Link>
-          <p className="text-neutral-400 font-light leading-relaxed pr-8">
-            {footerData.brand.description}
-          </p>
-          <div className="flex items-center gap-6 pt-4">
-            {footerData.socialLinks.map((social) => (
-              <a 
-                key={social} 
-                href="#" 
-                className="text-xs uppercase tracking-widest text-gold-500 hover:text-gold-300 transition-colors"
+          {/* Navigation Columns */}
+          <div className="lg:col-span-5 grid grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <h4 className="text-white text-[11px] sm:text-xs uppercase tracking-[0.25em] font-bold">Explore</h4>
+              <nav className="flex flex-col gap-4">
+                {footerData.exploreLinks.map(link => (
+                  <Link key={link.name} to={link.path} className="text-neutral-500 hover:text-gold-300 transition-colors font-light text-sm sm:text-base">
+                    {link.name}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-white text-[11px] sm:text-xs uppercase tracking-[0.25em] font-bold">Client Care</h4>
+              <nav className="flex flex-col gap-4">
+                {footerData.clientCareLinks.map(link => (
+                  <Link key={link.name} to={link.path} className="text-neutral-500 hover:text-gold-300 transition-colors font-light text-sm sm:text-base">
+                    {link.name}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </div>
+
+          {/* Newsletter section */}
+          <div className="lg:col-span-3 space-y-6 sm:col-span-2 lg:col-start-10">
+            <h4 className="text-white text-[11px] sm:text-xs uppercase tracking-[0.25em] font-bold">{footerData.newsletter.title}</h4>
+            <p className="text-neutral-400 text-sm font-light leading-relaxed">
+              {footerData.newsletter.description}
+            </p>
+            <form className="relative group pt-2">
+              <input 
+                type="email" 
+                placeholder="YOUR EMAIL" 
+                className="w-full bg-transparent border-b border-neutral-800 pb-3 text-white text-sm focus:outline-none focus:border-gold-500 transition-colors placeholder:text-neutral-700 font-light"
+              />
+              <button 
+                type="submit"
+                className="absolute right-0 bottom-3 text-gold-500 hover:text-gold-300 transition-transform group-focus-within:translate-x-1"
               >
-                {social}
-              </a>
+                <span className="text-lg">→</span>
+              </button>
+            </form>
+          </div>
+          
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="mt-20 sm:mt-24 pt-8 border-t border-neutral-800/50 flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-4 text-center sm:text-left">
+          <p className="text-neutral-600 text-[10px] sm:text-xs font-light tracking-wide order-2 sm:order-1">
+            © {new Date().getFullYear()} {footerData.brand.name}. Crafted for timeless elegance.
+          </p>
+          <div className="flex gap-6 sm:gap-8 text-neutral-500 text-[10px] sm:text-xs font-light tracking-widest uppercase order-1 sm:order-2">
+            {footerData.legalLinks.map(link => (
+              <Link key={link.name} to={link.path} className="hover:text-gold-300 transition-colors">
+                {link.name}
+              </Link>
             ))}
           </div>
-        </div>
-
-
-        <div className="col-span-1 md:col-span-2 md:col-start-7 space-y-6 flex flex-col">
-          <h4 className="text-white text-xs uppercase tracking-[0.2em] font-medium">Explore</h4>
-          {footerData.exploreLinks.map(link => (
-            <Link key={link.name} to={link.path} className="text-neutral-400 hover:text-gold-300 transition-colors font-light">
-              {link.name}
-            </Link>
-          ))}
-        </div>
-
-
-        <div className="col-span-1 md:col-span-2 space-y-6 flex flex-col">
-          <h4 className="text-white text-xs uppercase tracking-[0.2em] font-medium">Client Care</h4>
-          {footerData.clientCareLinks.map(link => (
-            <Link key={link.name} to={link.path} className="text-neutral-400 hover:text-gold-300 transition-colors font-light">
-              {link.name}
-            </Link>
-          ))}
-        </div>
-
-
-        <div className="col-span-1 md:col-span-2 space-y-6">
-          <h4 className="text-white text-xs uppercase tracking-[0.2em] font-medium">{footerData.newsletter.title}</h4>
-          <p className="text-neutral-400 text-sm font-light">
-            {footerData.newsletter.description}
-          </p>
-          <form className="relative mt-4">
-            <input 
-              type="email" 
-              placeholder="YOUR EMAIL" 
-              className="w-full bg-transparent border-b border-neutral-700 pb-3 text-white text-sm focus:outline-none focus:border-gold-500 transition-colors placeholder:text-neutral-600 font-light"
-            />
-            <button 
-              type="submit"
-              className="absolute right-0 bottom-3 text-gold-500 hover:text-gold-300 transition-colors"
-            >
-              →
-            </button>
-          </form>
-        </div>
-        
-      </div>
-
-
-      <div className="max-w-7xl mx-auto px-6 mt-24 pt-8 border-t border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-neutral-500 text-xs font-light">
-          © {new Date().getFullYear()} {footerData.brand.name}. All rights reserved.
-        </p>
-        <div className="flex gap-6 text-neutral-500 text-xs font-light">
-          {footerData.legalLinks.map(link => (
-            <Link key={link.name} to={link.path} className="hover:text-gold-300 transition-colors">
-              {link.name}
-            </Link>
-          ))}
         </div>
       </div>
     </footer>

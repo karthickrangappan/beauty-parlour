@@ -56,11 +56,11 @@ const About = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* 1. Hero Section */}
-      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] w-full flex items-center justify-center overflow-hidden">
+      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] xl:h-[85vh] w-full flex items-center justify-center overflow-hidden">
         <motion.div
-          initial={{ scale: 1.05, opacity: 0 }}
+          initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+          transition={{ duration: 1.8, ease: "easeOut" }}
           className="absolute inset-0"
         >
           <img
@@ -72,21 +72,21 @@ const About = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-neutral-900/40" />
         </motion.div>
 
-        <div className="relative text-center px-4 sm:px-6 w-full max-w-5xl mx-auto z-10 pt-20">
+        <div className="relative text-center px-6 sm:px-8 w-full max-w-7xl mx-auto z-10 pt-20">
           <motion.h1
-            initial={{ y: 30, opacity: 0 }}
+            initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] text-white font-light tracking-wide leading-tight drop-shadow-lg"
+            transition={{ delay: 0.3, duration: 1.2, ease: "easeOut" }}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white font-light tracking-tight leading-[0.9] drop-shadow-2xl"
             style={{ fontFamily: "Playfair Display, serif" }}
           >
             {storyData.hero.title}
           </motion.h1>
           <motion.p
-            initial={{ y: 30, opacity: 0 }}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
-            className="text-white/90 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl mt-4 sm:mt-6 tracking-[0.2em] sm:tracking-[0.3em] font-medium uppercase drop-shadow-md"
+            transition={{ delay: 0.6, duration: 1, ease: "easeOut" }}
+            className="text-white/95 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl mt-6 sm:mt-8 tracking-[0.3em] font-medium uppercase drop-shadow-md"
           >
             {storyData.hero.subtitle}
           </motion.p>
@@ -94,85 +94,85 @@ const About = () => {
       </section>
 
       {/* 2. Philosophy Section */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-32 px-6 sm:px-8 md:px-12 lg:px-16 w-full max-w-[1400px] mx-auto overflow-hidden">
-        <div className="flex flex-col lg:flex-row gap-12 md:gap-16 lg:gap-24 items-center">
+      <section className="py-20 sm:py-24 md:py-32 lg:py-40 px-6 sm:px-10 lg:px-16 xl:px-24 w-full max-w-[1600px] mx-auto overflow-hidden">
+        <div className="flex flex-col lg:flex-row gap-16 md:gap-20 lg:gap-24 xl:gap-32 items-center">
           <motion.div
-            initial={{ x: -40, opacity: 0 }}
+            initial={{ x: -50, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="w-full lg:w-1/2 space-y-6 sm:space-y-8"
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="w-full lg:w-1/2 space-y-8 sm:space-y-10"
           >
             <h2
-              className="text-4xl sm:text-5xl md:text-6xl text-neutral-900 leading-[1.1] font-light"
+              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl text-neutral-900 leading-[1.05] font-light"
               style={{ fontFamily: "Playfair Display, serif" }}
             >
               <span className="block">{storyData.philosophy.title}</span>
               <span className="italic text-gold-500 font-serif">{storyData.philosophy.titleItalic}</span>
             </h2>
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-6 sm:space-y-8">
               {storyData.philosophy.paragraphs.map((p, i) => (
-                <p key={i} className="text-neutral-600 text-base sm:text-lg lg:text-xl leading-relaxed font-light">
+                <p key={i} className="text-neutral-600 text-base sm:text-lg lg:text-xl xl:text-2xl leading-relaxed font-light">
                   {p}
                 </p>
               ))}
             </div>
-            <div className="w-16 sm:w-20 h-[1px] bg-gold-400 mt-8" />
+            <div className="w-20 sm:w-24 h-[1px] bg-gold-400 mt-10" />
           </motion.div>
 
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="w-full lg:w-1/2 relative mt-8 lg:mt-0"
+            transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+            className="w-full lg:w-1/2 relative mt-12 lg:mt-0"
           >
-            <div className="aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5] max-w-md mx-auto lg:max-w-full rounded-t-full overflow-hidden shadow-2xl border-4 sm:border-8 border-white relative z-10">
+            <div className="aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5] max-w-lg mx-auto lg:max-w-full rounded-t-full overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] border-8 sm:border-[12px] border-white relative z-10 transition-transform duration-700 hover:scale-[1.02]">
               <img
                 src={storyData.philosophy.image}
                 alt="Botanical focus"
-                className="w-full h-full object-cover transition-transform duration-[3s] hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-[4s] hover:scale-110"
               />
             </div>
-            <div className="absolute bottom-10 -right-4 sm:-right-10 w-40 h-40 sm:w-56 sm:h-56 bg-gold-200/40 rounded-full blur-3xl z-0" />
-            <div className="absolute top-10 -left-4 sm:-left-10 w-32 h-32 sm:w-48 sm:h-48 bg-[#fdf8f3] rounded-full blur-3xl z-0" />
+            <div className="absolute bottom-10 -right-8 sm:-right-16 w-64 h-64 sm:w-80 sm:h-80 bg-gold-100/40 rounded-full blur-[80px] z-0" />
+            <div className="absolute top-10 -left-8 sm:-left-16 w-48 h-48 sm:w-64 sm:h-64 bg-[#fdf8f3] rounded-full blur-[80px] z-0" />
           </motion.div>
         </div>
       </section>
 
       {/* 3. Pillars Section */}
-      <section className="bg-[#fdf8f3] py-20 sm:py-24 md:py-32">
-        <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-8 md:px-12 lg:px-16">
-          <div className="text-center mb-16 sm:mb-20">
-            <h3 className="text-gold-500 font-semibold uppercase tracking-[0.25em] text-xs sm:text-sm mb-4">
+      <section className="bg-[#fdf8f3] py-24 sm:py-32 md:py-40">
+        <div className="w-full max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="text-center mb-20 sm:mb-24">
+            <h3 className="text-gold-500 font-bold uppercase tracking-[0.3em] text-[10px] sm:text-xs mb-6">
               {storyData.pillars.tagline}
             </h3>
             <h2 
-              className="text-4xl sm:text-5xl md:text-6xl font-light text-neutral-900" 
+              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-light text-neutral-900 leading-tight" 
               style={{ fontFamily: "Playfair Display, serif" }}
             >
               {storyData.pillars.title}
             </h2>
-            <div className="w-16 sm:w-24 h-[1px] bg-gold-300 mx-auto mt-8" />
+            <div className="w-20 sm:w-28 h-[1px] bg-gold-400/50 mx-auto mt-10" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 xl:gap-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-16 xl:gap-20">
             {storyData.pillars.items.map((value, i) => (
               <motion.div
                 key={value.title}
-                initial={{ y: 40, opacity: 0 }}
+                initial={{ y: 50, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: i * 0.15, duration: 0.8, ease: "easeOut" }}
-                className="bg-white p-8 sm:p-10 xl:p-12 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-500 text-center flex flex-col items-center group"
+                transition={{ delay: i * 0.2, duration: 1, ease: "easeOut" }}
+                className="bg-white p-10 sm:p-12 xl:p-14 rounded-3xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-all duration-700 text-center flex flex-col items-center group cursor-default"
               >
-                <div className="text-4xl sm:text-5xl mb-6 group-hover:scale-110 transition-transform duration-500">
+                <div className="text-5xl sm:text-6xl mb-8 group-hover:scale-125 transition-transform duration-700 ease-out grayscale-[0.5] group-hover:grayscale-0">
                   {value.icon}
                 </div>
-                <h4 className="text-lg sm:text-xl font-medium text-neutral-900 tracking-wider uppercase mb-4">
+                <h4 className="text-lg sm:text-xl xl:text-2xl font-semibold text-neutral-900 tracking-widest uppercase mb-6">
                   {value.title}
                 </h4>
-                <p className="text-neutral-500 text-sm sm:text-base leading-relaxed font-light">
+                <p className="text-neutral-500 text-sm sm:text-base xl:text-lg leading-relaxed font-light">
                   {value.desc}
                 </p>
               </motion.div>
@@ -182,77 +182,76 @@ const About = () => {
       </section>
 
       {/* 4. Deep Story Section */}
-      <section className="py-20 sm:py-24 md:py-32 px-6 sm:px-8 md:px-12 lg:px-16 w-full max-w-[1400px] mx-auto overflow-hidden">
-        <div className="flex flex-col-reverse lg:flex-row gap-12 md:gap-16 lg:gap-24 items-center">
+      <section className="py-24 sm:py-32 md:py-40 px-6 sm:px-10 lg:px-16 xl:px-24 w-full max-w-[1600px] mx-auto overflow-hidden">
+        <div className="flex flex-col-reverse lg:flex-row gap-16 md:gap-20 lg:gap-24 xl:gap-32 items-center">
           <motion.div
-            initial={{ x: -40, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="w-full lg:w-1/2 aspect-square max-w-md mx-auto lg:max-w-full rounded-full overflow-hidden shadow-2xl relative"
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="w-full lg:w-1/2 aspect-square max-w-lg mx-auto lg:max-w-full rounded-full overflow-hidden shadow-[0_30px_70px_-20px_rgba(0,0,0,0.25)] relative group"
           >
-            <div className="absolute inset-0 border-4 sm:border-8 border-white rounded-full z-10 pointer-events-none" />
+            <div className="absolute inset-0 border-8 sm:border-[16px] border-white rounded-full z-10 pointer-events-none" />
             <img
               src={storyData.deepStory.image}
               alt="Product textures"
-              className="w-full h-full object-cover transition-transform duration-[3s] hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110"
             />
           </motion.div>
 
           <motion.div
-            initial={{ x: 40, opacity: 0 }}
+            initial={{ x: 50, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="w-full lg:w-1/2 space-y-6 sm:space-y-8"
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="w-full lg:w-1/2 space-y-8 sm:space-y-10"
           >
             <h2
-              className="text-4xl sm:text-5xl md:text-6xl font-light text-neutral-900 leading-[1.1]"
+              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-light text-neutral-900 leading-[1.05]"
               style={{ fontFamily: "Playfair Display, serif" }}
             >
               <span className="block">{storyData.deepStory.title}</span>
               <span className="italic text-gold-500 font-serif">{storyData.deepStory.titleItalic}</span>
             </h2>
-            <p className="text-neutral-600 text-base sm:text-lg lg:text-xl leading-relaxed font-light">
+            <p className="text-neutral-600 text-base sm:text-lg lg:text-xl xl:text-2xl leading-relaxed font-light">
               {storyData.deepStory.content}
             </p>
-            <div className="border-l-2 border-gold-400 pl-6 sm:pl-8 py-2 mt-8">
-              <p className="text-neutral-800 text-lg sm:text-xl lg:text-2xl leading-relaxed font-serif italic mb-0">
+            <div className="border-l-[3px] border-gold-400 pl-8 sm:pl-10 py-3 mt-10">
+              <p className="text-neutral-800 text-xl sm:text-2xl xl:text-3xl leading-relaxed font-serif italic mb-0 text-gold-600/90">
                 "{storyData.deepStory.quote}"
               </p>
             </div>
-            <div className="w-16 sm:w-20 h-[1px] bg-gold-400 mt-8" />
+            <div className="w-20 sm:w-24 h-[1px] bg-gold-400 mt-10" />
           </motion.div>
         </div>
       </section>
 
       {/* 5. CTA Section */}
-      <section className="relative py-24 sm:py-32 bg-neutral-900 overflow-hidden text-center">
-        {/* Subtle background glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(200,169,106,0.15)_0%,rgba(0,0,0,0)_70%)] pointer-events-none" />
+      <section className="relative py-32 sm:py-40 lg:py-52 bg-neutral-900 overflow-hidden text-center">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(200,169,106,0.18)_0%,rgba(0,0,0,0)_75%)] pointer-events-none" />
         
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="relative z-10 w-full max-w-4xl mx-auto px-6"
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="relative z-10 w-full max-w-5xl mx-auto px-6"
         >
           <h2 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-12 text-white font-serif italic drop-shadow-lg"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light mb-16 text-white font-serif italic tracking-tight"
           >
             {storyData.cta.title}
           </h2>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 w-full">
             <Link
               to="/shop"
-              className="w-full sm:w-auto px-10 sm:px-12 py-4 sm:py-5 bg-gold-500 hover:bg-gold-400 text-white uppercase tracking-widest text-xs sm:text-sm font-semibold transition-all duration-300 rounded-full shadow-lg hover:shadow-gold-500/20"
+              className="w-full sm:w-auto px-12 py-5 sm:py-6 bg-gold-500 hover:bg-gold-400 text-white uppercase tracking-[0.25em] text-[10px] sm:text-xs font-bold transition-all duration-500 rounded-full shadow-[0_10px_30px_-5px_rgba(201,169,106,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(201,169,106,0.6)] hover:-translate-y-1"
             >
               {storyData.cta.shopText}
             </Link>
             <Link
               to="/appointments"
-              className="w-full sm:w-auto px-10 sm:px-12 py-4 sm:py-5 border border-white/30 text-white hover:bg-white hover:text-neutral-900 uppercase tracking-widest text-xs sm:text-sm font-semibold transition-all duration-300 rounded-full"
+              className="w-full sm:w-auto px-12 py-5 sm:py-6 border border-white/20 text-white hover:bg-white hover:text-neutral-900 uppercase tracking-[0.25em] text-[10px] sm:text-xs font-bold transition-all duration-500 rounded-full hover:-translate-y-1"
             >
               {storyData.cta.bookingText}
             </Link>

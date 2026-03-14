@@ -18,189 +18,259 @@ const Navbar = () => {
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Is it the home page? We want transparent navbar on home page top.
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const isHome = location.pathname === '/';
-  const navBackground = isScrolled || !isHome ? 'bg-cream-50/90 backdrop-blur-md shadow-sm border-b border-gold-300/20' : 'bg-transparent';
-  const textColor = isScrolled || !isHome ? 'text-neutral-800' : 'text-neutral-800 md:text-white';
+  const navBackground = isScrolled || !isHome
+    ? 'bg-cream-50/95 backdrop-blur-md shadow-sm border-b border-gold-300/20'
+    : 'bg-transparent';
+  const textColor = isScrolled || !isHome ? 'text-neutral-800' : 'text-neutral-800 lg:text-white';
 
   const navLinks = [
     { name: 'Shop', path: '/shop' },
     { name: 'Services', path: '/services' },
     { name: 'Appointments', path: '/appointments' },
-    { name: 'Our Story', path: '/about' }
+    { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' }
   ];
 
   return (
     <>
+      {/* ─── Main Navbar ─── */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ease-in-out ${navBackground}`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-20 md:h-24 flex items-center justify-between">
-          
-          {/* Mobile Menu Toggle */}
-          <button 
-            className={`md:hidden p-2 -ml-2 ${textColor}`}
-            onClick={() => setIsMobileMenuOpen(true)}
-          >
-            <Menu className="w-6 h-6 stroke-[1.5]" />
-          </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 lg:h-24 flex items-center justify-between">
 
-          {/* Navigation Links - Left (Desktop only) */}
-          <div className="hidden md:flex flex-1 items-center gap-8">
-            {navLinks.slice(0, 2).map((link) => (
-              <Link 
-                key={link.name} 
-                to={link.path}
-                className={`text-sm tracking-[0.15em] uppercase hover:text-gold-500 transition-colors ${textColor}`}
+          {/* Left: Hamburger (mobile) / Brand Logo (desktop) */}
+          <div className="flex-1 flex items-center justify-start">
+            <button
+              className={`lg:hidden p-1.5 -ml-1 rounded-lg hover:bg-black/5 transition-colors ${textColor}`}
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.5]" />
+            </button>
+
+            <Link to="/" className="hidden lg:block text-2xl lg:text-3xl tracking-widest uppercase font-light">
+              <span
+                className={`block transition-colors duration-500 ${isScrolled || !isHome ? 'text-gold-500' : 'text-gold-300'}`}
+                style={{ fontFamily: 'ui-serif, Georgia, serif' }}
               >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-
-          {/* Logo - Center */}
-          <div className="flex-1 md:flex-none flex justify-center">
-            <Link to="/" className="text-2xl md:text-3xl tracking-widest uppercase font-light text-center">
-              <span className={`block transition-colors duration-500 ${isScrolled || !isHome ? 'text-gold-500' : 'text-gold-300'}`} style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
                 Lumière
               </span>
             </Link>
           </div>
 
-          {/* Navigation Links & Icons - Right */}
-          <div className="flex-1 flex items-center justify-end gap-6 md:gap-8">
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.slice(2, 4).map((link) => (
-                <Link 
-                  key={link.name} 
+          {/* Center: Brand Logo (mobile) / Nav Links (desktop) */}
+          <div className="flex-1 text  flex items-center pr-3 justify-center">
+            {/* Mobile Logo */}
+            <Link to="/" className="lg:hidden text-xl sm:text-2xl tracking-widest uppercase font-light">
+              <span
+                className={`block transition-colors duration-500 ${isScrolled || !isHome ? 'text-gold-500' : 'text-gold-300'}`}
+                style={{ fontFamily: 'ui-serif, Georgia, serif' }}
+              >
+                Lumière
+              </span>
+            </Link>
+
+            {/* Desktop Nav Links */}
+            <div className="hidden lg:flex items-center justify-center gap-8 xl:gap-10">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
                   to={link.path}
-                  className={`text-sm tracking-[0.15em] uppercase hover:text-gold-500 transition-colors ${textColor}`}
+                  className={`text-sm tracking-[0.15em] uppercase hover:text-gold-500 transition-colors ${location.pathname === link.path ? 'text-gold-500' : textColor
+                    }`}
                 >
                   {link.name}
                 </Link>
               ))}
             </div>
-            
-            <div className={`flex items-center gap-4 ${textColor}`}>
-              <button onClick={() => setIsSearchOpen(true)} className="hover:text-gold-500 transition-colors">
-                <Search className="w-5 h-5 stroke-[1.5]" />
+          </div>
+
+          {/* Right: Icons */}
+          <div className="flex-1 flex items-center justify-end">
+            <div className={`flex items-center gap-1.5 sm:gap-2.5 lg:gap-4 ${textColor}`}>
+              {/* Search */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all"
+                aria-label="Search"
+              >
+                <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
               </button>
-              <Link to="/wishlist" className="hover:text-gold-500 transition-colors relative">
-                <Heart className="w-5 h-5 stroke-[1.5]" />
+
+              {/* Wishlist */}
+              <Link to="/wishlist" className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all relative" aria-label="Wishlist">
+                <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
                 {wishlistItems.length > 0 && (
-                  <span className="absolute -top-1 -right-2 bg-blush-200 text-neutral-800 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
+                  <span className="absolute top-0 right-0 bg-rose-400 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold leading-none">
                     {wishlistItems.length}
                   </span>
                 )}
               </Link>
-              {/* User icon — profile if logged in, login if not */}
+
+              {/* User / Login */}
               <Link
                 to={user ? '/profile' : '/auth/login'}
-                className="hover:text-gold-500 transition-colors relative"
+                className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all relative"
                 title={user ? user.displayName || 'Profile' : 'Sign In'}
+                aria-label="Profile"
               >
-                <User className="w-5 h-5 stroke-[1.5]" />
+                <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
                 {user && (
-                  <span className="absolute -top-1 -right-2 w-2 h-2 bg-green-400 rounded-full" />
+                  <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-green-400 rounded-full ring-1 ring-white/80" />
                 )}
               </Link>
-              {/* Admin shortcut in navbar for admins */}
+
+              {/* Admin (desktop only) */}
               {isAdmin && (
                 <Link
                   to="/admin"
-                  className="hover:text-gold-500 transition-colors hidden md:flex items-center gap-1"
+                  className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all hidden lg:flex items-center"
                   title="Admin Portal"
+                  aria-label="Admin"
                 >
-                  <LayoutDashboard className="w-5 h-5 stroke-[1.5]" />
+                  <LayoutDashboard className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
                 </Link>
               )}
-              <Link to="/cart" className="hover:text-gold-500 transition-colors relative">
-                <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
+
+              {/* Cart */}
+              <Link to="/cart" className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all relative" aria-label="Cart">
+                <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-2 bg-gold-400 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
+                  <span className="absolute top-0 right-0 bg-gold-400 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold leading-none">
                     {totalItems}
                   </span>
                 )}
               </Link>
             </div>
           </div>
+
         </div>
       </motion.nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* ─── Mobile Drawer ─── */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-cream-50/95 backdrop-blur-xl flex flex-col"
-          >
-            <div className="flex items-center justify-between p-6">
-              <span className="text-2xl tracking-widest uppercase font-light text-gold-500" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-                Lumière
-              </span>
-              <button 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 text-neutral-800 hover:text-gold-500 transition-colors"
-              >
-                <X className="w-6 h-6 stroke-[1.5]" />
-              </button>
-            </div>
-            
-            <div className="flex-1 flex flex-col items-center justify-center gap-8">
-              {navLinks.map((link, idx) => (
-                <motion.div
-                  key={link.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                >
-                  <Link
-                    to={link.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-2xl tracking-[0.2em] uppercase text-neutral-800 hover:text-gold-500 transition-colors font-light"
-                  >
-                    {link.name}
-                  </Link>
-                </motion.div>
-              ))}
-              {/* Mobile auth link */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: navLinks.length * 0.1 }}>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-[59] bg-neutral-900/50 backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+
+            {/* Drawer Panel */}
+            <motion.div
+              key="drawer"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed top-0 left-0 bottom-0 z-[60] w-[78vw] max-w-[300px] bg-white shadow-2xl flex flex-col"
+            >
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100">
                 <Link
-                  to={user ? '/profile' : '/auth/login'}
+                  to="/"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-2xl tracking-[0.2em] uppercase text-neutral-800 hover:text-gold-500 transition-colors font-light"
+                  className="text-xl tracking-widest uppercase font-light text-gold-500"
+                  style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                 >
-                  {user ? 'My Profile' : 'Sign In'}
+                  Lumière
                 </Link>
-              </motion.div>
-              {/* Mobile admin link */}
-              {isAdmin && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (navLinks.length + 1) * 0.1 }}>
-                  <Link
-                    to="/admin"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-2xl tracking-[0.2em] uppercase text-gold-500 hover:text-gold-600 transition-colors font-light"
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 -mr-2 text-neutral-500 hover:text-gold-500 transition-colors rounded-lg"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5 stroke-[1.5]" />
+                </button>
+              </div>
+
+              {/* Nav Links */}
+              <nav className="flex-1 overflow-y-auto px-6 py-6">
+                <div className="flex flex-col">
+                  {navLinks.map((link, idx) => (
+                    <motion.div
+                      key={link.name}
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.08 + idx * 0.06, ease: 'easeOut' }}
+                    >
+                      <Link
+                        to={link.path}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`flex items-center py-3.5 text-sm tracking-[0.2em] uppercase font-light border-b border-neutral-100 transition-colors ${location.pathname === link.path
+                            ? 'text-gold-500'
+                            : 'text-neutral-600 hover:text-gold-500'
+                          }`}
+                      >
+                        {link.name}
+                        {location.pathname === link.path && (
+                          <span className="ml-auto w-1 h-1 rounded-full bg-gold-400" />
+                        )}
+                      </Link>
+                    </motion.div>
+                  ))}
+
+                  {/* Profile / Sign In */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.08 + navLinks.length * 0.06 }}
                   >
-                    Admin Portal
-                  </Link>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
+                    <Link
+                      to={user ? '/profile' : '/auth/login'}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-2 py-3.5 text-sm tracking-[0.2em] uppercase font-light border-b border-neutral-100 text-neutral-600 hover:text-gold-500 transition-colors"
+                    >
+                      <User className="w-4 h-4 stroke-[1.5]" />
+                      {user ? 'My Profile' : 'Sign In'}
+                    </Link>
+                  </motion.div>
+
+                  {/* Admin Portal */}
+                  {isAdmin && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.08 + (navLinks.length + 1) * 0.06 }}
+                    >
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2 py-3.5 text-sm tracking-[0.2em] uppercase font-light text-gold-500 hover:text-gold-600 transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4 stroke-[1.5]" />
+                        Admin Portal
+                      </Link>
+                    </motion.div>
+                  )}
+                </div>
+              </nav>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
+
       <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );

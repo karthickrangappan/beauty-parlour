@@ -7,6 +7,8 @@ import Home from './pages/Home';
 import Shop from './pages/Shop';
 import Services from './pages/Services';
 import Appointments from './pages/Appointments';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
@@ -16,7 +18,7 @@ import Checkout from './pages/Checkout';
 import ProductDetails from './pages/ProductDetails';
 
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminRoute from './components/AdminRoute';
+import AdminRoute from './components/admin/AdminRoute';
 import AdminDashboard from './pages/AdminDashboard';
 
 const AppLayout = () => {
@@ -33,6 +35,8 @@ const AppLayout = () => {
           <Route path="/shop" element={<Shop />} />
           <Route path="/services" element={<Services />} />
           <Route path="/appointments" element={<Appointments />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/register" element={<Register />} />
           <Route path="/product/:id" element={<ProductDetails />} />
