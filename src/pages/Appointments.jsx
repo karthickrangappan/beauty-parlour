@@ -11,7 +11,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Calendar,
   Clock,
@@ -19,14 +19,22 @@ import {
   Sparkles,
   CheckCircle,
   ChevronRight,
+  ShieldCheck,
+  CreditCard,
+  Loader2
 } from "lucide-react";
 
 // Logic utilities
 import { generateTimeSlots } from "../utils/logicUtils";
+import { loadRazorpay } from "../utils/loadRazorpay";
+import { useToaster } from "../context/ToastContext";
+import { APP_NAME } from "../constants/config";
 
 const Appointments = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToaster();
+  const location = useLocation();
 
   const [step, setStep] = useState(1);
 
@@ -40,18 +48,29 @@ const Appointments = () => {
   const [staffList, setStaffList] = useState([]);
   const [availableStaff, setAvailableStaff] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   // Fetch Services & Staff
   useEffect(() => {
     const fetchData = async () => {
       const sSnap = await getDocs(collection(db, "services"));
-      setServices(sSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const sData = sSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setServices(sData);
       
       const stSnap = await getDocs(collection(db, "staff"));
-      setStaffList(stSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const stData = stSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setStaffList(stData);
+
+      // Handle service coming from navigation state
+      if (location.state?.selectedService) {
+        const preSelected = location.state.selectedService;
+        setSelectedService(preSelected);
+        setAvailableStaff(stData); // Show ALL specialists
+        setStep(2);
+      }
     };
     fetchData();
-  }, []);
+  }, [location.state]);
 
   const [isBooking, setIsBooking] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -67,11 +86,8 @@ const Appointments = () => {
   // Step 1: Select Service -> Filter Staff
   const handleServiceSelect = (service) => {
     setSelectedService(service);
-    // Filter staff by specialization logic
-    const filtered = staffList.filter((st) =>
-      st.specializations?.includes(service.id)
-    );
-    setAvailableStaff(filtered);
+    // Show all specialists for every service as requested
+    setAvailableStaff(staffList);
     setSelectedStaff(null);
     setSelectedDate("");
     setSelectedSlot("");
@@ -99,10 +115,12 @@ const Appointments = () => {
     
     if (allSlots.length === 0) {
       setAvailableSlots([]);
+      toast("No working sessions available on this day.", "info");
       return;
     }
 
     // Booked Slots Exclusion
+    setIsLoadingSlots(true);
     try {
       const appointmentsRef = collection(db, "appointments");
       const q = query(
@@ -112,19 +130,21 @@ const Appointments = () => {
       );
       const querySnapshot = await getDocs(q);
 
-      const bookedSlots = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.status !== "cancelled") {
-          bookedSlots.push(data.time);
-        }
-      });
-
-      const freeSlots = allSlots.filter((slot) => !bookedSlots.includes(slot));
-      setAvailableSlots(freeSlots);
+      // Check if ALREADY booked for this day (One booking per day rule)
+      const confirmedBookings = querySnapshot.docs.filter(d => d.data().status !== "cancelled");
+      
+      if (confirmedBookings.length > 0) {
+        setAvailableSlots([]); 
+        toast(`${selectedStaff.name} is fully booked for ${dateStr}`, "warning");
+      } else {
+        setAvailableSlots(allSlots);
+      }
     } catch (error) {
-      console.error("Error fetching assignments", error);
-      setAvailableSlots(allSlots); // fallback
+      console.error("Slot check error:", error);
+      toast("Failed to check availability. Please try again.", "error");
+      setAvailableSlots([]);
+    } finally {
+      setIsLoadingSlots(false);
     }
   };
 
@@ -133,63 +153,92 @@ const Appointments = () => {
     setStep(4);
   };
 
-  // Step 4: Confirm & Pay
+  // Step 4: Confirm & Pay with Razorpay
   const confirmBooking = async () => {
     if (!user) {
-      alert("Please login to book an appointment");
+      toast("Please login to book an appointment", "error");
       navigate("/auth/login", { state: { returnTo: "/appointments" } });
       return;
     }
 
     setIsBooking(true);
+    
     try {
-      // Double Booking Prevention
-      // We use slotId as document ID: {staffId}_{date}_{time}
+      // 1. Double check availability (Atomic check using individual slot ID)
       const slotDocId = `${selectedStaff.id}_${selectedDate}_${selectedSlot}`;
       const slotDocRef = doc(db, "appointments", slotDocId);
 
-      await runTransaction(db, async (transaction) => {
-        const slotDoc = await transaction.get(slotDocRef);
-        if (slotDoc.exists() && slotDoc.data().status !== "cancelled") {
-          throw new Error("Sorry, this slot was just booked by someone else.");
+      const checkSnap = await getDocs(query(collection(db, "appointments"), 
+        where("staffId", "==", selectedStaff.id),
+        where("date", "==", selectedDate)
+      ));
+
+      if (checkSnap.docs.some(d => d.data().status !== 'cancelled')) {
+        throw new Error("This date was just claimed by someone else.");
+      }
+
+      // 2. Load Razorpay
+      const isLoaded = await loadRazorpay();
+      if (!isLoaded) {
+        throw new Error("Razorpay SDK failed to load. Please check your connection.");
+      }
+
+      const options = {
+        key: "rzp_test_2ORD27rb7vGhwj",
+        amount: selectedService.price * 100,
+        currency: "INR",
+        name: APP_NAME,
+        description: `Booking: ${selectedService.name}`,
+        handler: async function (response) {
+          try {
+            const appointmentData = {
+              userId: user.uid,
+              serviceId: selectedService.id,
+              serviceName: selectedService.name,
+              staffId: selectedStaff.id,
+              staffName: selectedStaff.name,
+              date: selectedDate,
+              time: selectedSlot,
+              duration: selectedService.duration,
+              price: selectedService.price,
+              paymentId: response.razorpay_payment_id,
+              status: "confirmed",
+              createdAt: Timestamp.now(),
+            };
+
+            await runTransaction(db, async (transaction) => {
+              transaction.set(slotDocRef, appointmentData);
+            });
+
+            setSuccessMsg(`Reservation confirmed! Your payment ID is ${response.razorpay_payment_id}.`);
+            toast("Appointment Booked Successfully!", "success");
+            
+            setTimeout(() => {
+              navigate("/profile");
+            }, 3000);
+          } catch (err) {
+            console.error("Post-payment save failed", err);
+            toast("Payment successful but booking failed. Please contact support immediately.", "error");
+          }
+        },
+        prefill: {
+          name: user.displayName || "",
+          email: user.email || "",
+        },
+        theme: { color: "#D4AF37" },
+        modal: {
+          ondismiss: () => {
+            setIsBooking(false);
+          }
         }
+      };
 
-        const appointmentData = {
-          userId: user.uid,
-          serviceId: selectedService.id,
-          serviceName: selectedService.name,
-          staffId: selectedStaff.id,
-          staffName: selectedStaff.name,
-          date: selectedDate,
-          time: selectedSlot,
-          duration: selectedService.duration,
-          price: selectedService.price,
-          status: "pending", // Will become confirmed after payment
-          createdAt: Timestamp.now(),
-        };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
 
-        transaction.set(slotDocRef, appointmentData);
-      });
-
-      // If transaction succeeds, proceed to Mock Payment
-      setSuccessMsg(
-        `Reservation secured for ${selectedDate} at ${selectedSlot}. redirecting to payment...`,
-      );
-
-      // Here you would redirect to a Payment gateway. For brevity, mock it:
-      setTimeout(() => {
-        alert(
-          `Payment simulation successful for $${selectedService.price}. Appointment Confirmed!`,
-        );
-        navigate("/profile"); // Redirect to profile where they can see appointments
-      }, 2500);
     } catch (error) {
       console.error("Booking failed:", error.message);
-      alert(error.message || "Failed to book appointment");
-      setStep(3); // Go back to slot selection
-      // Refresh slots
-      handleDateSelect({ target: { value: selectedDate } });
-    } finally {
+      toast(error.message || "Booking failed", "error");
       setIsBooking(false);
     }
   };
@@ -465,7 +514,11 @@ const Appointments = () => {
                       <label className="text-xs uppercase tracking-widest text-neutral-500 block mb-6">
                         Available Time Slots
                       </label>
-                      {availableSlots.length > 0 ? (
+                      {isLoadingSlots ? (
+                        <div className="flex justify-center py-8">
+                          <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
+                        </div>
+                      ) : availableSlots.length > 0 ? (
                         <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
                           {availableSlots.map((time) => (
                             <button
@@ -482,10 +535,14 @@ const Appointments = () => {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-neutral-500 italic font-serif py-4 text-center">
-                          No slots available for this date. Please try another
-                          date.
-                        </p>
+                        <div className="text-center py-8">
+                          <p className="text-neutral-500 italic font-serif">
+                             No slots available for this period.
+                          </p>
+                          <p className="text-[10px] uppercase tracking-widest text-neutral-400 mt-2">
+                             Reason: Fully Booked or Non-working Day
+                          </p>
+                        </div>
                       )}
                     </div>
                   )}
@@ -528,6 +585,10 @@ const Appointments = () => {
                     </div>
                   ) : (
                     <div className="bg-white p-10 border border-gold-300/20 shadow-xl shadow-gold-300/5 text-center">
+                      <div className="flex flex-col items-center justify-center p-4 mb-6 bg-gold-50/30 border border-gold-300/10 rounded-xl">
+                        <CreditCard className="w-8 h-8 text-gold-600 mb-2" />
+                        <p className="text-[10px] uppercase tracking-widest text-gold-700 font-bold">Secure Razorpay Gateway</p>
+                      </div>
                       <h4
                         className="text-xl text-neutral-800 font-light mb-6"
                         style={{ fontFamily: "ui-serif, Georgia, serif" }}
@@ -535,17 +596,24 @@ const Appointments = () => {
                         Ready to Experience Luxury
                       </h4>
                       <p className="text-neutral-500 text-sm font-light leading-relaxed mb-10 max-w-md mx-auto">
-                        By proceeding, you agree to our 24-hour cancellation
-                        policy. A secure payment is required to finalize your
-                        booking.
+                        Your appointment for <span className="text-neutral-900 font-medium">{selectedService.name}</span> on <span className="text-neutral-900 font-medium">{selectedDate}</span> is ready for confirmation. A secure payment is required via <span className="font-bold">Razorpay</span> to finalize your booking.
                       </p>
                       <button
                         onClick={confirmBooking}
                         disabled={isBooking}
                         className="w-full md:w-auto md:px-16 bg-neutral-900 text-white py-5 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs hover:bg-gold-500 transition-all duration-500 disabled:opacity-50 mx-auto"
                       >
-                        {isBooking ? "Securing Slot..." : "Proceed to Payment"}
-                        {!isBooking && <ChevronRight className="w-4 h-4" />}
+                        {isBooking ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Initializing...
+                          </>
+                        ) : (
+                          <>
+                            Pay ₹{selectedService.price} & Confirm
+                            <ShieldCheck className="w-4 h-4" />
+                          </>
+                        )}
                       </button>
                     </div>
                   )}

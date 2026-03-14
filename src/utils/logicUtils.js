@@ -85,11 +85,14 @@ export const canCancelOrder = (status, isAdmin) => {
 export const generateTimeSlots = (staff, service, dateStr) => {
   if (!staff || !service || !dateStr) return [];
 
-  const date = new Date(dateStr);
+  // Robust date parsing (avoid UTC shift issues)
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
   const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }); // "Mon", etc
 
-  // 1. Check if working day
-  if (!staff.workingDays?.includes(dayName)) return [];
+  // 1. Check if working day (Default Mon-Sat if not specified)
+  const workingDays = staff.workingDays || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  if (!workingDays.includes(dayName)) return [];
 
   // 2. Check if manually blocked
   if (staff.blockedDates?.includes(dateStr)) return [];

@@ -76,6 +76,7 @@ const AdminDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [products, setProducts] = useState([]);
   const [services, setServices] = useState([]);
+  const [staff, setStaff] = useState([]);
   const [users, setUsers] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -187,15 +188,15 @@ const AdminDashboard = () => {
     unsubs.push(uP);
 
     // services
-    const uS = onSnapshot(collection(db, "services"), (snap) => {
-      setServices(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    });
+    const uS = onSnapshot(collection(db, "services"), (s) => setServices(s.docs.map(d => ({id: d.id, ...d.data()}))));
     unsubs.push(uS);
 
+    // staff
+    const uStaff = onSnapshot(collection(db, "staff"), (s) => setStaff(s.docs.map(d => ({id: d.id, ...d.data()}))));
+    unsubs.push(uStaff);
+
     // users
-    const uU = onSnapshot(collection(db, "users"), (snap) => {
-      setUsers(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    });
+    const uU = onSnapshot(collection(db, "users"), (s) => setUsers(s.docs.map(d => ({id: d.id, ...d.data()}))));
     unsubs.push(uU);
 
     setIsLoading(false);
@@ -525,11 +526,38 @@ const AdminDashboard = () => {
     }
   };
 
+  const seedStaff = async () => {
+    if (!window.confirm("Upload 10 Indian Specialists with working hours?")) return;
+    setIsLoading(true);
+    try {
+      const { default: indianStaff } = await import("../data/indianSpecialists.json");
+      for (const st of indianStaff) {
+        await addDoc(collection(db, "staff"), {
+          ...st,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        });
+      }
+      alert("Successfully uploaded 10 specialists!");
+    } catch (err) {
+      console.error("Seeding failed", err);
+      alert("Failed to seed staff.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteStaff = async (id) => {
+    if (!window.confirm("Remove this specialist?")) return;
+    await deleteDoc(doc(db, "staff", id));
+  };
+
   /* ─── sidebar tabs config ─────────────────────────── */
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "products", label: "Products", icon: Box },
     { id: "services", label: "Services", icon: Sparkles },
+    { id: "staff", label: "Specialists", icon: Users },
     { id: "orders", label: "Orders", icon: ShoppingBag },
     { id: "appointments", label: "Reservations", icon: Calendar },
     { id: "users", label: "Users", icon: Users },
@@ -1459,7 +1487,93 @@ const AdminDashboard = () => {
                   </div>
                 )}
 
-                {/* ═══ ORDERS ═════════════════════════ */}
+                {/* ═══ STAFF ═══════════════════════════ */}
+                {activeTab === "staff" && (
+                  <div>
+                    <div className="flex items-center justify-between mb-8 gap-4">
+                      <div>
+                        <h2 className="text-xl font-light text-neutral-800" style={{ fontFamily: "ui-serif, Georgia, serif" }}>Specialist Team</h2>
+                        <p className="text-xs text-neutral-400 uppercase tracking-widest mt-1">Manage duty hours and specializations</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {staff.length === 0 && (
+                          <button
+                            onClick={seedStaff}
+                            className="px-6 py-3 bg-cream-100 text-neutral-800 text-xs uppercase tracking-widest hover:bg-cream-200 transition-colors border border-cream-200"
+                          >
+                            Seed Roster
+                          </button>
+                        )}
+                        <button
+                          className="flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" /> Add Specialist
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
+                      <table className="w-full text-left">
+                        <thead className="bg-cream-50">
+                          <tr>
+                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Specialist</th>
+                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Category</th>
+                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Working Days</th>
+                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Working Hours</th>
+                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-100 text-sm">
+                          {staff.map((s) => (
+                            <tr key={s.id} className="hover:bg-neutral-50 transition-colors">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                  <img 
+                                    src={s.image} 
+                                    className="w-10 h-10 rounded-full object-cover border border-neutral-100" 
+                                    onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${s.name}&background=D4AF37&color=fff`; }}
+                                  />
+                                  <div>
+                                    <p className="font-bold text-neutral-800 text-[10px] uppercase tracking-widest">{s.name}</p>
+                                    <p className="text-[10px] text-neutral-400">{s.role || "Specialist"}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className="text-[10px] uppercase tracking-widest font-bold text-neutral-600">
+                                  {s.category || "General"}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <p className="text-[10px] text-neutral-500 max-w-[150px] truncate">
+                                  {s.workingDays?.join(", ") || "Mon - Sat"}
+                                </p>
+                              </td>
+                              <td className="px-6 py-4 text-xs text-neutral-600">
+                                {s.workingHours?.start || "09"}:00 - {s.workingHours?.end || "18"}:00
+                              </td>
+                              <td className="px-6 py-4">
+                                <button
+                                  onClick={() => deleteStaff(s.id)}
+                                  className="text-neutral-400 hover:text-red-500 transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                          {staff.length === 0 && (
+                            <tr>
+                              <td colSpan="5" className="px-6 py-12 text-center text-neutral-400 text-sm italic">
+                                No specialists in roster. Use "Seed Roster" to begin.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
                 {activeTab === "orders" && (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center mb-4">
