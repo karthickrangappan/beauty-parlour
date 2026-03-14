@@ -7,7 +7,7 @@ const homeData = {
     titleLine1: "Awaken your",
     titleItalic: "purest essence",
     description: "Step into a sun-drenched sanctuary of calm where pearl and silk meet flawless precision.",
-    backgroundImage: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=2000&auto=format&fit=crop",
+    backgroundImage: "public/images/bg_3.jpg",
     scrollText: "Scroll to explore"
   },
   sanctuary: {
@@ -15,7 +15,7 @@ const homeData = {
     titleLine1: "Bathed in",
     titleLine2: "Golden Hour",
     description: "Experience the profound calm of our meticulously designed spa. Marble floors meet brushed gold accents, harmonizing with natural light to create an atmosphere of serene luxury.",
-    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2000&auto=format&fit=crop",
+    image: "public/images/bg_2.jpg",
     ctaText: "Reserve a Moment"
   }
 };
