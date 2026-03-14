@@ -89,7 +89,7 @@ export const CartProvider = ({ children }) => {
             let nextItems;
             const existingItem = prevItems.find(item => item.id === newItem.id);
             if (existingItem) {
-                // Ensure max quantity doesn't exceed stock if stock is provided
+               
                 nextItems = prevItems.map(item => {
                     if (item.id === newItem.id) {
                         const nextObj = { ...item, quantity: item.quantity + (newItem.quantity || 1) };
