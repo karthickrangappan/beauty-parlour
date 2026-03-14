@@ -29,35 +29,51 @@ export const useInfiniteProducts = (filters) => {
       let q = collection(db, 'products');
       let constraints = [where('isActive', '==', true)];
 
-
       if (filters.collectionId && filters.collectionId !== 'all') {
         constraints.push(where('collection', '==', filters.collectionId));
       }
-
 
       if (filters.categories && filters.categories.length > 0) {
         constraints.push(where('category', 'in', filters.categories));
       }
 
+      let fetchedDocs = [];
+      let lastDoc = null;
+      let hasMoreResults = false;
 
-      let firestoreQuery = query(q, ...constraints, limit(12));
+      try {
+        // Primary Query: Order by newest first
+        const firestoreQuery = query(
+          q, 
+          ...constraints, 
+          orderBy('createdAt', 'desc'), 
+          limit(12),
+          ...(isNextPage && lastDocRef.current ? [startAfter(lastDocRef.current)] : [])
+        );
+        
+        const snapshot = await getDocs(firestoreQuery);
+        fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        lastDoc = snapshot.docs[snapshot.docs.length - 1];
+        hasMoreResults = snapshot.docs.length === 12;
 
-      if (isNextPage && lastDocRef.current) {
-        firestoreQuery = query(q, ...constraints, startAfter(lastDocRef.current), limit(12));
+      } catch (err) {
+        console.warn("Falling back to local sort due to missing index", err);
+        // Fallback: No orderBy (to avoid index requirement)
+        const fallbackQuery = query(q, ...constraints, limit(40));
+        const snapshot = await getDocs(fallbackQuery);
+        fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        // Sort newest first locally
+        fetchedDocs.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+        hasMoreResults = false;
       }
 
-      const snapshot = await getDocs(firestoreQuery);
-      let fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-
+      // 2. Client-side filters
       if (filters.priceRange) {
         fetchedDocs = fetchedDocs.filter(p => p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]);
       }
       if (filters.minRating > 0) {
         fetchedDocs = fetchedDocs.filter(p => p.rating >= filters.minRating);
       }
-
-
       if (debouncedSearch) {
         const lowerSearch = debouncedSearch.toLowerCase();
         fetchedDocs = fetchedDocs.filter(p => 
@@ -66,11 +82,9 @@ export const useInfiniteProducts = (filters) => {
         );
       }
 
-      lastDocRef.current = snapshot.docs[snapshot.docs.length - 1];
-      
-
-      setHasMore(snapshot.docs.length === 12);
-      
+      // 3. Update state
+      lastDocRef.current = lastDoc;
+      setHasMore(hasMoreResults);
       setProducts(prev => isNextPage ? [...prev, ...fetchedDocs] : fetchedDocs);
     } catch (err) {
       console.error("Error loading products", err);

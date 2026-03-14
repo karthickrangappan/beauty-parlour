@@ -203,6 +203,7 @@ const Appointments = () => {
               duration: selectedService.duration,
               price: selectedService.price,
               paymentId: response.razorpay_payment_id,
+              bookingId: `LUM-APT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
               status: "confirmed",
               createdAt: Timestamp.now(),
             };

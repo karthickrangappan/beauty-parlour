@@ -185,7 +185,8 @@ export const CartProvider = ({ children }) => {
           statusHistory: [{ status: 'confirmed', timestamp: Timestamp.now(), note: 'Order placed successfully.' }]
         };
 
-        const orderRef = doc(collection(db, "orders"));
+        const orderId = `LUM-ORD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+        const orderRef = doc(db, "orders", orderId);
         transaction.set(orderRef, orderData);
       });
 

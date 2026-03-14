@@ -327,7 +327,7 @@ const Profile = () => {
                                 Order #
                               </p>
                               <p className="text-xs font-mono text-neutral-700">
-                                {order.id.slice(0, 8)}...
+                                {order.id.startsWith('LUM') ? order.id : `${order.id.slice(0, 8)}...`}
                               </p>
                             </div>
                           </div>
@@ -455,7 +455,7 @@ const Profile = () => {
                               {appt.status}
                             </span>
                             <span className="text-xs text-neutral-400 font-mono">
-                              #{appt.id.slice(0, 6)}
+                               #{appt.bookingId || appt.id.slice(0, 6)}
                             </span>
                           </div>
                           <h4 className="text-sm font-medium uppercase tracking-widest text-neutral-800">

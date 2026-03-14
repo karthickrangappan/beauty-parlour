@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { db, storage } from "../firebase";
 import {
@@ -19,39 +18,24 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { canMoveToStatus, calculateNewAverage } from "../utils/logicUtils";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-} from "recharts";
-import {
   LayoutDashboard,
   Users,
   Calendar,
-  Package,
-  DollarSign,
   ShoppingBag,
   Box,
-  TrendingUp,
-  CheckCircle,
-  XCircle,
-  Plus,
-  Edit3,
-  Trash2,
-  Upload,
-  X,
-  Save,
-  Image as ImageIcon,
   Loader2,
-  Shield,
-  ArrowLeft,
-  Search,
   Sparkles,
 } from "lucide-react";
+
+// Modular Components
+import Sidebar from "../components/admin/Sidebar";
+import OverviewSection from "../components/admin/OverviewSection";
+import ProductSection from "../components/admin/ProductSection";
+import ServiceSection from "../components/admin/ServiceSection";
+import StaffSection from "../components/admin/StaffSection";
+import OrderSection from "../components/admin/OrderSection";
+import AppointmentSection from "../components/admin/AppointmentSection";
+import UserSection from "../components/admin/UserSection";
 
 /* ───────────────────── helpers ───────────────────── */
 const fmt = (n) => (n ?? 0).toFixed(2);
@@ -85,6 +69,8 @@ const AdminDashboard = () => {
   const [productSearch, setProductSearch] = useState("");
   const [serviceSearch, setServiceSearch] = useState("");
   const [orderSearch, setOrderSearch] = useState("");
+  const [userSearch, setUserSearch] = useState("");
+  const [staffSearch, setStaffSearch] = useState("");
 
   /* product form state */
   const [showForm, setShowForm] = useState(false);
@@ -96,6 +82,18 @@ const AdminDashboard = () => {
     collection: "skin-care",
     category: "Cleansers",
     stock: "",
+    image: "",
+    isActive: true,
+  });
+
+  const [showStaffForm, setShowStaffForm] = useState(false);
+  const [editingStaff, setEditingStaff] = useState(null);
+  const [staffFormData, setStaffFormData] = useState({
+    name: "",
+    role: "Specialist",
+    category: "General",
+    workingDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    workingHours: { start: 9, end: 18 },
     image: "",
     isActive: true,
   });
@@ -112,6 +110,7 @@ const AdminDashboard = () => {
     image: "",
     isActive: true,
   });
+
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -505,45 +504,68 @@ const AdminDashboard = () => {
     await deleteDoc(doc(db, "services", id));
   };
 
-  const seedServices = async () => {
-    if (!window.confirm("Upload 20 Indian Makeup Services? This may create duplicates if already present.")) return;
-    setIsLoading(true);
-    try {
-      const { default: indianServices } = await import("../data/indianMakeupServices.json");
-      for (const service of indianServices) {
-        await addDoc(collection(db, "services"), {
-          ...service,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
-      }
-      alert("Successfully uploaded 20 services!");
-    } catch (err) {
-      console.error("Seeding failed", err);
-      alert("Failed to seed services.");
-    } finally {
-      setIsLoading(false);
-    }
+
+  /* ─── staff form helpers ─────────────────────────── */
+  const resetStaffForm = () => {
+    setStaffFormData({
+      name: "",
+      role: "Specialist",
+      category: "General",
+      workingDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      workingHours: { start: 9, end: 18 },
+      image: "",
+      isActive: true,
+    });
+    setImageFile(null);
+    setImagePreview("");
+    setEditingStaff(null);
+    setShowStaffForm(false);
   };
 
-  const seedStaff = async () => {
-    if (!window.confirm("Upload 10 Indian Specialists with working hours?")) return;
-    setIsLoading(true);
+  const openEditStaffForm = (s) => {
+    setEditingStaff(s);
+    setStaffFormData({
+      name: s.name || "",
+      role: s.role || "Specialist",
+      category: s.category || "General",
+      workingDays: s.workingDays || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      workingHours: s.workingHours || { start: 9, end: 18 },
+      image: s.image || "",
+      isActive: s.isActive !== false,
+    });
+    setImagePreview(s.image || "");
+    setImageFile(null);
+    setShowStaffForm(true);
+  };
+
+  const saveStaff = async () => {
+    setIsSaving(true);
     try {
-      const { default: indianStaff } = await import("../data/indianSpecialists.json");
-      for (const st of indianStaff) {
-        await addDoc(collection(db, "staff"), {
-          ...st,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+      let imageUrl = staffFormData.image;
+      if (imageFile) {
+        const storageRef = ref(storage, `staff/${Date.now()}_${imageFile.name}`);
+        await uploadBytes(storageRef, imageFile);
+        imageUrl = await getDownloadURL(storageRef);
       }
-      alert("Successfully uploaded 10 specialists!");
+
+      const payload = {
+        ...staffFormData,
+        image: imageUrl,
+        updatedAt: Timestamp.now(),
+      };
+
+      if (editingStaff) {
+        await updateDoc(doc(db, "staff", editingStaff.id), payload);
+      } else {
+        payload.createdAt = Timestamp.now();
+        await addDoc(collection(db, "staff"), payload);
+      }
+      resetStaffForm();
     } catch (err) {
-      console.error("Seeding failed", err);
-      alert("Failed to seed staff.");
+      console.error("Save staff failed", err);
+      alert("Failed to save specialist.");
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -577,42 +599,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-neutral-50 flex">
       {/* ─── sidebar ─────────────────────────────────── */}
-      <div className="w-64 bg-white border-r border-neutral-200 fixed h-full flex flex-col pt-8 z-30">
-        <div className="px-8 mb-12">
-          <span
-            className="text-2xl tracking-widest uppercase font-light text-gold-500"
-            style={{ fontFamily: "ui-serif, Georgia, serif" }}
-          >
-            Lumière
-          </span>
-          <p className="text-[10px] uppercase tracking-widest text-neutral-400 mt-1">
-            Admin Portal
-          </p>
-        </div>
-
-        <div className="flex flex-col space-y-2 px-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-4 px-4 py-3 text-xs uppercase tracking-widest font-medium rounded-sm transition-all ${
-                activeTab === tab.id
-                  ? "bg-neutral-900 text-white shadow-md"
-                  : "text-neutral-500 hover:bg-cream-50 hover:text-neutral-900"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-auto mb-8 px-4 w-full">
-           <Link to="/shop" className="flex items-center gap-3 w-full px-4 py-3 text-xs uppercase tracking-widest font-bold bg-cream-50 text-neutral-600 hover:bg-neutral-900 hover:text-white transition-all rounded-sm border border-neutral-200">
-             <ArrowLeft className="w-4 h-4" /> Exit to Store
-           </Link>
-        </div>
-      </div>
+      <Sidebar tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* ─── main content ────────────────────────────── */}
       <div className="ml-64 flex-1 p-12">
@@ -646,1209 +633,116 @@ const AdminDashboard = () => {
               >
                 {/* ═══ OVERVIEW ════════════════════════ */}
                 {activeTab === "overview" && (
-                  <>
-                    {/* stat cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                      {[
-                        {
-                          label: "Revenue",
-                          val: `$${fmt(totalRevenue)}`,
-                          icon: DollarSign,
-                          bg: "bg-green-50 text-green-600",
-                        },
-                        {
-                          label: "Pending Orders",
-                          val: pendingOrders,
-                          icon: ShoppingBag,
-                          bg: "bg-orange-50 text-orange-600",
-                        },
-                        {
-                          label: "Products",
-                          val: totalProducts,
-                          icon: Box,
-                          bg: "bg-blue-50 text-blue-600",
-                        },
-                        {
-                          label: "Services",
-                          val: totalServices,
-                          icon: Sparkles,
-                          bg: "bg-pink-50 text-pink-600",
-                        },
-                        {
-                          label: "Active Users",
-                          val: totalUsers,
-                          icon: Users,
-                          bg: "bg-violet-50 text-violet-600",
-                        },
-                      ].map((s) => (
-                        <div
-                          key={s.label}
-                          className="bg-white p-6 border border-neutral-100 shadow-sm flex items-start justify-between"
-                        >
-                          <div>
-                            <p className="text-[10px] uppercase tracking-widest text-neutral-400 mb-1">
-                              {s.label}
-                            </p>
-                            <h3
-                              className="text-3xl font-light text-neutral-800"
-                              style={{
-                                fontFamily: "ui-serif, Georgia, serif",
-                              }}
-                            >
-                              {s.val}
-                            </h3>
-                          </div>
-                          <div className={`p-3 rounded-full ${s.bg}`}>
-                            <s.icon className="w-5 h-5" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* chart */}
-                    <div className="bg-white p-8 border border-neutral-100 shadow-sm mb-8">
-                      <div className="flex items-center gap-3 mb-8 border-b border-neutral-100 pb-4">
-                        <TrendingUp className="w-5 h-5 text-gold-500" />
-                        <h3 className="text-sm uppercase tracking-widest font-bold text-neutral-800">
-                          Revenue Analytics
-                        </h3>
-                      </div>
-                      <div className="h-80 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={chartData}>
-                            <defs>
-                              <linearGradient
-                                id="colorRevenue"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                              >
-                                <stop
-                                  offset="5%"
-                                  stopColor="#D4AF37"
-                                  stopOpacity={0.3}
-                                />
-                                <stop
-                                  offset="95%"
-                                  stopColor="#D4AF37"
-                                  stopOpacity={0}
-                                />
-                              </linearGradient>
-                            </defs>
-                            <XAxis
-                              dataKey="date"
-                              axisLine={false}
-                              tickLine={false}
-                              tick={{ fontSize: 10, fill: "#A3A3A3" }}
-                              dy={10}
-                            />
-                            <YAxis
-                              axisLine={false}
-                              tickLine={false}
-                              tick={{ fontSize: 10, fill: "#A3A3A3" }}
-                            />
-                            <Tooltip
-                              contentStyle={{
-                                backgroundColor: "#fff",
-                                border: "1px solid #f1f5f9",
-                                borderRadius: "4px",
-                                fontSize: "12px",
-                              }}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="revenue"
-                              stroke="#D4AF37"
-                              strokeWidth={2}
-                              fillOpacity={1}
-                              fill="url(#colorRevenue)"
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </>
+                  <OverviewSection 
+                    totalRevenue={totalRevenue}
+                    pendingOrders={pendingOrders}
+                    totalProducts={totalProducts}
+                    totalServices={totalServices}
+                    totalUsers={totalUsers}
+                    chartData={chartData}
+                  />
                 )}
 
                 {/* ═══ PRODUCTS ═══════════════════════ */}
                 {activeTab === "products" && (
-                  <div>
-                    <div className="flex items-center justify-between mb-8 gap-4">
-                      <div className="flex-1 max-w-sm relative">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-                        <input 
-                          type="text" 
-                          placeholder="Search catalogue..." 
-                          value={productSearch}
-                          onChange={e => setProductSearch(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
-                        />
-                      </div>
-                      <p className="text-sm text-neutral-500 hidden md:block">
-                        {products.filter(p => p.name?.toLowerCase().includes(productSearch.toLowerCase())).length} products found
-                      </p>
-                      <button
-                        onClick={() => {
-                          resetForm();
-                          setShowForm(true);
-                        }}
-                        className="flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors"
-                      >
-                        <Plus className="w-4 h-4" /> Add Product
-                      </button>
-                    </div>
-
-                    {/* product form modal */}
-                    <AnimatePresence>
-                      {showForm && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="bg-white border border-neutral-100 shadow-lg mb-8 overflow-hidden"
-                        >
-                          <div className="p-8">
-                            <div className="flex items-center justify-between mb-8">
-                              <h3 className="text-sm uppercase tracking-widest font-bold text-neutral-800">
-                                {editingProduct
-                                  ? "Edit Product"
-                                  : "New Product"}
-                              </h3>
-                              <button
-                                onClick={resetForm}
-                                className="text-neutral-400 hover:text-red-500"
-                              >
-                                <X className="w-5 h-5" />
-                              </button>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div className="space-y-4">
-                                <div>
-                                  <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                    Name
-                                  </label>
-                                  <input
-                                    value={formData.name}
-                                    onChange={(e) =>
-                                      setFormData({
-                                        ...formData,
-                                        name: e.target.value,
-                                      })
-                                    }
-                                    className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                    placeholder="Product name"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                    Short Description
-                                  </label>
-                                  <input
-                                    value={formData.shortDesc}
-                                    onChange={(e) =>
-                                      setFormData({
-                                        ...formData,
-                                        shortDesc: e.target.value,
-                                      })
-                                    }
-                                    className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                    placeholder="e.g. Purifying & Illuminating"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                      Price ($)
-                                    </label>
-                                    <input
-                                      type="number"
-                                      value={formData.price}
-                                      onChange={(e) =>
-                                        setFormData({
-                                          ...formData,
-                                          price: e.target.value,
-                                        })
-                                      }
-                                      className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                      placeholder="65"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                      Stock
-                                    </label>
-                                    <input
-                                      type="number"
-                                      value={formData.stock}
-                                      onChange={(e) =>
-                                        setFormData({
-                                          ...formData,
-                                          stock: e.target.value,
-                                        })
-                                      }
-                                      className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                      placeholder="100"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                      Collection
-                                    </label>
-                                    <select
-                                      value={formData.collection}
-                                      onChange={(e) =>
-                                        setFormData({
-                                          ...formData,
-                                          collection: e.target.value,
-                                        })
-                                      }
-                                      className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                    >
-                                      {collectionOptions.map((c) => (
-                                        <option key={c.id} value={c.id}>
-                                          {c.name}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                  <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                      Category
-                                    </label>
-                                    <select
-                                      value={formData.category}
-                                      onChange={(e) =>
-                                        setFormData({
-                                          ...formData,
-                                          category: e.target.value,
-                                        })
-                                      }
-                                      className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                    >
-                                      {categoryOptions.map((c) => (
-                                        <option key={c} value={c}>
-                                          {c}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                </div>
-                                <label className="flex items-center gap-3 pt-2 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={formData.isActive}
-                                    onChange={(e) =>
-                                      setFormData({
-                                        ...formData,
-                                        isActive: e.target.checked,
-                                      })
-                                    }
-                                    className="w-4 h-4 accent-neutral-900"
-                                  />
-                                  <span className="text-xs text-neutral-600">
-                                    Active (visible in shop)
-                                  </span>
-                                </label>
-                              </div>
-
-                              {/* image upload */}
-                              <div className="space-y-4">
-                                <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                  Product Image
-                                </label>
-                                <div
-                                  onClick={() => fileRef.current?.click()}
-                                  className="aspect-square bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center cursor-pointer hover:border-gold-500 transition-colors overflow-hidden relative group"
-                                >
-                                  {imagePreview ? (
-                                    <>
-                                      <img
-                                        src={imagePreview}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover"
-                                      />
-                                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Upload className="w-8 h-8 text-white" />
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ImageIcon className="w-12 h-12 text-neutral-300 mb-3" />
-                                      <p className="text-xs text-neutral-400 uppercase tracking-wider">
-                                        Click to upload
-                                      </p>
-                                    </>
-                                  )}
-                                </div>
-                                <input
-                                  ref={fileRef}
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  onChange={handleImageChange}
-                                />
-                                <p className="text-[10px] text-neutral-400">
-                                  Or paste an image URL:
-                                </p>
-                                <input
-                                  value={formData.image}
-                                  onChange={(e) => {
-                                    setFormData({
-                                      ...formData,
-                                      image: e.target.value,
-                                    });
-                                    if (!imageFile)
-                                      setImagePreview(e.target.value);
-                                  }}
-                                  className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                  placeholder="https://..."
-                                />
-                              </div>
-                            </div>
-
-                            <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-neutral-100">
-                              <button
-                                onClick={resetForm}
-                                className="px-6 py-3 text-xs uppercase tracking-widest text-neutral-500 hover:text-neutral-900"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                onClick={saveProduct}
-                                disabled={isSaving || !formData.name}
-                                className="flex items-center gap-2 px-8 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors disabled:opacity-50"
-                              >
-                                {isSaving ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Save className="w-4 h-4" />
-                                )}
-                                {editingProduct ? "Update" : "Publish"}
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* products table */}
-                    <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
-                      <table className="w-full text-left">
-                        <thead className="bg-cream-50">
-                          <tr>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Image
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Product
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Price
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Stock
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Status
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-neutral-100 text-sm">
-                          {products
-                            .filter(p => !productSearch || p.name?.toLowerCase().includes(productSearch.toLowerCase()))
-                            .map((p) => (
-                            <tr
-                              key={p.id}
-                              className="hover:bg-neutral-50 transition-colors"
-                            >
-                              <td className="px-6 py-4">
-                                <img
-                                  src={p.image}
-                                  alt={p.name}
-                                  onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }}
-                                  className="w-12 h-14 object-cover border border-neutral-100"
-                                />
-                              </td>
-                              <td className="px-6 py-4">
-                                <p className="font-medium text-neutral-800 text-xs uppercase tracking-wider">
-                                  {p.name}
-                                </p>
-                                <p className="text-[10px] text-neutral-400 mt-1">
-                                  {p.collection?.replace("-", " ")} ·{" "}
-                                  {p.category}
-                                </p>
-                              </td>
-                              <td className="px-6 py-4 text-neutral-800 font-medium">
-                                ${fmt(p.price)}
-                              </td>
-                              <td className="px-6 py-4 text-neutral-600">
-                                {p.stock ?? "—"}
-                              </td>
-                              <td className="px-6 py-4">
-                                <span
-                                  className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold rounded-sm ${p.isActive !== false ? "bg-green-100 text-green-700" : "bg-neutral-100 text-neutral-500"}`}
-                                >
-                                  {p.isActive !== false
-                                    ? "Active"
-                                    : "Inactive"}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                  <button
-                                    onClick={() => openEditForm(p)}
-                                    className="text-neutral-400 hover:text-gold-500 transition-colors"
-                                  >
-                                    <Edit3 className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => deleteProduct(p.id)}
-                                    className="text-neutral-400 hover:text-red-500 transition-colors"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                          {products.length === 0 && (
-                            <tr>
-                              <td
-                                colSpan="6"
-                                className="px-6 py-12 text-center text-neutral-400 text-sm italic"
-                              >
-                                No products yet. Click "+ Add Product" to create
-                                your first product.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                  <ProductSection 
+                    products={products}
+                    productSearch={productSearch}
+                    setProductSearch={setProductSearch}
+                    showForm={showForm}
+                    setShowForm={setShowForm}
+                    editingProduct={editingProduct}
+                    formData={formData}
+                    setFormData={setFormData}
+                    resetForm={resetForm}
+                    saveProduct={saveProduct}
+                    openEditForm={openEditForm}
+                    deleteProduct={deleteProduct}
+                    isSaving={isSaving}
+                    imagePreview={imagePreview}
+                    setImagePreview={setImagePreview}
+                    imageFile={imageFile}
+                    handleImageChange={handleImageChange}
+                    fileRef={fileRef}
+                    collectionOptions={collectionOptions}
+                    categoryOptions={categoryOptions}
+                  />
                 )}
 
                 {/* ═══ SERVICES ════════════════════════ */}
                 {activeTab === "services" && (
-                  <div>
-                    <div className="flex items-center justify-between mb-8 gap-4">
-                      <div className="flex-1 max-w-sm relative">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-                        <input 
-                          type="text" 
-                          placeholder="Search services..." 
-                          value={serviceSearch}
-                          onChange={e => setServiceSearch(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
-                        />
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {services.length === 0 && (
-                          <button
-                            onClick={seedServices}
-                            className="px-6 py-3 bg-cream-100 text-neutral-800 text-xs uppercase tracking-widest hover:bg-cream-200 transition-colors border border-cream-200"
-                          >
-                            Seed 20 Services
-                          </button>
-                        )}
-                        <button
-                          onClick={() => {
-                            resetServiceForm();
-                            setShowServiceForm(true);
-                          }}
-                          className="flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors"
-                        >
-                          <Plus className="w-4 h-4" /> Add Service
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* service form modal */}
-                    <AnimatePresence>
-                      {showServiceForm && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="bg-white border border-neutral-100 shadow-lg mb-8 overflow-hidden"
-                        >
-                          <div className="p-8">
-                            <div className="flex items-center justify-between mb-8">
-                              <h3 className="text-sm uppercase tracking-widest font-bold text-neutral-800">
-                                {editingService
-                                  ? "Edit Service"
-                                  : "New Service"}
-                              </h3>
-                              <button
-                                onClick={resetServiceForm}
-                                className="text-neutral-400 hover:text-red-500"
-                              >
-                                <X className="w-5 h-5" />
-                              </button>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div className="space-y-4">
-                                <div>
-                                  <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                    Service Name
-                                  </label>
-                                  <input
-                                    value={serviceFormData.name}
-                                    onChange={(e) =>
-                                      setServiceFormData({
-                                        ...serviceFormData,
-                                        name: e.target.value,
-                                      })
-                                    }
-                                    className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                    placeholder="e.g. HD Bridal Makeup"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                    Description
-                                  </label>
-                                  <textarea
-                                    value={serviceFormData.description}
-                                    onChange={(e) =>
-                                      setServiceFormData({
-                                        ...serviceFormData,
-                                        description: e.target.value,
-                                      })
-                                    }
-                                    rows={3}
-                                    className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                    placeholder="Brief description of the service..."
-                                  />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                      Price (₹)
-                                    </label>
-                                    <input
-                                      type="number"
-                                      value={serviceFormData.price}
-                                      onChange={(e) =>
-                                        setServiceFormData({
-                                          ...serviceFormData,
-                                          price: e.target.value,
-                                        })
-                                      }
-                                      className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                      placeholder="15000"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                      Duration (min)
-                                    </label>
-                                    <input
-                                      type="number"
-                                      value={serviceFormData.duration}
-                                      onChange={(e) =>
-                                        setServiceFormData({
-                                          ...serviceFormData,
-                                          duration: e.target.value,
-                                        })
-                                      }
-                                      className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                      placeholder="180"
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                    Category
-                                  </label>
-                                  <select
-                                    value={serviceFormData.category}
-                                    onChange={(e) =>
-                                      setServiceFormData({
-                                        ...serviceFormData,
-                                        category: e.target.value,
-                                      })
-                                    }
-                                    className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                  >
-                                    {serviceCategoryOptions.map((c) => (
-                                      <option key={c} value={c}>
-                                        {c}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                                <label className="flex items-center gap-3 pt-2 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={serviceFormData.isActive}
-                                    onChange={(e) =>
-                                      setServiceFormData({
-                                        ...serviceFormData,
-                                        isActive: e.target.checked,
-                                      })
-                                    }
-                                    className="w-4 h-4 accent-neutral-900"
-                                  />
-                                  <span className="text-xs text-neutral-600">
-                                    Active (visible in services page)
-                                  </span>
-                                </label>
-                              </div>
-
-                              {/* image upload */}
-                              <div className="space-y-4">
-                                <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                                  Service Highlight Image
-                                </label>
-                                <div
-                                  onClick={() => fileRef.current?.click()}
-                                  className="aspect-video bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center cursor-pointer hover:border-gold-500 transition-colors overflow-hidden relative group"
-                                >
-                                  {imagePreview ? (
-                                    <>
-                                      <img
-                                        src={imagePreview}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover"
-                                      />
-                                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Upload className="w-8 h-8 text-white" />
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ImageIcon className="w-12 h-12 text-neutral-300 mb-3" />
-                                      <p className="text-xs text-neutral-400 uppercase tracking-wider">
-                                        Click to upload
-                                      </p>
-                                    </>
-                                  )}
-                                </div>
-                                <input
-                                  ref={fileRef}
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  onChange={handleImageChange}
-                                />
-                                <p className="text-[10px] text-neutral-400">
-                                  Or paste an image URL:
-                                </p>
-                                <input
-                                  value={serviceFormData.image}
-                                  onChange={(e) => {
-                                    setServiceFormData({
-                                      ...serviceFormData,
-                                      image: e.target.value,
-                                    });
-                                    if (!imageFile)
-                                      setImagePreview(e.target.value);
-                                  }}
-                                  className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
-                                  placeholder="https://..."
-                                />
-                              </div>
-                            </div>
-
-                            <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-neutral-100">
-                              <button
-                                onClick={resetServiceForm}
-                                className="px-6 py-3 text-xs uppercase tracking-widest text-neutral-500 hover:text-neutral-900"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                onClick={saveService}
-                                disabled={isSaving || !serviceFormData.name}
-                                className="flex items-center gap-2 px-8 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors disabled:opacity-50"
-                              >
-                                {isSaving ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Save className="w-4 h-4" />
-                                )}
-                                {editingService ? "Update" : "Publish"}
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* services table */}
-                    <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
-                      <table className="w-full text-left">
-                        <thead className="bg-cream-50">
-                          <tr>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Image
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Service
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Price
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Duration
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Category
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Status
-                            </th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-neutral-100 text-sm">
-                          {services
-                            .filter(s => !serviceSearch || s.name?.toLowerCase().includes(serviceSearch.toLowerCase()))
-                            .map((s) => (
-                            <tr
-                              key={s.id}
-                              className="hover:bg-neutral-50 transition-colors"
-                            >
-                              <td className="px-6 py-4">
-                                <img
-                                  src={s.image}
-                                  alt={s.name}
-                                  onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Service&background=D4AF37&color=fff"; }}
-                                  className="w-16 h-10 object-cover border border-neutral-100"
-                                />
-                              </td>
-                              <td className="px-6 py-4">
-                                <p className="font-medium text-neutral-800 text-xs uppercase tracking-wider">
-                                  {s.name}
-                                </p>
-                              </td>
-                              <td className="px-6 py-4 text-neutral-800 font-medium">
-                                ₹{s.price}
-                              </td>
-                              <td className="px-6 py-4 text-neutral-600">
-                                {s.duration} min
-                              </td>
-                              <td className="px-6 py-4">
-                                <span className="px-2 py-1 bg-cream-50 text-neutral-600 text-[10px] uppercase tracking-widest font-medium border border-cream-100">
-                                  {s.category}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4">
-                                <span
-                                  className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold rounded-sm ${s.isActive !== false ? "bg-green-100 text-green-700" : "bg-neutral-100 text-neutral-500"}`}
-                                >
-                                  {s.isActive !== false
-                                    ? "Active"
-                                    : "Inactive"}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                  <button
-                                    onClick={() => openEditServiceForm(s)}
-                                    className="text-neutral-400 hover:text-gold-500 transition-colors"
-                                  >
-                                    <Edit3 className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => deleteService(s.id)}
-                                    className="text-neutral-400 hover:text-red-500 transition-colors"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                          {services.length === 0 && (
-                            <tr>
-                              <td
-                                colSpan="7"
-                                className="px-6 py-12 text-center text-neutral-400 text-sm italic"
-                              >
-                                No services yet. Click "+ Add Service" or "Seed 20 Services".
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                  <ServiceSection 
+                    services={services}
+                    serviceSearch={serviceSearch}
+                    setServiceSearch={setServiceSearch}
+                    showServiceForm={showServiceForm}
+                    setShowServiceForm={setShowServiceForm}
+                    editingService={editingService}
+                    serviceFormData={serviceFormData}
+                    setServiceFormData={setServiceFormData}
+                    resetServiceForm={resetServiceForm}
+                    saveService={saveService}
+                    openEditServiceForm={openEditServiceForm}
+                    deleteService={deleteService}
+                    isSaving={isSaving}
+                    imagePreview={imagePreview}
+                    setImagePreview={setImagePreview}
+                    imageFile={imageFile}
+                    handleImageChange={handleImageChange}
+                    fileRef={fileRef}
+                    serviceCategoryOptions={serviceCategoryOptions}
+                  />
                 )}
 
                 {/* ═══ STAFF ═══════════════════════════ */}
                 {activeTab === "staff" && (
-                  <div>
-                    <div className="flex items-center justify-between mb-8 gap-4">
-                      <div>
-                        <h2 className="text-xl font-light text-neutral-800" style={{ fontFamily: "ui-serif, Georgia, serif" }}>Specialist Team</h2>
-                        <p className="text-xs text-neutral-400 uppercase tracking-widest mt-1">Manage duty hours and specializations</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {staff.length === 0 && (
-                          <button
-                            onClick={seedStaff}
-                            className="px-6 py-3 bg-cream-100 text-neutral-800 text-xs uppercase tracking-widest hover:bg-cream-200 transition-colors border border-cream-200"
-                          >
-                            Seed Roster
-                          </button>
-                        )}
-                        <button
-                          className="flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors"
-                        >
-                          <Plus className="w-4 h-4" /> Add Specialist
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
-                      <table className="w-full text-left">
-                        <thead className="bg-cream-50">
-                          <tr>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Specialist</th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Category</th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Working Days</th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Working Hours</th>
-                            <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-neutral-100 text-sm">
-                          {staff.map((s) => (
-                            <tr key={s.id} className="hover:bg-neutral-50 transition-colors">
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                  <img 
-                                    src={s.image} 
-                                    className="w-10 h-10 rounded-full object-cover border border-neutral-100" 
-                                    onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${s.name}&background=D4AF37&color=fff`; }}
-                                  />
-                                  <div>
-                                    <p className="font-bold text-neutral-800 text-[10px] uppercase tracking-widest">{s.name}</p>
-                                    <p className="text-[10px] text-neutral-400">{s.role || "Specialist"}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4">
-                                <span className="text-[10px] uppercase tracking-widest font-bold text-neutral-600">
-                                  {s.category || "General"}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4">
-                                <p className="text-[10px] text-neutral-500 max-w-[150px] truncate">
-                                  {s.workingDays?.join(", ") || "Mon - Sat"}
-                                </p>
-                              </td>
-                              <td className="px-6 py-4 text-xs text-neutral-600">
-                                {s.workingHours?.start || "09"}:00 - {s.workingHours?.end || "18"}:00
-                              </td>
-                              <td className="px-6 py-4">
-                                <button
-                                  onClick={() => deleteStaff(s.id)}
-                                  className="text-neutral-400 hover:text-red-500 transition-colors"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                          {staff.length === 0 && (
-                            <tr>
-                              <td colSpan="5" className="px-6 py-12 text-center text-neutral-400 text-sm italic">
-                                No specialists in roster. Use "Seed Roster" to begin.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                  <StaffSection 
+                    staff={staff}
+                    staffSearch={staffSearch}
+                    setStaffSearch={setStaffSearch}
+                    showStaffForm={showStaffForm}
+                    setShowStaffForm={setShowStaffForm}
+                    editingStaff={editingStaff}
+                    staffFormData={staffFormData}
+                    setStaffFormData={setStaffFormData}
+                    resetStaffForm={resetStaffForm}
+                    saveStaff={saveStaff}
+                    openEditStaffForm={openEditStaffForm}
+                    deleteStaff={deleteStaff}
+                    isSaving={isSaving}
+                    imagePreview={imagePreview}
+                    handleImageChange={handleImageChange}
+                    fileRef={fileRef}
+                    serviceCategoryOptions={serviceCategoryOptions}
+                  />
                 )}
                 {activeTab === "orders" && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center mb-4">
-                       <div className="relative w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                        <input
-                          type="text"
-                          placeholder="Search Order ID or Email..."
-                          value={orderSearch}
-                          onChange={(e) => setOrderSearch(e.target.value)}
-                          className="w-full bg-white border border-neutral-100 py-2 pl-10 pr-4 text-xs focus:outline-none focus:border-gold-500"
-                        />
-                      </div>
-                    </div>
-                    <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
-                    <table className="w-full text-left">
-                      <thead className="bg-cream-50">
-                        <tr>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Order ID
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Date
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Items
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Payment
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Status
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Action
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-neutral-100 text-sm">
-                        {orders
-                          .filter(o => 
-                            !orderSearch || 
-                            o.id.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                            o.customer?.email?.toLowerCase().includes(orderSearch.toLowerCase())
-                          )
-                          .map((o) => {
-                          const d = o.createdAt?.toDate
-                            ? o.createdAt.toDate().toLocaleDateString()
-                            : new Date(
-                                o.createdAt || Date.now()
-                              ).toLocaleDateString();
-                          return (
-                            <tr
-                              key={o.id}
-                              className="hover:bg-neutral-50 transition-colors"
-                            >
-                              <td className="px-6 py-4 font-mono text-xs">
-                                {o.id.slice(0, 8)}
-                              </td>
-                              <td className="px-6 py-4 text-neutral-600 font-serif italic text-xs">
-                                {d}
-                              </td>
-                              <td className="px-6 py-4 text-neutral-600 text-xs">
-                                {o.items?.length || 0} items
-                              </td>
-                              <td className="px-6 py-4 text-neutral-800 font-bold">
-                                ₹{o.totalAmount || 0}
-                              </td>
-                              <td className="px-6 py-4">
-                                <span className="text-[10px] uppercase font-bold text-neutral-500 flex items-center gap-1">
-                                  {o.paymentType === 'COD' ? '🚚' : '💳'} {o.paymentType}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4">
-                                <span
-                                  className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold rounded-sm ${statusColors[o.status] || "bg-neutral-100 text-neutral-500"}`}
-                                >
-                                  {o.status?.replace('_', ' ')}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4">
-                                <select
-                                  value={o.status}
-                                  onChange={(e) =>
-                                    updateOrderStatus(o, e.target.value)
-                                  }
-                                  className="text-[10px] border border-neutral-100 bg-white p-1 text-neutral-600 focus:outline-none uppercase font-bold"
-                                >
-                                  <option value="confirmed">Confirmed</option>
-                                  <option value="processing">Processing</option>
-                                  <option value="packed">Packed</option>
-                                  <option value="shipped">Shipped</option>
-                                  <option value="out_for_delivery">Out for Delivery</option>
-                                  <option value="delivered">Delivered</option>
-                                  <option value="return_requested">Return Requested</option>
-                                  <option value="cancelled">Cancel</option>
-                                </select>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                        {orders.length === 0 && (
-                          <tr>
-                            <td
-                              colSpan="6"
-                              className="px-6 py-12 text-center text-neutral-400 text-sm italic"
-                            >
-                              No orders yet.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
+                  <OrderSection 
+                    orders={orders}
+                    orderSearch={orderSearch}
+                    setOrderSearch={setOrderSearch}
+                    updateOrderStatus={updateOrderStatus}
+                    statusColors={statusColors}
+                  />
+                )}
 
                 {/* ═══ APPOINTMENTS ═══════════════════ */}
                 {activeTab === "appointments" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {appointments.length === 0 && (
-                      <div className="col-span-full text-center py-20 text-neutral-400 text-sm italic">
-                        No appointment bookings yet.
-                      </div>
-                    )}
-                    {appointments.map((a) => (
-                      <div
-                        key={a.id}
-                        className="bg-white p-6 border border-neutral-100 shadow-sm flex flex-col justify-between"
-                      >
-                        <div>
-                          <div className="flex justify-between items-start mb-4">
-                            <span
-                              className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 ${statusColors[a.status] || "bg-gold-100 text-gold-700"}`}
-                            >
-                              {a.status}
-                            </span>
-                            <span
-                              className="text-xl font-light text-neutral-800"
-                              style={{
-                                fontFamily: "ui-serif, Georgia, serif",
-                              }}
-                            >
-                              ${a.price}
-                            </span>
-                          </div>
-                          <h4 className="text-sm font-bold uppercase tracking-widest text-neutral-800 mb-1">
-                            {a.serviceName}
-                          </h4>
-                          <p className="text-xs text-neutral-500 font-serif italic mb-4">
-                            {a.staffName}
-                          </p>
-                          <p className="text-xs text-neutral-600 mb-6 flex items-center gap-2">
-                            <Calendar className="w-3 h-3" /> {a.date} at{" "}
-                            {a.time}
-                          </p>
-                        </div>
-                        {a.status === "pending" && (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() =>
-                                handleAppointment(a.id, "confirmed")
-                              }
-                              className="flex-1 bg-green-500 text-white py-2 text-[10px] uppercase font-bold hover:bg-green-600 transition-colors flex justify-center items-center gap-1"
-                            >
-                              <CheckCircle className="w-3 h-3" /> Approve
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleAppointment(a.id, "cancelled")
-                              }
-                              className="flex-1 bg-red-50 text-red-600 py-2 text-[10px] uppercase font-bold hover:bg-red-100 transition-colors flex justify-center items-center gap-1"
-                            >
-                              <XCircle className="w-3 h-3" /> Reject
-                            </button>
-                          </div>
-                        )}
-                        {a.status === "confirmed" && (
-                          <div className="flex gap-2">
-                            <button
-                               onClick={() => handleAppointment(a.id, "completed")}
-                               className="flex-1 bg-neutral-900 text-white py-2 text-[10px] uppercase font-bold hover:bg-gold-500 transition-colors"
-                            >
-                               Mark Completed
-                            </button>
-                             <button
-                               onClick={() => handleAppointment(a.id, "no_show")}
-                               className="flex-1 bg-neutral-100 text-neutral-500 py-2 text-[10px] uppercase font-bold hover:bg-neutral-200 transition-colors"
-                            >
-                               No Show
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  <AppointmentSection 
+                    appointments={appointments}
+                    handleAppointment={handleAppointment}
+                    statusColors={statusColors}
+                  />
                 )}
 
                 {/* ═══ USERS ═════════════════════════ */}
                 {activeTab === "users" && (
-                  <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
-                    <table className="w-full text-left">
-                      <thead className="bg-cream-50">
-                        <tr>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            UID
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Name / Email
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Points
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Role
-                          </th>
-                          <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                            Action
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-neutral-100 text-sm">
-                        {users.map((u) => (
-                          <tr
-                            key={u.id}
-                            className="hover:bg-neutral-50 transition-colors"
-                          >
-                            <td className="px-6 py-4 font-mono text-xs text-neutral-500">
-                              {u.id.slice(0, 10)}…
-                            </td>
-                            <td className="px-6 py-4">
-                              <p className="text-neutral-800 font-medium">
-                                {u.name || u.displayName || "—"}
-                              </p>
-                              <p className="text-[10px] text-neutral-400 mt-0.5">
-                                {u.email}
-                              </p>
-                            </td>
-                            <td className="px-6 py-4 text-gold-600 font-medium">
-                              {u.loyaltyPoints ?? 0}
-                            </td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold rounded-sm ${u.role === "admin" ? "bg-violet-100 text-violet-700" : "bg-neutral-100 text-neutral-600"}`}
-                              >
-                                {u.role || "customer"}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <select
-                                value={u.role || "customer"}
-                                onChange={(e) =>
-                                  updateUserRole(u.id, e.target.value)
-                                }
-                                className="text-xs border border-neutral-200 bg-white p-1 text-neutral-600 focus:outline-none"
-                              >
-                                <option value="customer">Customer</option>
-                                <option value="admin">Admin</option>
-                              </select>
-                            </td>
-                          </tr>
-                        ))}
-                        {users.length === 0 && (
-                          <tr>
-                            <td
-                              colSpan="5"
-                              className="px-6 py-12 text-center text-neutral-400 text-sm italic"
-                            >
-                              No users found.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                  <UserSection 
+                    users={users}
+                    userSearch={userSearch}
+                    setUserSearch={setUserSearch}
+                    updateUserRole={updateUserRole}
+                  />
                 )}
               </motion.div>
             </AnimatePresence>

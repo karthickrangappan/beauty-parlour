@@ -6,7 +6,7 @@ import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
-    const [query, setQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
     const [results, setResults] = useState([]);
     const [recentSearches, setRecentSearches] = useState([]);
@@ -22,17 +22,17 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     useEffect(() => {
         if (isOpen && inputRef.current) {
             setTimeout(() => inputRef.current.focus(), 100);
-            setQuery(''); // Reset query on open
+            setSearchQuery(''); // Reset query on open
         }
     }, [isOpen]);
 
     // Debounce Logic (300ms)
     useEffect(() => {
         const timerId = setTimeout(() => {
-            setDebouncedQuery(query);
+            setDebouncedQuery(searchQuery);
         }, 300);
         return () => clearTimeout(timerId);
-    }, [query]);
+    }, [searchQuery]);
 
     // Perform Search against Firestore
     useEffect(() => {
@@ -70,11 +70,11 @@ const SearchOverlay = ({ isOpen, onClose }) => {
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        if (!query.trim()) return;
+        if (!searchQuery.trim()) return;
         
-        saveRecentSearch(query.trim());
+        saveRecentSearch(searchQuery.trim());
         onClose();
-        navigate(`/shop?search=${encodeURIComponent(query.trim())}`);
+        navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
     };
 
     const handleResultClick = (product) => {
@@ -117,8 +117,8 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                             <input 
                                 ref={inputRef}
                                 type="text"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search products, treatments, or ingredients..."
                                 className="w-full bg-transparent border-b-2 border-neutral-300 pb-6 text-2xl md:text-4xl lg:text-5xl font-light text-neutral-800 focus:outline-none focus:border-gold-500 transition-colors placeholder:text-neutral-300"
                                 style={{ fontFamily: 'ui-serif, Georgia, serif' }}
@@ -132,14 +132,14 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                             
                             {/* Suggestions / Results Panel */}
                             <div className="md:col-span-8">
-                                {query.trim() === '' ? (
+                                {searchQuery.trim() === '' ? (
                                     <div className="space-y-6 opacity-60">
                                         <h3 className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-4">Trending Searches</h3>
                                         <div className="flex flex-wrap gap-3">
                                             {['Silk Facial', 'Vitamin C Serum', 'Bridal Package', 'Rose Water', 'Exfoliant'].map(term => (
                                                 <button 
                                                     key={term}
-                                                    onClick={() => setQuery(term)}
+                                                    onClick={() => setSearchQuery(term)}
                                                     className="px-4 py-2 bg-white/50 border border-neutral-200 text-xs uppercase tracking-widest text-neutral-600 hover:border-gold-500 hover:text-gold-600 transition-colors rounded-full"
                                                 >
                                                     {term}
