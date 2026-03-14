@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, Clock, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { products } from '../../data/products'; // we'll use local products for mock search
+import { db } from '../firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
     const [query, setQuery] = useState('');
@@ -12,16 +13,9 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
     const inputRef = useRef(null);
 
-    // Initialize recent searches from localStorage
+    // Keep recent searches in state only, removing localStorage
     useEffect(() => {
-        const saved = localStorage.getItem('recentSearches');
-        if (saved) {
-            try {
-                setRecentSearches(JSON.parse(saved));
-            } catch (e) {
-                setRecentSearches([]);
-            }
-        }
+        // No-op for now since localStorage usage is requested to be removed
     }, [isOpen]);
 
     // Focus input when opened
@@ -40,25 +34,38 @@ const SearchOverlay = ({ isOpen, onClose }) => {
         return () => clearTimeout(timerId);
     }, [query]);
 
-    // Perform Search
+    // Perform Search against Firestore
     useEffect(() => {
         if (!debouncedQuery.trim()) {
             setResults([]);
             return;
         }
 
-        const lowerQuery = debouncedQuery.toLowerCase();
-        
-        // Advanced client side filtering mimicking full-text Algolia
-        const matched = products.filter(p => 
-            p.name.toLowerCase().includes(lowerQuery) ||
-            p.category.toLowerCase().includes(lowerQuery) ||
-            p.shortDesc.toLowerCase().includes(lowerQuery) ||
-            (p.tags && p.tags.some(t => t.toLowerCase().includes(lowerQuery)))
-        ).slice(0, 5); // Return top 5 matches as requested
+        const searchProducts = async () => {
+            try {
+                const q = query(
+                    collection(db, 'products'),
+                    where('isActive', '==', true)
+                );
+                const snapshot = await getDocs(q);
+                const allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        setResults(matched);
+                const lowerQuery = debouncedQuery.toLowerCase();
+                const matched = allProducts.filter(p =>
+                    p.name?.toLowerCase().includes(lowerQuery) ||
+                    p.category?.toLowerCase().includes(lowerQuery) ||
+                    p.shortDesc?.toLowerCase().includes(lowerQuery) ||
+                    (p.tags && p.tags.some(t => t.toLowerCase().includes(lowerQuery)))
+                ).slice(0, 5);
 
+                setResults(matched);
+            } catch (err) {
+                console.error('Search error', err);
+                setResults([]);
+            }
+        };
+
+        searchProducts();
     }, [debouncedQuery]);
 
     const handleSearchSubmit = (e) => {
@@ -80,12 +87,10 @@ const SearchOverlay = ({ isOpen, onClose }) => {
         let updatedSearches = [searchTerm, ...recentSearches.filter(s => s !== searchTerm)];
         updatedSearches = updatedSearches.slice(0, 5); // keep max 5
         setRecentSearches(updatedSearches);
-        localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
     };
 
     const clearRecentSearches = () => {
         setRecentSearches([]);
-        localStorage.removeItem('recentSearches');
     };
 
     return (
@@ -160,7 +165,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                                             className="flex items-center gap-6 p-4 bg-white hover:shadow-lg hover:shadow-gold-300/10 border border-transparent hover:border-gold-300/30 transition-all cursor-pointer group rounded-sm"
                                                         >
                                                             <div className="w-16 h-20 bg-neutral-100 overflow-hidden flex-shrink-0">
-                                                                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                                <img src={product.image} alt={product.name} onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                                             </div>
                                                             <div className="flex-1">
                                                                 <h4 className="text-sm uppercase tracking-widest text-neutral-800 font-medium mb-1 group-hover:text-gold-600 transition-colors">{product.name}</h4>

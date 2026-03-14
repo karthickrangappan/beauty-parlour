@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -12,12 +12,40 @@ const Cart = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const navigate = useNavigate();
 
-
-    useEffect(() => {
-        if (!user) {
-            navigate('/auth/login');
-        }
-    }, [user, navigate]);
+    // Show a login gate for guests — don't silently redirect
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-cream-50 pt-32 pb-24 flex items-center justify-center">
+                <div className="text-center space-y-8 max-w-md mx-auto px-6">
+                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto">
+                        <ShoppingBag className="w-10 h-10 text-gold-300 stroke-[1]" />
+                    </div>
+                    <div className="space-y-3">
+                        <h2 className="text-3xl text-neutral-800 font-light" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
+                            Your bag awaits
+                        </h2>
+                        <p className="text-neutral-500 font-serif italic text-sm leading-relaxed">
+                            Sign in to view your shopping bag and complete your purchase.
+                        </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button
+                            onClick={() => navigate('/auth/login', { state: { from: '/cart' } })}
+                            className="px-10 py-4 bg-neutral-900 text-white uppercase tracking-[0.2em] text-xs hover:bg-gold-500 transition-colors duration-500"
+                        >
+                            Sign In
+                        </button>
+                        <Link
+                            to="/shop"
+                            className="px-10 py-4 border border-neutral-300 text-neutral-600 uppercase tracking-[0.2em] text-xs hover:border-neutral-900 hover:text-neutral-900 transition-colors duration-300 text-center"
+                        >
+                            Continue Shopping
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const handleCheckout = () => {
         navigate('/checkout');
@@ -84,7 +112,7 @@ const Cart = () => {
                                     >
                                         <div className="col-span-1 md:col-span-2 flex gap-6">
                                             <div className="w-24 h-32 bg-white overflow-hidden relative shadow-sm border border-gold-300/10 flex-shrink-0">
-                                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                <img src={item.image} alt={item.name} onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }} className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex flex-col justify-center">
                                                 <h3 className="text-neutral-800 uppercase tracking-wider text-sm mb-1">{item.name}</h3>

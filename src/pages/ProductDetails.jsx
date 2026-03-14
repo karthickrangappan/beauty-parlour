@@ -1,25 +1,69 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, Star, ArrowLeft, ShieldCheck, Truck, RefreshCw, ChevronRight } from "lucide-react";
-import { products } from "../data/products";
+import { Heart, ShoppingBag, Star, ArrowLeft, ShieldCheck, Truck, RefreshCw, ChevronRight, Loader2 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 import ProductReviews from "../components/ProductReviews";
+import { db } from "../firebase";
+import { doc, getDoc, collection, query, where, getDocs, limit } from "firebase/firestore";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItemToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { user } = useAuth();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
-
-  const product = products.find((p) => p.id === id);
+  const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    fetchProduct();
   }, [id]);
+
+  const fetchProduct = async () => {
+    setLoading(true);
+    try {
+      const docRef = doc(db, "products", id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const productData = { id: docSnap.id, ...docSnap.data() };
+        setProduct(productData);
+        // fetch related products from same category
+        const q = query(
+          collection(db, "products"),
+          where("category", "==", productData.category),
+          where("isActive", "==", true),
+          limit(5)
+        );
+        const snap = await getDocs(q);
+        const related = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((p) => p.id !== id);
+        setRelatedProducts(related.slice(0, 4));
+      } else {
+        setProduct(null);
+      }
+    } catch (err) {
+      console.error("Error fetching product", err);
+      setProduct(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-cream-50">
+        <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -32,16 +76,24 @@ const ProductDetails = () => {
     );
   }
 
-  const relatedProducts = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-
   const handleAddToCart = () => {
+    if (!user) {
+      navigate("/auth/login", { state: { from: `/product/${product.id}` } });
+      return;
+    }
     addItemToCart({
       ...product,
-      quantity: quantity
+      quantity: quantity,
     });
     navigate("/cart");
+  };
+
+  const handleWishlist = () => {
+    if (!user) {
+      navigate("/auth/login", { state: { from: `/product/${product.id}` } });
+      return;
+    }
+    isInWishlist(product.id) ? removeFromWishlist(product.id) : addToWishlist(product);
   };
 
   return (
@@ -70,6 +122,7 @@ const ProductDetails = () => {
               <img 
                 src={product.image} 
                 alt={product.name}
+                onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </div>
@@ -84,23 +137,32 @@ const ProductDetails = () => {
             >
               <div className="flex items-center gap-4">
                 <span className="px-3 py-1 bg-gold-50 text-gold-600 text-[10px] uppercase tracking-widest font-bold rounded-full border border-gold-200">
-                  {product.collection.replace('-', ' ')}
+                  {product.collection?.replace('-', ' ') || 'Collection'}
                 </span>
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-gold-500 text-gold-500" />
-                  <span className="text-sm font-medium text-neutral-900 mt-0.5">{product.rating}</span>
-                </div>
+                {product.rating > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-gold-500 text-gold-500" />
+                    <span className="text-sm font-medium text-neutral-900 mt-0.5">{product.rating}</span>
+                  </div>
+                )}
               </div>
 
               <h1 className="text-4xl md:text-5xl font-light text-neutral-900 leading-tight" style={{ fontFamily: "ui-serif, Georgia, serif" }}>
                 {product.name}
               </h1>
               
-              <p className="text-2xl font-light text-neutral-900">${product.price.toFixed(2)}</p>
+              <p className="text-2xl font-light text-neutral-900">${(product.price || 0).toFixed(2)}</p>
               
               <p className="text-neutral-500 leading-relaxed text-lg max-w-xl">
-                Elevate your daily ritual with the {product.name}. Carefully formulated to provide {product.shortDesc.toLowerCase()} for a truly luminous finish.
+                Elevate your daily ritual with the {product.name}. Carefully formulated to provide {(product.shortDesc || 'exceptional results').toLowerCase()} for a truly luminous finish.
               </p>
+
+              {product.stock !== undefined && product.stock <= 10 && product.stock > 0 && (
+                <p className="text-xs text-orange-600 uppercase tracking-widest font-bold">Only {product.stock} left in stock</p>
+              )}
+              {product.stock === 0 && (
+                <p className="text-xs text-red-600 uppercase tracking-widest font-bold">Out of stock</p>
+              )}
             </motion.div>
 
             {/* Actions */}
@@ -115,7 +177,7 @@ const ProductDetails = () => {
                   </button>
                   <span className="w-10 text-center text-sm font-medium">{quantity}</span>
                   <button 
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => setQuantity(product.stock ? Math.min(product.stock, quantity + 1) : quantity + 1)}
                     className="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition rounded-full"
                   >
                     +
@@ -123,9 +185,7 @@ const ProductDetails = () => {
                 </div>
 
                 <button 
-                  onClick={(e) => {
-                    isInWishlist(product.id) ? removeFromWishlist(product.id) : addToWishlist(product);
-                  }}
+                  onClick={handleWishlist}
                   className={`p-4 rounded-full border transition-all ${
                     isInWishlist(product.id) 
                       ? "bg-red-50 border-red-200 text-red-500 shadow-sm" 
@@ -138,10 +198,11 @@ const ProductDetails = () => {
 
               <button 
                 onClick={handleAddToCart}
-                className="w-full py-5 bg-neutral-900 text-white rounded-2xl flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs font-bold hover:bg-neutral-800 transition shadow-xl"
+                disabled={product.stock === 0}
+                className="w-full py-5 bg-neutral-900 text-white rounded-2xl flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs font-bold hover:bg-neutral-800 transition shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ShoppingBag className="w-4 h-4" />
-                Add to Luxury Cart
+                {product.stock === 0 ? "Out of Stock" : "Add to Luxury Cart"}
               </button>
             </div>
 
@@ -198,7 +259,7 @@ const ProductDetails = () => {
                   className="max-w-3xl text-neutral-500 leading-relaxed"
                 >
                    {activeTab === "description" && (
-                    <p>Designed for the discerning individual, our {product.name} delivers unparalleled results by utilizing high-performance active ingredients. It works deeply into the surface of your skin to provide {product.shortDesc.toLowerCase()} while maintaining its natural moisture barrier.</p>
+                    <p>Designed for the discerning individual, our {product.name} delivers unparalleled results by utilizing high-performance active ingredients. It works deeply into the surface of your skin to provide {(product.shortDesc || 'exceptional results').toLowerCase()} while maintaining its natural moisture barrier.</p>
                    )}
                    {activeTab === "how to use" && (
                     <p>Apply a small amount to clean skin twice daily. Massage gently in upward circular motions until fully absorbed. For best results, follow with our recommended serum pairing.</p>
@@ -222,13 +283,13 @@ const ProductDetails = () => {
               {relatedProducts.map((p) => (
                 <Link key={p.id} to={`/product/${p.id}`} className="group block">
                   <div className="aspect-[4/5] bg-neutral-50 rounded-2xl overflow-hidden mb-6 relative border border-neutral-100 shadow-sm transition-all duration-500 group-hover:shadow-lg">
-                    <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img src={p.image} alt={p.name} onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition duration-500" />
                   </div>
                   <div className="text-center space-y-1">
                     <h3 className="text-sm font-medium uppercase tracking-widest text-neutral-900">{p.name}</h3>
                     <p className="text-xs text-neutral-400 font-serif italic">{p.category}</p>
-                    <p className="text-sm font-medium mt-2">${p.price.toFixed(2)}</p>
+                    <p className="text-sm font-medium mt-2">${(p.price || 0).toFixed(2)}</p>
                   </div>
                 </Link>
               ))}

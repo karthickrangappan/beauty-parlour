@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, User, Search, Menu, X, Heart } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
-import { useWishlist } from '../../context/WishlistContext';
+import { ShoppingBag, User, Search, Menu, X, Heart, LayoutDashboard } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
+import { useAuth } from '../context/AuthContext';
 import SearchOverlay from './SearchOverlay';
 
 const Navbar = () => {
@@ -13,6 +14,8 @@ const Navbar = () => {
   const location = useLocation();
   const { totalItems } = useCart();
   const { wishlistItems } = useWishlist();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,9 +103,27 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
-              <Link to="/auth/login" className="hover:text-gold-500 transition-colors">
+              {/* User icon — profile if logged in, login if not */}
+              <Link
+                to={user ? '/profile' : '/auth/login'}
+                className="hover:text-gold-500 transition-colors relative"
+                title={user ? user.displayName || 'Profile' : 'Sign In'}
+              >
                 <User className="w-5 h-5 stroke-[1.5]" />
+                {user && (
+                  <span className="absolute -top-1 -right-2 w-2 h-2 bg-green-400 rounded-full" />
+                )}
               </Link>
+              {/* Admin shortcut in navbar for admins */}
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="hover:text-gold-500 transition-colors hidden md:flex items-center gap-1"
+                  title="Admin Portal"
+                >
+                  <LayoutDashboard className="w-5 h-5 stroke-[1.5]" />
+                </Link>
+              )}
               <Link to="/cart" className="hover:text-gold-500 transition-colors relative">
                 <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
                 {totalItems > 0 && (
@@ -145,7 +166,7 @@ const Navbar = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1 }}
                 >
-                  <Link 
+                  <Link
                     to={link.path}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-2xl tracking-[0.2em] uppercase text-neutral-800 hover:text-gold-500 transition-colors font-light"
@@ -154,6 +175,28 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
+              {/* Mobile auth link */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: navLinks.length * 0.1 }}>
+                <Link
+                  to={user ? '/profile' : '/auth/login'}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-2xl tracking-[0.2em] uppercase text-neutral-800 hover:text-gold-500 transition-colors font-light"
+                >
+                  {user ? 'My Profile' : 'Sign In'}
+                </Link>
+              </motion.div>
+              {/* Mobile admin link */}
+              {isAdmin && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (navLinks.length + 1) * 0.1 }}>
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-2xl tracking-[0.2em] uppercase text-gold-500 hover:text-gold-600 transition-colors font-light"
+                  >
+                    Admin Portal
+                  </Link>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         )}

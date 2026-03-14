@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
-import { useAuth } from '../../context/AuthContext';
-import { loadRazorpay } from '../../utils/loadRazorpay';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { loadRazorpay } from '../utils/loadRazorpay';
 
 const CartDrawer = () => {
   const { isDrawerOpen, items, subtotal, totalAmount, toggleCartDrawer, removeItemFromCart, updateQuantity, clearCart } = useCart();
@@ -112,7 +112,7 @@ const CartDrawer = () => {
                 items.map((item) => (
                   <div key={item.id} className="flex gap-4 group">
                     <div className="w-24 h-32 bg-blush-50 rounded-sm overflow-hidden flex-shrink-0 relative">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      <img src={item.image} alt={item.name} onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }} className="w-full h-full object-cover" />
                     </div>
                     
                     <div className="flex-1 flex flex-col justify-between py-1">
