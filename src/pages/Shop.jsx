@@ -8,10 +8,12 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-  FilterX
+  FilterX,
+  RefreshCw
 } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import { useInfiniteProducts } from "../utils/useInfiniteProducts";
+import PageHeader from "../components/PageHeader";
 
 export const collections = [
   { id: "skin-care", name: "Skin Care" },
@@ -19,9 +21,6 @@ export const collections = [
   { id: "body-care", name: "Body Care" }
 ];
 
-/* ─────────────────────────────
-   Filter Section (Services UI)
-───────────────────────────── */
 
 const FilterSection = ({ title, children, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -66,7 +65,6 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [minRating, setMinRating] = useState(0);
   const [searchText, setSearchText] = useState("");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const { products: filteredProducts, loading, hasMore, loadMore } =
     useInfiniteProducts({
@@ -120,53 +118,22 @@ const Shop = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [hasMore, loading, loadMore]);
 
+  const activeFilterCount =
+    (activeCollection !== "all" ? 1 : 0) +
+    selectedCategories.length +
+    (priceRange[0] !== 0 || priceRange[1] !== 1000 ? 1 : 0) +
+    (minRating > 0 ? 1 : 0) +
+    (searchText ? 1 : 0);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-100 pt-32 pb-28">
+    <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-100 pb-28">
+      <PageHeader
+        eyebrow="The Sanctuary Collection"
+        titleStart="The"
+        titleItalic="Collection"
+        description="Curated elixirs and luxury treatments designed to restore and perfect your natural radiance."
+      />
       <div className="max-w-7xl mx-auto px-6">
-
-        {/* HEADER */}
-
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
-          <div className="max-w-2xl">
-            <motion.h1
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-5xl md:text-6xl text-neutral-900 font-light mb-6 tracking-wide"
-              style={{ fontFamily: "ui-serif, Georgia, serif" }}
-            >
-              The Collection
-            </motion.h1>
-
-            <p className="text-neutral-500 text-lg font-light leading-relaxed mb-6">
-              Curated elixirs designed to restore and perfect your natural
-              radiance.
-            </p>
-
-            {/* SEARCH */}
-
-            <div className="relative max-w-md w-full bg-white rounded-full shadow-sm">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-
-              <input
-                type="text"
-                placeholder="Search elixirs..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                className="w-full bg-transparent border border-neutral-200 pl-12 pr-12 py-3 rounded-full text-sm focus:outline-none focus:border-gold-500"
-              />
-
-              {searchText && (
-                <button
-                  onClick={() => setSearchText("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2"
-                >
-                  <X className="w-4 h-4 text-neutral-400" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
         <div className="flex gap-10 items-start">
 
           {/* FILTER PANEL */}
@@ -177,13 +144,42 @@ const Shop = () => {
             transition={{ duration: 0.6 }}
             className="hidden lg:block w-56 flex-shrink-0 sticky top-28"
           >
-            <div className="bg-white border border-neutral-100 p-6 shadow-sm">
+            <div className="bg-white border border-neutral-100 p-6 shadow-sm max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar">
 
               <div className="flex items-center justify-between mb-6">
                 <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-700 flex items-center gap-2">
                   <Filter className="w-3.5 h-3.5 text-gold-500" />
                   Filters
                 </span>
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="p-1 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-red-500 transition-colors"
+                    title="Clear Filters"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* SEARCH */}
+              <div className="relative mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
+                <input
+                  type="text"
+                  placeholder="Search elixirs..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  className="w-full bg-cream-50 border border-neutral-100 py-2.5 pl-9 pr-8 text-xs focus:outline-none focus:border-gold-400 transition-colors placeholder:text-neutral-300 rounded-sm italic font-serif"
+                />
+                {searchText && (
+                  <button
+                    onClick={() => setSearchText("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    <X className="w-3 h-3 text-neutral-400 hover:text-neutral-900 transition-colors" />
+                  </button>
+                )}
               </div>
 
               {/* COLLECTIONS */}
@@ -248,32 +244,36 @@ const Shop = () => {
               {/* RATING */}
 
               <FilterSection title="Minimum Rating">
-                <div className="flex gap-2">
-                  {[4, 3, 2, 1].map((stars) => (
-                    <button
-                      key={stars}
-                      onClick={() => setMinRating(stars)}
-                      className={`flex-1 py-2 rounded border text-xs ${
-                        minRating === stars
-                          ? "bg-neutral-900 text-white"
-                          : "border-neutral-200 text-neutral-500"
-                      }`}
-                    >
-                      {stars}+ <Star className="w-3 h-3 inline ml-1 fill-current" />
-                    </button>
-                  ))}
+                <div className="flex flex-col gap-1.5">
+                  {[0, 4, 3, 2, 1].map((stars) => {
+                    const active = minRating === stars;
+                    return (
+                      <button
+                        key={stars}
+                        onClick={() => setMinRating(stars)}
+                        className={`text-left text-xs px-3 py-2 rounded-sm font-medium flex items-center gap-2 transition-colors ${
+                          active
+                            ? "bg-gold-500/10 text-gold-700"
+                            : "text-neutral-500 hover:bg-cream-100"
+                        }`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full border flex-shrink-0 transition-colors ${
+                            active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
+                          }`}
+                        />
+                        {stars === 0 ? (
+                          "Any Rating"
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            {stars} Stars & Up <Star className="w-3 h-3 fill-current text-gold-500 ml-0.5" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </FilterSection>
-
-              {/* CLEAR */}
-
-              <button
-                onClick={clearFilters}
-                className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-red-400 hover:text-red-600 mt-2"
-              >
-                <FilterX className="w-3.5 h-3.5" />
-                Clear filters
-              </button>
 
             </div>
           </motion.div>

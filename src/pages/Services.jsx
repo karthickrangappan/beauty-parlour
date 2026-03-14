@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronUp,
   FilterX,
+  RefreshCw
 } from "lucide-react";
 import PageHeader from "../components/PageHeader";
 
@@ -194,17 +195,6 @@ const FilterPanel = ({
         })}
       </div>
     </FilterSection>
-
-    {/* Reset */}
-    {activeFilterCount > 0 && (
-      <button
-        onClick={resetFilters}
-        className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-red-400 hover:text-red-600 transition-colors mt-2"
-      >
-        <FilterX className="w-3.5 h-3.5" />
-        Clear all filters
-      </button>
-    )}
   </aside>
 );
 
@@ -344,9 +334,20 @@ const Services = () => {
                     <SlidersHorizontal className="w-3.5 h-3.5 text-gold-500" />
                     Filter Services
                   </span>
-                  <button onClick={() => setPanelOpen(false)}>
-                    <X className="w-4 h-4 text-neutral-400 hover:text-neutral-700 transition-colors" />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {activeFilterCount > 0 && (
+                      <button
+                        onClick={resetFilters}
+                        className="p-1.5 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-red-500 transition-colors"
+                        title="Clear Filters"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button onClick={() => setPanelOpen(false)}>
+                      <X className="w-4 h-4 text-neutral-400 hover:text-neutral-700 transition-colors" />
+                    </button>
+                  </div>
                 </div>
                 <FilterPanel {...filterProps} />
               </motion.div>
@@ -363,16 +364,20 @@ const Services = () => {
             transition={{ duration: 0.6 }}
             className="hidden lg:block w-56 flex-shrink-0 sticky top-28"
           >
-            <div className="bg-white border border-neutral-100 p-6 shadow-sm">
+            <div className="bg-white border border-neutral-100 p-6 shadow-sm max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar">
               <div className="flex items-center justify-between mb-6">
                 <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-700 flex items-center gap-2">
                   <SlidersHorizontal className="w-3.5 h-3.5 text-gold-500" />
                   Filters
                 </span>
                 {activeFilterCount > 0 && (
-                  <span className="bg-gold-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-black">
-                    {activeFilterCount}
-                  </span>
+                  <button
+                    onClick={resetFilters}
+                    className="p-1.5 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-red-500 transition-colors"
+                    title="Clear Filters"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
                 )}
               </div>
               <FilterPanel {...filterProps} />

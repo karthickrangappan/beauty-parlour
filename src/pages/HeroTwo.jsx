@@ -73,8 +73,7 @@ const HeroTwo = () => {
 
                         <span className="relative inline-block italic mt-2">
 
-                            <span className="absolute inset-0 blur-lg opacity-60 bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 bg-clip-text text-transparent">
-                                {heroTwoData.titleHighlight}
+                            <span className="italic text-gold-300 font-serif">
                             </span>
 
                             
