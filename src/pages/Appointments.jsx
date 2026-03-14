@@ -29,6 +29,7 @@ import { generateTimeSlots } from "../utils/logicUtils";
 import { loadRazorpay } from "../utils/loadRazorpay";
 import { useToaster } from "../context/ToastContext";
 import { APP_NAME } from "../constants/config";
+import PageHeader from "../components/PageHeader";
 
 const Appointments = () => {
   const { user } = useAuth();
@@ -248,26 +249,14 @@ const Appointments = () => {
   const todayStr = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="min-h-screen bg-cream-50 pt-32 pb-24">
+    <div className="min-h-screen bg-cream-50 pb-24">
+      <PageHeader
+        eyebrow="Reserve Your Journey"
+        titleStart="A Moment of"
+        titleItalic="Tranquility"
+        description="Select your treatment, specialist, and preferred time. We will handle the rest with care and precision."
+      />
       <div className="max-w-6xl mx-auto px-6">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            <h2 className="text-gold-500 uppercase tracking-[0.3em] text-xs font-medium mb-4">
-              Reserve Your Journey
-            </h2>
-            <h1
-              className="text-4xl md:text-5xl lg:text-6xl text-neutral-800 font-light mb-6"
-              style={{ fontFamily: "ui-serif, Georgia, serif" }}
-            >
-              A moment of <span className="italic">tranquility.</span>
-            </h1>
-          </motion.div>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left: Progress Summary Panel */}

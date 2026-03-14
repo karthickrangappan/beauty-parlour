@@ -4,6 +4,7 @@ import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 import { ShoppingBag, Trash2, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
+import PageHeader from "../components/PageHeader";
 
 const Wishlist = () => {
   const { wishlistItems, removeFromWishlist } = useWishlist();
@@ -20,29 +21,14 @@ const Wishlist = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-100 pt-32 pb-28">
+    <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-100 pb-28">
+      <PageHeader
+        eyebrow="Your Curation"
+        titleStart="My"
+        titleItalic="Wishlist"
+        description="A curated selection of your favourite elixirs and treatments, saved just for you."
+      />
       <div className="max-w-7xl mx-auto px-6">
-
-        <div className="text-center mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9 }}
-          >
-            <h1
-              className="text-5xl md:text-6xl text-neutral-900 font-light mb-6 tracking-wide"
-              style={{ fontFamily: "ui-serif, Georgia, serif" }}
-            >
-              Your Wishlist
-            </h1>
-
-            <p className="text-neutral-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
-              A curated selection of your favorite elixirs and treatments.
-            </p>
-          </motion.div>
-        </div>
-
-        
         {wishlistItems.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Phone, Mail, Clock, Send, Sparkles } from "lucide-react";
+import PageHeader from "../components/PageHeader";
 
 const contactData = {
   header: {
@@ -63,37 +64,13 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fdf8f3] pt-32 pb-24">
-      {/* 1. Header Section */}
-      <section className="text-center px-6 max-w-4xl mx-auto mb-20 md:mb-28">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 border border-gold-200 bg-white/50 rounded-full text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] mb-6 text-gold-600 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Concierge</span>
-          </div>
-          
-          <h1 
-            className="text-5xl md:text-7xl font-light text-neutral-900 leading-[1.1] tracking-tight mb-6"
-            style={{ fontFamily: "Playfair Display, serif" }}
-          >
-            {contactData.header.titleMain}{" "}
-            <span className="italic text-gold-500 font-serif">{contactData.header.titleHighlight}</span>
-          </h1>
-          
-          <p className="text-neutral-500 text-xs sm:text-sm md:text-base font-semibold uppercase tracking-[0.3em] mb-6">
-            {contactData.header.subtitle}
-          </p>
-
-          <p className="text-neutral-600 text-base sm:text-lg md:text-xl font-light max-w-2xl leading-relaxed">
-            {contactData.header.description}
-          </p>
-        </motion.div>
-      </section>
+    <div className="min-h-screen bg-[#fdf8f3] pb-24">
+      <PageHeader
+        eyebrow="Concierge"
+        titleStart="Get in"
+        titleItalic="Touch"
+        description="Whether you have a question about our treatments, products, or wish to schedule an exclusive consultation, our dedicated team is at your service."
+      />
 
       {/* 2. Main Content Layout */}
       <section className="w-full max-w-[1400px] mx-auto px-6 sm:px-8 md:px-12 lg:px-16">
