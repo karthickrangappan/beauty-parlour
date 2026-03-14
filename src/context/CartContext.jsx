@@ -25,11 +25,11 @@ export const CartProvider = ({ children }) => {
         totalItems: 0,
     });
     
-    
-    const couponDiscount = 0;
-    const loyaltyDiscount = 0;
+    const [couponDiscount, setCouponDiscount] = useState(0);
+    const [activeCoupon, setActiveCoupon] = useState(null);
+    const [loyaltyDiscount, setLoyaltyDiscount] = useState(0);
 
-    
+    // Real-time Firestore sync listener
     useEffect(() => {
         if (!user) {
             setItems([]);
@@ -48,13 +48,13 @@ export const CartProvider = ({ children }) => {
         return () => unsubscribe();
     }, [user]);
 
-    
+    // UI calculation updates
     useEffect(() => {
         const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const count = items.reduce((sum, item) => sum + item.quantity, 0);
         
         const taxableAmount = Math.max(0, subtotal - couponDiscount);
-        const gst = taxableAmount * 0.05; 
+        const gst = taxableAmount * 0.18; // 18% GST for applicable products
         const delivery = subtotal > 0 && subtotal < 500 ? 49 : 0;
         const totalAmount = subtotal > 0 ? subtotal - couponDiscount - loyaltyDiscount + gst + delivery : 0;
 
@@ -65,7 +65,7 @@ export const CartProvider = ({ children }) => {
             totalAmount,
             totalItems: count,
         });
-    }, [items]);
+    }, [items, couponDiscount, loyaltyDiscount]);
 
     const syncCartToFirestore = async (newItems) => {
         if (!user) return;
@@ -89,7 +89,7 @@ export const CartProvider = ({ children }) => {
             let nextItems;
             const existingItem = prevItems.find(item => item.id === newItem.id);
             if (existingItem) {
-                
+               
                 nextItems = prevItems.map(item => {
                     if (item.id === newItem.id) {
                         const nextObj = { ...item, quantity: item.quantity + (newItem.quantity || 1) };
@@ -136,6 +136,12 @@ export const CartProvider = ({ children }) => {
         items,
         ...totals,
         isDrawerOpen,
+        couponDiscount,
+        activeCoupon,
+        loyaltyDiscount,
+        setCouponDiscount,
+        setActiveCoupon,
+        setLoyaltyDiscount,
         toggleCartDrawer,
         addItemToCart,
         removeItemFromCart,

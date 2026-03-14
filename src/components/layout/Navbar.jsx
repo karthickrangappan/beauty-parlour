@@ -4,15 +4,15 @@ import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, User, Search, Menu, X, Heart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
-import { useAuth } from '../../context/AuthContext';
+import SearchOverlay from './SearchOverlay';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const { totalItems } = useCart();
   const { wishlistItems } = useWishlist();
-  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,7 +22,7 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-
+  // Is it the home page? We want transparent navbar on home page top.
   const isHome = location.pathname === '/';
   const navBackground = isScrolled || !isHome ? 'bg-cream-50/90 backdrop-blur-md shadow-sm border-b border-gold-300/20' : 'bg-transparent';
   const textColor = isScrolled || !isHome ? 'text-neutral-800' : 'text-neutral-800 md:text-white';
@@ -31,7 +31,7 @@ const Navbar = () => {
     { name: 'Shop', path: '/shop' },
     { name: 'Services', path: '/services' },
     { name: 'Appointments', path: '/appointments' },
-    { name: 'Our Story', path: '/our-story' }
+    { name: 'Our Story', path: '/about' }
   ];
 
   return (
@@ -44,7 +44,7 @@ const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto px-6 h-20 md:h-24 flex items-center justify-between">
           
-
+          {/* Mobile Menu Toggle */}
           <button 
             className={`md:hidden p-2 -ml-2 ${textColor}`}
             onClick={() => setIsMobileMenuOpen(true)}
@@ -52,7 +52,7 @@ const Navbar = () => {
             <Menu className="w-6 h-6 stroke-[1.5]" />
           </button>
 
-
+          {/* Navigation Links - Left (Desktop only) */}
           <div className="hidden md:flex flex-1 items-center gap-8">
             {navLinks.slice(0, 2).map((link) => (
               <Link 
@@ -65,7 +65,7 @@ const Navbar = () => {
             ))}
           </div>
 
-
+          {/* Logo - Center */}
           <div className="flex-1 md:flex-none flex justify-center">
             <Link to="/" className="text-2xl md:text-3xl tracking-widest uppercase font-light text-center">
               <span className={`block transition-colors duration-500 ${isScrolled || !isHome ? 'text-gold-500' : 'text-gold-300'}`} style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
@@ -74,7 +74,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-
+          {/* Navigation Links & Icons - Right */}
           <div className="flex-1 flex items-center justify-end gap-6 md:gap-8">
             <div className="hidden md:flex items-center gap-8">
               {navLinks.slice(2, 4).map((link) => (
@@ -89,7 +89,7 @@ const Navbar = () => {
             </div>
             
             <div className={`flex items-center gap-4 ${textColor}`}>
-              <button className="hover:text-gold-500 transition-colors">
+              <button onClick={() => setIsSearchOpen(true)} className="hover:text-gold-500 transition-colors">
                 <Search className="w-5 h-5 stroke-[1.5]" />
               </button>
               <Link to="/wishlist" className="hover:text-gold-500 transition-colors relative">
@@ -100,7 +100,7 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
-              <Link to={user ? "/profile" : "/auth/login"} className="hover:text-gold-500 transition-colors">
+              <Link to="/auth/login" className="hover:text-gold-500 transition-colors">
                 <User className="w-5 h-5 stroke-[1.5]" />
               </Link>
               <Link to="/cart" className="hover:text-gold-500 transition-colors relative">
@@ -116,7 +116,7 @@ const Navbar = () => {
         </div>
       </motion.nav>
 
-
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -158,6 +158,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 };
