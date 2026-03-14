@@ -17,7 +17,7 @@ export const collections = [
 const Shop = () => {
   const [activeCollection, setActiveCollection] = useState("all");
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 200]);
+  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [minRating, setMinRating] = useState(0);
   const [searchText, setSearchText] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -49,7 +49,7 @@ const Shop = () => {
 
   const clearFilters = () => {
     setSelectedCategories([]);
-    setPriceRange([0, 200]);
+    setPriceRange([0, 1000]);
     setMinRating(0);
     setActiveCollection("all");
     setSearchText("");
@@ -185,7 +185,7 @@ const Shop = () => {
               <input
                 type="range"
                 min="0"
-                max="200"
+                max="1000"
                 value={priceRange[1]}
                 onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
                 className="w-full accent-neutral-900 h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
