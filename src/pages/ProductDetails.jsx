@@ -5,6 +5,7 @@ import { Heart, ShoppingBag, Star, ArrowLeft, ShieldCheck, Truck, RefreshCw, Che
 import { products } from "../data/products";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import ProductReviews from "../components/ProductReviews";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -209,6 +210,9 @@ const ProductDetails = () => {
               </AnimatePresence>
            </div>
         </div>
+
+        {/* Reviews Section */}
+        <ProductReviews productId={product.id} />
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (

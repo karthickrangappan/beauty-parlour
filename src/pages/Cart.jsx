@@ -19,46 +19,8 @@ const Cart = () => {
         }
     }, [user, navigate]);
 
-    const handleCheckout = async () => {
-        setIsProcessing(true);
-        
-        const res = await loadRazorpay();
-        if (!res) {
-            alert("Razorpay SDK failed to load. Are you online?");
-            setIsProcessing(false);
-            return;
-        }
-
-        const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY || "rzp_test_MockKeyForDevelopment",
-            amount: Math.round(totalAmount * 100),
-            currency: "usd",
-            name: "Lumière Spa & Salon",
-            description: "Luxury Collection Checkout",
-            image: "https://your-logo-url.com/logo.png",
-            handler: function (response) {
-                console.log("Payment Successful!", response);
-                clearCart();
-                alert("Payment Successful! Your order has been placed.");
-                navigate('/');
-            },
-            prefill: {
-                name: user?.displayName || "Guest User",
-                email: user?.email || "guest@example.com",
-                contact: "9999999999",
-            },
-            theme: {
-                color: "#D4AF37",
-            },
-        };
-
-        const paymentObject = new window.Razorpay(options);
-        paymentObject.on("payment.failed", function (response) {
-            alert("Payment dropped or failed. Please try again.");
-        });
-        
-        paymentObject.open();
-        setIsProcessing(false);
+    const handleCheckout = () => {
+        navigate('/checkout');
     };
 
     return (
@@ -197,11 +159,10 @@ const Cart = () => {
 
                                 <button 
                                     onClick={handleCheckout}
-                                    disabled={isProcessing}
-                                    className="w-full bg-neutral-900 text-white py-5 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs hover:bg-gold-500 transition-all duration-500 mt-8 disabled:opacity-50"
+                                    className="w-full bg-neutral-900 text-white py-5 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs hover:bg-gold-500 transition-all duration-500 mt-8"
                                 >
-                                    {isProcessing ? 'Verifying...' : 'Complete Order'}
-                                    {!isProcessing && <ArrowRight className="w-3 h-3" />}
+                                    Proceed to Checkout
+                                    <ArrowRight className="w-3 h-3" />
                                 </button>
 
                                 <div className="pt-6 text-center">

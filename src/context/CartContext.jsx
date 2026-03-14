@@ -25,9 +25,9 @@ export const CartProvider = ({ children }) => {
         totalItems: 0,
     });
     
-    // Hardcoded for now, assuming no coupon system integrated yet
-    const couponDiscount = 0;
-    const loyaltyDiscount = 0;
+    const [couponDiscount, setCouponDiscount] = useState(0);
+    const [activeCoupon, setActiveCoupon] = useState(null);
+    const [loyaltyDiscount, setLoyaltyDiscount] = useState(0);
 
     // Real-time Firestore sync listener
     useEffect(() => {
@@ -54,7 +54,7 @@ export const CartProvider = ({ children }) => {
         const count = items.reduce((sum, item) => sum + item.quantity, 0);
         
         const taxableAmount = Math.max(0, subtotal - couponDiscount);
-        const gst = taxableAmount * 0.05; // 5% GST for beauty products
+        const gst = taxableAmount * 0.18; // 18% GST for applicable products
         const delivery = subtotal > 0 && subtotal < 500 ? 49 : 0;
         const totalAmount = subtotal > 0 ? subtotal - couponDiscount - loyaltyDiscount + gst + delivery : 0;
 
@@ -65,7 +65,7 @@ export const CartProvider = ({ children }) => {
             totalAmount,
             totalItems: count,
         });
-    }, [items]);
+    }, [items, couponDiscount, loyaltyDiscount]);
 
     const syncCartToFirestore = async (newItems) => {
         if (!user) return;
@@ -136,6 +136,12 @@ export const CartProvider = ({ children }) => {
         items,
         ...totals,
         isDrawerOpen,
+        couponDiscount,
+        activeCoupon,
+        loyaltyDiscount,
+        setCouponDiscount,
+        setActiveCoupon,
+        setLoyaltyDiscount,
         toggleCartDrawer,
         addItemToCart,
         removeItemFromCart,

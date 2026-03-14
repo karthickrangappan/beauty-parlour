@@ -4,10 +4,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, User, Search, Menu, X, Heart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import SearchOverlay from './SearchOverlay';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const { totalItems } = useCart();
   const { wishlistItems } = useWishlist();
@@ -87,7 +89,7 @@ const Navbar = () => {
             </div>
             
             <div className={`flex items-center gap-4 ${textColor}`}>
-              <button className="hover:text-gold-500 transition-colors">
+              <button onClick={() => setIsSearchOpen(true)} className="hover:text-gold-500 transition-colors">
                 <Search className="w-5 h-5 stroke-[1.5]" />
               </button>
               <Link to="/wishlist" className="hover:text-gold-500 transition-colors relative">
@@ -156,6 +158,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 };

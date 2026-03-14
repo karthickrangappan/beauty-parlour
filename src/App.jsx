@@ -12,10 +12,12 @@ import Register from './pages/Auth/Register';
 import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import ProductDetails from './pages/ProductDetails';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
 
@@ -38,9 +40,10 @@ function App() {
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
 
-            {/* Admin Routes - Reserved for future expandability */}
-            {/* <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} /> */}
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           </Routes>
         </main>
         <Footer />
