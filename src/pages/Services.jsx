@@ -146,6 +146,7 @@ const Services = () => {
                           </div>
                           <Link 
                             to="/appointments" 
+                            state={{ selectedService: service }}
                             className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-neutral-800 hover:text-gold-500 transition-colors group/link"
                           >
                             Book Now 
