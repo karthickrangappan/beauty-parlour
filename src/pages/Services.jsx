@@ -14,9 +14,11 @@ import {
   ChevronDown,
   ChevronUp,
   FilterX,
-  RefreshCw
+  RefreshCw,
+  Eye
 } from "lucide-react";
 import PageHeader from "../components/PageHeader";
+import ServiceQuickView from "../components/ServiceQuickView";
 
 const DURATION_OPTIONS = [
   { label: "Any Duration", value: null },
@@ -107,11 +109,10 @@ const FilterPanel = ({
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide ${
-              category === cat
+            className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide ${category === cat
                 ? "bg-neutral-900 text-white"
                 : "text-neutral-500 hover:bg-cream-100 hover:text-neutral-800"
-            }`}
+              }`}
           >
             {cat}
           </button>
@@ -132,16 +133,14 @@ const FilterPanel = ({
             <button
               key={opt.label}
               onClick={() => setPriceRange(opt.value)}
-              className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide flex items-center gap-2 ${
-                active
+              className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide flex items-center gap-2 ${active
                   ? "bg-gold-500/10 text-gold-700 font-semibold"
                   : "text-neutral-500 hover:bg-cream-100 hover:text-neutral-800"
-              }`}
+                }`}
             >
               <span
-                className={`w-2 h-2 rounded-full border flex-shrink-0 ${
-                  active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
-                }`}
+                className={`w-2 h-2 rounded-full border flex-shrink-0 ${active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
+                  }`}
               />
               {opt.label}
             </button>
@@ -163,16 +162,14 @@ const FilterPanel = ({
             <button
               key={opt.label}
               onClick={() => setDurationRange(opt.value)}
-              className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide flex items-center gap-2 ${
-                active
+              className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide flex items-center gap-2 ${active
                   ? "bg-gold-500/10 text-gold-700 font-semibold"
                   : "text-neutral-500 hover:bg-cream-100 hover:text-neutral-800"
-              }`}
+                }`}
             >
               <span
-                className={`w-2 h-2 rounded-full border flex-shrink-0 ${
-                  active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
-                }`}
+                className={`w-2 h-2 rounded-full border flex-shrink-0 ${active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
+                  }`}
               />
               {opt.label}
             </button>
@@ -191,6 +188,13 @@ const Services = () => {
   const [priceRange, setPriceRange] = useState(null);
   const [durationRange, setDurationRange] = useState(null);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [selectedQuickView, setSelectedQuickView] = useState(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+  const handleQuickView = (service) => {
+    setSelectedQuickView(service);
+    setIsQuickViewOpen(true);
+  };
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -416,6 +420,17 @@ const Services = () => {
                             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-neutral-800 shadow-sm border border-neutral-100">
                               {service.category}
                             </div>
+                            
+                            {/* Quick View Overlay */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                              <button 
+                                onClick={() => handleQuickView(service)}
+                                className="bg-white text-neutral-900 px-6 py-2.5 flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-xl"
+                              >
+                                <Eye className="w-4 h-4" />
+                                Quick View
+                              </button>
+                            </div>
                           </div>
 
                           <div className="p-6">
@@ -481,6 +496,12 @@ const Services = () => {
           </div>
         </div>
       </div>
+      
+      <ServiceQuickView 
+        service={selectedQuickView}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+      />
     </div>
   );
 };

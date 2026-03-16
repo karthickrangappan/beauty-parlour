@@ -111,15 +111,15 @@ const ProductDetails = () => {
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 mt-8 md:mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 lg:gap-24 items-start">
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="space-y-4 md:space-y-6"
           >
             <div className="aspect-square bg-neutral-50 rounded-2xl md:rounded-3xl overflow-hidden border border-neutral-100 shadow-sm group">
-              <img 
-                src={product.image} 
+              <img
+                src={product.image}
                 alt={product.name}
                 onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }}
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
@@ -148,9 +148,9 @@ const ProductDetails = () => {
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-light text-neutral-900 leading-tight" style={{ fontFamily: "ui-serif, Georgia, serif" }}>
                 {product.name}
               </h1>
-              
+
               <p className="text-xl md:text-2xl font-light text-neutral-900">{fmtCurrency(product.price || 0)}</p>
-              
+
               <p className="text-neutral-500 leading-relaxed text-sm md:text-lg max-w-xl">
                 Elevate your daily ritual with the {product.name}. Carefully formulated to provide {(product.shortDesc || 'exceptional results').toLowerCase()} for a truly luminous finish.
               </p>
@@ -166,14 +166,14 @@ const ProductDetails = () => {
             <div className="space-y-6 pt-6 border-t border-neutral-100">
               <div className="flex items-center gap-4 md:gap-6">
                 <div className="flex items-center border border-neutral-200 rounded-full bg-neutral-50 p-0.5 md:p-1">
-                  <button 
+                  <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition rounded-full"
                   >
                     -
                   </button>
                   <span className="w-8 md:w-10 text-center text-xs md:text-sm font-medium">{quantity}</span>
-                  <button 
+                  <button
                     onClick={() => setQuantity(product.stock ? Math.min(product.stock, quantity + 1) : quantity + 1)}
                     className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition rounded-full"
                   >
@@ -181,19 +181,18 @@ const ProductDetails = () => {
                   </button>
                 </div>
 
-                <button 
+                <button
                   onClick={handleWishlist}
-                  className={`p-3 md:p-4 rounded-full border transition-all ${
-                    isInWishlist(product.id) 
-                      ? "bg-red-50 border-red-200 text-red-500 shadow-sm" 
+                  className={`p-3 md:p-4 rounded-full border transition-all ${isInWishlist(product.id)
+                      ? "bg-red-50 border-red-200 text-red-500 shadow-sm"
                       : "bg-white border-neutral-200 text-neutral-400 hover:border-neutral-900 hover:text-neutral-900"
-                  }`}
+                    }`}
                 >
                   <Heart className={`w-5 h-5 md:w-6 md:h-6 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
                 </button>
               </div>
 
-              <button 
+              <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
                 className="w-full py-4 md:py-5 bg-neutral-900 text-white rounded-xl md:rounded-2xl flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold hover:bg-neutral-800 transition shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
@@ -227,44 +226,43 @@ const ProductDetails = () => {
         </div>
 
         <div className="mt-16 md:mt-20">
-           <div className="flex gap-6 md:gap-12 border-b border-neutral-100 mb-8 md:mb-10 overflow-x-auto no-scrollbar">
-              {["description", "how to use", "ingredients"].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`pb-4 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold transition-all relative whitespace-nowrap ${
-                    activeTab === tab ? "text-neutral-900" : "text-neutral-300 hover:text-neutral-500"
+          <div className="flex gap-6 md:gap-12 border-b border-neutral-100 mb-8 md:mb-10 overflow-x-auto no-scrollbar">
+            {["description", "how to use", "ingredients"].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`pb-4 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold transition-all relative whitespace-nowrap ${activeTab === tab ? "text-neutral-900" : "text-neutral-300 hover:text-neutral-500"
                   }`}
-                >
-                  {tab}
-                  {activeTab === tab && (
-                    <motion.div layoutId="tabLine" className="absolute bottom-0 left-0 right-0 h-0.5 bg-neutral-900" />
-                  )}
-                </button>
-              ))}
-           </div>
-           
-           <div className="min-h-[80px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="max-w-3xl text-neutral-500 leading-relaxed text-sm md:text-base"
-                >
-                   {activeTab === "description" && (
-                    <p>Designed for the discerning individual, our {product.name} delivers unparalleled results by utilizing high-performance active ingredients. It works deeply into the surface of your skin to provide {(product.shortDesc || 'exceptional results').toLowerCase()} while maintaining its natural moisture barrier.</p>
-                   )}
-                   {activeTab === "how to use" && (
-                    <p>Apply a small amount to clean skin twice daily. Massage gently in upward circular motions until fully absorbed. For best results, follow with our recommended serum pairing.</p>
-                   )}
-                   {activeTab === "ingredients" && (
-                    <p>Aqua (Water), Glycerin, Squalane, Niacinamide, Butyrospermum Parkii (Shea) Butter, Hyaluronic Acid, Tocopherol (Vitamin E), Botanical Extracts, Organic Essential Oils, Phenoxyethanol.</p>
-                   )}
-                </motion.div>
-              </AnimatePresence>
-           </div>
+              >
+                {tab}
+                {activeTab === tab && (
+                  <motion.div layoutId="tabLine" className="absolute bottom-0 left-0 right-0 h-0.5 bg-neutral-900" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="min-h-[80px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="max-w-3xl text-neutral-500 leading-relaxed text-sm md:text-base"
+              >
+                {activeTab === "description" && (
+                  <p>Designed for the discerning individual, our {product.name} delivers unparalleled results by utilizing high-performance active ingredients. It works deeply into the surface of your skin to provide {(product.shortDesc || 'exceptional results').toLowerCase()} while maintaining its natural moisture barrier.</p>
+                )}
+                {activeTab === "how to use" && (
+                  <p>Apply a small amount to clean skin twice daily. Massage gently in upward circular motions until fully absorbed. For best results, follow with our recommended serum pairing.</p>
+                )}
+                {activeTab === "ingredients" && (
+                  <p>Aqua (Water), Glycerin, Squalane, Niacinamide, Butyrospermum Parkii (Shea) Butter, Hyaluronic Acid, Tocopherol (Vitamin E), Botanical Extracts, Organic Essential Oils, Phenoxyethanol.</p>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
 
         <ProductReviews productId={product.id} />

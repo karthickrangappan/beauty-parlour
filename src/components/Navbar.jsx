@@ -30,7 +30,7 @@ const Navbar = () => {
   const isHome = location.pathname === '/';
   const navBackground = isScrolled || !isHome
     ? 'bg-cream-50/95 backdrop-blur-md shadow-sm  border-gold-300/20'
-    : 'bg-transparent';
+    : 'bg-transparent ';
   const textColor = isScrolled || !isHome ? 'text-neutral-800' : 'text-neutral-800 lg:text-white';
 
   const navLinks = [
@@ -51,7 +51,7 @@ const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 lg:h-24 flex items-center justify-between">
 
-          <div className="flex-1 flex items-center justify-start">
+          <div className="flex-1 flex  items-center justify-start">
             <button
               className={`lg:hidden p-1.5 -ml-1 rounded-lg hover:bg-black/5 transition-colors ${textColor}`}
               onClick={() => setIsMobileMenuOpen(true)}

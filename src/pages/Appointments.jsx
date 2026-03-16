@@ -64,7 +64,7 @@ const Appointments = () => {
       if (location.state?.selectedService) {
         const preSelected = location.state.selectedService;
         setSelectedService(preSelected);
-        setAvailableStaff(stData); 
+        setAvailableStaff(stData);
         setStep(2);
       }
     };
@@ -247,7 +247,7 @@ const Appointments = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           <div className="lg:col-span-4 bg-white shadow-xl shadow-gold-300/5 border border-gold-300/10 sticky top-16 sm:top-20 lg:top-32 z-30 transition-all duration-300">
-            <button 
+            <button
               onClick={() => setIsSummaryOpen(!isSummaryOpen)}
               className="w-full flex items-center justify-between p-6 lg:p-0 lg:px-10 lg:pt-10 lg:pb-8 text-left"
             >
@@ -509,8 +509,8 @@ const Appointments = () => {
                               key={time}
                               onClick={() => handleSlotSelect(time)}
                               className={`py-3 px-2 text-xs tracking-widest transition-all duration-300 border ${selectedSlot === time
-                                  ? "bg-neutral-900 text-white border-neutral-900"
-                                  : "bg-transparent text-neutral-800 border-gold-300/30 hover:border-gold-500"
+                                ? "bg-neutral-900 text-white border-neutral-900"
+                                : "bg-transparent text-neutral-800 border-gold-300/30 hover:border-gold-500"
                                 }`}
                             >
                               {time}

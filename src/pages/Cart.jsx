@@ -55,15 +55,15 @@ const Cart = () => {
     return (
         <div className="min-h-screen bg-cream-50 pb-24">
             <PageHeader
-              eyebrow="Your Sanctuary Bag"
-              titleStart="Shopping"
-              titleItalic="Bag"
-              description="Review your curated selection of luxury treatments and elixirs before checkout."
+                eyebrow="Your Sanctuary Bag"
+                titleStart="Shopping"
+                titleItalic="Bag"
+                description="Review your curated selection of luxury treatments and elixirs before checkout."
             />
             <div className="max-w-7xl mx-auto px-6">
 
                 {items.length === 0 ? (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="flex flex-col items-center justify-center py-20 space-y-8"
@@ -75,8 +75,8 @@ const Cart = () => {
                             <p className="text-neutral-800 text-xl font-light">Your bag is empty.</p>
                             <p className="text-neutral-500 font-serif italic text-sm">Discover our signature collections.</p>
                         </div>
-                        <Link 
-                            to="/shop" 
+                        <Link
+                            to="/shop"
                             className="px-10 py-4 bg-neutral-900 text-white uppercase tracking-[0.2em] text-xs hover:bg-gold-500 transition-colors duration-500"
                         >
                             Continue Shopping
@@ -84,17 +84,17 @@ const Cart = () => {
                     </motion.div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-start">
-                        
+
                         <div className="lg:col-span-2 space-y-8">
                             <div className="hidden md:grid grid-cols-4 pb-6 border-b border-gold-300/20 text-xs uppercase tracking-widest text-neutral-400">
                                 <div className="col-span-2">Product</div>
                                 <div className="text-center">Quantity</div>
                                 <div className="text-right">Total</div>
                             </div>
-                            
+
                             <AnimatePresence>
                                 {items.map((item) => (
-                                    <motion.div 
+                                    <motion.div
                                         key={item.id}
                                         layout
                                         initial={{ opacity: 0, y: 20 }}
@@ -109,7 +109,7 @@ const Cart = () => {
                                             <div className="flex flex-col justify-center">
                                                 <h3 className="text-neutral-800 uppercase tracking-wider text-sm mb-1">{item.name}</h3>
                                                 <p className="text-neutral-500 text-xs font-serif italic mb-4">{item.category}</p>
-                                                <button 
+                                                <button
                                                     onClick={() => removeItemFromCart(item.id)}
                                                     className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-neutral-400 hover:text-red-500 transition-colors w-fit"
                                                 >
@@ -121,14 +121,14 @@ const Cart = () => {
 
                                         <div className="flex items-center justify-center">
                                             <div className="flex items-center border border-neutral-300 rounded-sm">
-                                                <button 
+                                                <button
                                                     onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                                                     className="p-2 px-3 text-neutral-500 hover:text-gold-500 transition-colors"
                                                 >
                                                     <Minus className="w-3 h-3" />
                                                 </button>
                                                 <span className="text-sm w-8 text-center text-neutral-800 font-medium">{item.quantity}</span>
-                                                <button 
+                                                <button
                                                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                     className="p-2 px-3 text-neutral-500 hover:text-gold-500 transition-colors"
                                                 >
@@ -151,7 +151,7 @@ const Cart = () => {
                             <h2 className="text-2xl text-neutral-800 font-light mb-8 pb-4 border-b border-gold-300/20" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
                                 Summary
                             </h2>
-                            
+
                             <div className="space-y-6">
                                 <div className="flex justify-between text-neutral-500 text-sm italic font-serif">
                                     <span>Subtotal</span>
@@ -169,7 +169,7 @@ const Cart = () => {
                                     <span>Estimated Tax (5% GST)</span>
                                     <span>{fmtCurrency(gst)}</span>
                                 </div>
-                                
+
                                 <div className="flex justify-between items-end pt-2">
                                     <span className="text-sm uppercase tracking-widest text-neutral-800 font-medium">Total</span>
                                     <span className="text-3xl text-neutral-800 font-light" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
@@ -177,7 +177,7 @@ const Cart = () => {
                                     </span>
                                 </div>
 
-                                <button 
+                                <button
                                     onClick={handleCheckout}
                                     className="w-full bg-neutral-900 text-white py-5 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs hover:bg-gold-500 transition-all duration-500 mt-8"
                                 >
@@ -187,7 +187,7 @@ const Cart = () => {
 
                                 <div className="pt-6 text-center">
                                     <p className="text-[10px] text-neutral-400 uppercase tracking-widest leading-relaxed">
-                                        Secure encypted checkout provided by Razorpay. <br/>All products shipped from our global sanctuary.
+                                        Secure encypted checkout provided by Razorpay. <br />All products shipped from our global sanctuary.
                                     </p>
                                 </div>
                             </div>

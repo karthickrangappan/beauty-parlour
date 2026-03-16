@@ -57,7 +57,7 @@ const AppLayout = () => {
 function App() {
   return (
     <Router>
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           className: 'premium-toast',

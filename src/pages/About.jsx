@@ -115,8 +115,8 @@ const About = () => {
             <h3 className="text-gold-500 font-bold uppercase tracking-[0.3em] text-[10px] sm:text-xs mb-6">
               {storyData.pillars.tagline}
             </h3>
-            <h2 
-              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-light text-neutral-900 leading-tight" 
+            <h2
+              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-light text-neutral-900 leading-tight"
               style={{ fontFamily: "Playfair Display, serif" }}
             >
               {storyData.pillars.title}
@@ -195,7 +195,7 @@ const About = () => {
 
       <section className="relative py-32 sm:py-40 lg:py-52 bg-neutral-900 overflow-hidden text-center">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(200,169,106,0.18)_0%,rgba(0,0,0,0)_75%)] pointer-events-none" />
-        
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -203,7 +203,7 @@ const About = () => {
           transition={{ duration: 1.2, ease: "easeOut" }}
           className="relative z-10 w-full max-w-5xl mx-auto px-6"
         >
-          <h2 
+          <h2
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light mb-16 text-white font-serif italic tracking-tight"
           >
             {storyData.cta.title}

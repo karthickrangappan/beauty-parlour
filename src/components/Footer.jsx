@@ -31,7 +31,7 @@ const footerData = {
 
 const Footer = () => {
   return (
-    <footer className="bg-neutral-900 pt-24 pb-12 relative overflow-hidden">
+    <footer className="bg-cream-50/95 pt-24 pb-12 relative overflow-hidden">
 
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
       <div className="absolute top-0 right-1/4 w-px h-32 bg-gradient-to-b from-gold-500/20 to-transparent hidden md:block" />

@@ -71,7 +71,7 @@ const Wishlist = () => {
                   className="group cursor-pointer transition-all duration-500 hover:-translate-y-2"
                 >
 
-                  
+
                   <div className="aspect-[4/5] bg-white overflow-hidden relative mb-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-500 border border-neutral-200">
 
                     <img
@@ -81,7 +81,7 @@ const Wishlist = () => {
                       className="w-full h-full object-cover transform duration-[2.5s] ease-out group-hover:scale-110"
                     />
 
-                    
+
                     <button
                       onClick={() => removeFromWishlist(product.id)}
                       className="absolute top-4 right-4 z-30 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition"
@@ -89,7 +89,7 @@ const Wishlist = () => {
                       <Trash2 className="w-4 h-4 text-neutral-500 hover:text-red-500" />
                     </button>
 
-                    
+
                     <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20 border-t border-neutral-200">
                       <button
                         onClick={() => handleMoveToCart(product)}
@@ -101,7 +101,7 @@ const Wishlist = () => {
                     </div>
                   </div>
 
-                  
+
                   <div className="text-center space-y-2">
 
                     <h3 className="text-neutral-900 uppercase tracking-[0.25em] text-sm font-medium">

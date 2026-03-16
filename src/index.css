@@ -4,11 +4,11 @@
   --color-gold-300: #e8cd7b;
   --color-gold-400: #d4af37;
   --color-gold-500: #b5952f;
-  
+
   --color-blush-50: #fff0f5;
   --color-blush-100: #fde4e9;
   --color-blush-200: #fbcfe0;
-  
+
   --color-cream-50: #fbf9f6;
   --color-cream-100: #f4eee2;
 }
@@ -25,6 +25,7 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -34,14 +35,16 @@ body {
   width: 6px;
   height: 6px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.03);
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #d4af37;
   border-radius: 10px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #b5952f;
 }
-

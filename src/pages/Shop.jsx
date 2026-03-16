@@ -220,11 +220,10 @@ const Shop = () => {
                     <button
                       key={col.id}
                       onClick={() => setActiveCollection(col.id)}
-                      className={`text-left text-xs px-3 py-2 rounded-sm font-medium ${
-                        activeCollection === col.id
+                      className={`text-left text-xs px-3 py-2 rounded-sm font-medium ${activeCollection === col.id
                           ? "bg-neutral-900 text-white"
                           : "text-neutral-500 hover:bg-cream-100"
-                      }`}
+                        }`}
                     >
                       {col.name}
                     </button>
@@ -238,11 +237,10 @@ const Shop = () => {
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide ${
-                        selectedCategory === cat
+                      className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide ${selectedCategory === cat
                           ? "bg-neutral-900 text-white"
                           : "text-neutral-500 hover:bg-cream-100 hover:text-neutral-800"
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -260,16 +258,14 @@ const Shop = () => {
                       <button
                         key={opt.label}
                         onClick={() => setPriceRange(opt.value)}
-                        className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide flex items-center gap-2 ${
-                          active
+                        className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide flex items-center gap-2 ${active
                             ? "bg-gold-500/10 text-gold-700 font-semibold"
                             : "text-neutral-500 hover:bg-cream-100 hover:text-neutral-800"
-                        }`}
+                          }`}
                       >
                         <span
-                          className={`w-2 h-2 rounded-full border flex-shrink-0 ${
-                            active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
-                          }`}
+                          className={`w-2 h-2 rounded-full border flex-shrink-0 ${active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
+                            }`}
                         />
                         {opt.label}
                       </button>
@@ -286,16 +282,14 @@ const Shop = () => {
                       <button
                         key={stars}
                         onClick={() => setMinRating(stars)}
-                        className={`text-left text-xs px-3 py-2 rounded-sm font-medium flex items-center gap-2 transition-colors ${
-                          active
+                        className={`text-left text-xs px-3 py-2 rounded-sm font-medium flex items-center gap-2 transition-colors ${active
                             ? "bg-gold-500/10 text-gold-700"
                             : "text-neutral-500 hover:bg-cream-100"
-                        }`}
+                          }`}
                       >
                         <span
-                          className={`w-2 h-2 rounded-full border flex-shrink-0 transition-colors ${
-                            active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
-                          }`}
+                          className={`w-2 h-2 rounded-full border flex-shrink-0 transition-colors ${active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
+                            }`}
                         />
                         {stars === 0 ? (
                           "Any Rating"
@@ -371,13 +365,12 @@ const Shop = () => {
                             key={col.id}
                             onClick={() => {
                               setActiveCollection(col.id);
-                             
+
                             }}
-                            className={`text-left text-xs px-4 py-3 rounded-sm font-medium transition-colors ${
-                              activeCollection === col.id
+                            className={`text-left text-xs px-4 py-3 rounded-sm font-medium transition-colors ${activeCollection === col.id
                                 ? "bg-neutral-900 text-white shadow-md shadow-neutral-900/10"
                                 : "text-neutral-500 hover:bg-cream-100"
-                            }`}
+                              }`}
                           >
                             {col.name}
                           </button>
@@ -391,11 +384,10 @@ const Shop = () => {
                           <button
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
-                            className={`text-left text-xs px-4 py-3 rounded-sm font-medium transition-colors ${
-                              selectedCategory === cat
+                            className={`text-left text-xs px-4 py-3 rounded-sm font-medium transition-colors ${selectedCategory === cat
                                 ? "bg-neutral-900 text-white shadow-md shadow-neutral-900/10"
                                 : "text-neutral-500 hover:bg-cream-100"
-                            }`}
+                              }`}
                           >
                             {cat}
                           </button>
@@ -413,16 +405,14 @@ const Shop = () => {
                             <button
                               key={opt.label}
                               onClick={() => setPriceRange(opt.value)}
-                              className={`text-left text-xs px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-all ${
-                                active
+                              className={`text-left text-xs px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-all ${active
                                   ? "bg-gold-500/10 text-gold-700 border-l-2 border-gold-500"
                                   : "text-neutral-500 hover:bg-cream-100 border-l-2 border-transparent"
-                              }`}
-                            >
-                               <span
-                                className={`w-2 h-2 rounded-full border flex-shrink-0 ${
-                                  active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
                                 }`}
+                            >
+                              <span
+                                className={`w-2 h-2 rounded-full border flex-shrink-0 ${active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
+                                  }`}
                               />
                               {opt.label}
                             </button>
@@ -439,11 +429,10 @@ const Shop = () => {
                             <button
                               key={stars}
                               onClick={() => setMinRating(stars)}
-                              className={`text-left text-xs px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-all ${
-                                active
+                              className={`text-left text-xs px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-all ${active
                                   ? "bg-gold-500/10 text-gold-700 border-l-2 border-gold-500"
                                   : "text-neutral-500 hover:bg-cream-100 border-l-2 border-transparent"
-                              }`}
+                                }`}
                             >
                               <Star className={`w-4 h-4 ${active ? 'fill-gold-500 text-gold-500' : 'text-neutral-300'}`} />
                               {stars === 0 ? "Any Rating" : `${stars} Stars & Up`}
