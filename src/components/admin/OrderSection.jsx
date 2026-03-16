@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fmtCurrency } from "../../constants/config";
+import { ORDER_STATUS_SEQUENCE } from "../../utils/logicUtils";
 
 // ─── Number to Words (INR) Helper ───────────────────────────────────────────
 function numberToWords(num) {
@@ -321,12 +322,18 @@ export const InvoiceModal = ({ order: o, onClose }) => {
 const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, statusColors }) => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [showOnlyReturns, setShowOnlyReturns] = useState(false);
 
-  const filteredOrders = orders.filter(o => 
-    o.id?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-    o.customer?.name?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-    o.customer?.email?.toLowerCase().includes(orderSearch.toLowerCase())
-  ).sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+  const filteredOrders = orders.filter(o => {
+    const matchesSearch = o.id?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+                         o.customer?.name?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+                         o.customer?.email?.toLowerCase().includes(orderSearch.toLowerCase());
+    
+    if (showOnlyReturns) {
+      return matchesSearch && o.status === "return_requested";
+    }
+    return matchesSearch;
+  }).sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
 
   const StatusDiagram = ({ currentStatus }) => {
     const steps = [
@@ -397,8 +404,16 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
           />
         </div>
         <div className="flex items-center justify-end gap-3">
-          <button className="p-3 bg-neutral-50 border border-neutral-100 text-neutral-400 hover:text-gold-500 transition-colors">
-            <Filter className="w-4 h-4" />
+          <button 
+            onClick={() => setShowOnlyReturns(!showOnlyReturns)}
+            className={`px-4 py-2.5 text-[10px] uppercase tracking-widest font-black transition-all flex items-center gap-2 border ${
+              showOnlyReturns 
+                ? "bg-gold-500 text-white border-gold-600 shadow-md" 
+                : "bg-white text-neutral-500 border-neutral-100 hover:border-gold-500"
+            }`}
+          >
+            <Clock className={`w-3 h-3 ${showOnlyReturns ? "animate-pulse" : ""}`} />
+            {showOnlyReturns ? "Viewing Returns" : "Refund Requests"}
           </button>
           <button className="p-3 bg-neutral-50 border border-neutral-100 text-neutral-400 hover:text-gold-500 transition-colors">
             <Download className="w-4 h-4" />
@@ -485,16 +500,34 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
                         value={order.status}
                         onChange={(e) => updateOrderStatus(order, e.target.value)}
                       >
-                        <option value="confirmed">Confirm</option>
-                        <option value="processing">Process</option>
-                        <option value="packed">Pack</option>
-                        <option value="shipped">Ship Items</option>
-                        <option value="out_for_delivery">Out for Delivery</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="return_requested">Return Requested</option>
-                        <option value="return_accepted">Accept Return</option>
-                        <option value="refunded">Refunded</option>
-                        <option value="cancelled">Cancel Order</option>
+                        {ORDER_STATUS_SEQUENCE.map((status, idx) => {
+                          const currentIdx = ORDER_STATUS_SEQUENCE.indexOf(order.status);
+                          const isReturnFlow = ["return_requested", "return_accepted", "refunded"].includes(order.status);
+                          
+                          // Logic: Hide previous statuses
+                          if (idx < currentIdx) return null;
+                          
+                          // Logic: If in Return Flow, hide any non-return future statuses (though sequence is already set up)
+                          if (isReturnFlow && !["return_requested", "return_accepted", "refunded"].includes(status)) return null;
+
+                          const labelMap = {
+                             confirmed: "Confirm",
+                             processing: "Process",
+                             packed: "Pack",
+                             shipped: "Ship Items",
+                             out_for_delivery: "Out for Delivery",
+                             delivered: "Delivered",
+                             return_requested: "Return Requested",
+                             return_accepted: "Accept Return",
+                             refunded: "Refunded"
+                          };
+
+                          return <option key={status} value={status}>{labelMap[status] || status}</option>
+                        })}
+                        {/* Logic: Show cancel option only for standard delivery flow, hide during return flow */}
+                        {!['refunded', 'cancelled', 'return_accepted', 'return_requested'].includes(order.status) && (
+                           <option value="cancelled">Cancel Order</option>
+                        )}
                       </select>
                       <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none rotate-90" />
                     </div>
