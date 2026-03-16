@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -59,6 +60,23 @@ const AppLayout = () => {
 function App() {
   return (
     <Router>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          className: 'premium-toast',
+          duration: 3000,
+          style: {
+            background: '#1a1a1a',
+            color: '#fff',
+            borderRadius: '0',
+            fontSize: '11px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            border: '1px solid #D4AF37',
+            padding: '12px 24px',
+          },
+        }}
+      />
       <AppLayout />
     </Router>
   );

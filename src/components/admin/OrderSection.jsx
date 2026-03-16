@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { 
   Search, 
-  Eye, 
   Printer, 
   CheckCircle2, 
   Clock, 
@@ -9,11 +8,12 @@ import {
   Package, 
   XCircle,
   ChevronRight,
-  MoreVertical,
   Download,
   Filter,
   ArrowRight,
-  X
+  X,
+  Users,
+  ShoppingBag
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fmtCurrency } from "../../constants/config";

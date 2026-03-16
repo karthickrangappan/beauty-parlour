@@ -5,12 +5,10 @@ import { collection, query, where, getDocs, addDoc, doc, updateDoc, Timestamp } 
 import { Star, Edit3, Send, CheckCircle, AlertCircle, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateNewAverage } from "../utils/logicUtils";
-import { useToaster } from "../context/ToastContext";
+import { toast } from "react-hot-toast";
 
 const ProductReviews = ({ productId }) => {
     const { user } = useAuth();
-    
-    const { toast } = useToaster();
     
     const [reviews, setReviews] = useState([]);
     const [isEligible, setIsEligible] = useState(false);
@@ -102,7 +100,7 @@ const ProductReviews = ({ productId }) => {
         e.preventDefault();
         if (!isEligible && !existingReview) return;
         if (comment.length < 10) {
-            toast("Description must be at least 10 characters.", "error");
+            toast.error("Description must be at least 10 characters.");
             return;
         }
 
@@ -111,7 +109,7 @@ const ProductReviews = ({ productId }) => {
             const created = existingReview.createdAt?.toDate() || new Date();
             const diff = (new Date() - created) / (1000 * 60 * 60 * 24);
             if (diff > 30) {
-                toast("Editing is only allowed within 30 days of submission.", "error");
+                toast.error("Editing is only allowed within 30 days of submission.");
                 return;
             }
         }
@@ -153,12 +151,12 @@ const ProductReviews = ({ productId }) => {
                 transaction.set(revRef, reviewData, { merge: true });
             });
 
-            toast(existingReview ? "Review updated." : "Experience published.", "success");
+            toast.success(existingReview ? "Review updated." : "Experience published.");
             setSuccessMsg(existingReview ? "Review updated." : "Experience published.");
             fetchReviews();
         } catch (error) {
             console.error("Review submission failed", error);
-            toast("Failed to save review.", "error");
+            toast.error("Failed to save review.");
         } finally {
             setIsSubmitting(false);
         }
@@ -187,11 +185,11 @@ const ProductReviews = ({ productId }) => {
 
                 transaction.delete(doc(db, "reviews", review.id));
             });
-            toast("Review removed.", "info");
+            toast("Review removed.");
             setExistingReview(null);
             fetchReviews();
         } catch (error) {
-            toast("Deletion failed.", "error");
+            toast.error("Deletion failed.");
         }
     };
 

@@ -27,14 +27,13 @@ import {
 // Logic utilities
 import { generateTimeSlots } from "../utils/logicUtils";
 import { loadRazorpay } from "../utils/loadRazorpay";
-import { useToaster } from "../context/ToastContext";
+import { toast } from "react-hot-toast";
 import { APP_NAME } from "../constants/config";
 import PageHeader from "../components/PageHeader";
 
 const Appointments = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToaster();
   const location = useLocation();
 
   const [step, setStep] = useState(1);
@@ -116,7 +115,7 @@ const Appointments = () => {
     
     if (allSlots.length === 0) {
       setAvailableSlots([]);
-      toast("No working sessions available on this day.", "info");
+      toast("No working sessions available on this day.");
       return;
     }
 
@@ -136,13 +135,13 @@ const Appointments = () => {
       
       if (confirmedBookings.length > 0) {
         setAvailableSlots([]); 
-        toast(`${selectedStaff.name} is fully booked for ${dateStr}`, "warning");
+        toast(`${selectedStaff.name} is fully booked for ${dateStr}`);
       } else {
         setAvailableSlots(allSlots);
       }
     } catch (error) {
       console.error("Slot check error:", error);
-      toast("Failed to check availability. Please try again.", "error");
+      toast.error("Failed to check availability. Please try again.");
       setAvailableSlots([]);
     } finally {
       setIsLoadingSlots(false);
@@ -157,7 +156,7 @@ const Appointments = () => {
   // Step 4: Confirm & Pay with Razorpay
   const confirmBooking = async () => {
     if (!user) {
-      toast("Please login to book an appointment", "error");
+      toast.error("Please login to book an appointment");
       navigate("/auth/login", { state: { returnTo: "/appointments" } });
       return;
     }
@@ -213,14 +212,14 @@ const Appointments = () => {
             });
 
             setSuccessMsg(`Reservation confirmed! Your payment ID is ${response.razorpay_payment_id}.`);
-            toast("Appointment Booked Successfully!", "success");
+            toast.success("Appointment Booked Successfully!");
             
             setTimeout(() => {
               navigate("/profile");
             }, 3000);
           } catch (err) {
             console.error("Post-payment save failed", err);
-            toast("Payment successful but booking failed. Please contact support immediately.", "error");
+            toast.error("Payment successful but booking failed. Please contact support immediately.");
           }
         },
         prefill: {
@@ -240,7 +239,7 @@ const Appointments = () => {
 
     } catch (error) {
       console.error("Booking failed:", error.message);
-      toast(error.message || "Booking failed", "error");
+      toast.error(error.message || "Booking failed");
       setIsBooking(false);
     }
   };
