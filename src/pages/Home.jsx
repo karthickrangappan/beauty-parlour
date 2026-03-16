@@ -1,9 +1,10 @@
 import React from "react";
-import Hero from "./Hero";
+import Hero from "./HeroTwo";
 import AboutSanctuary from "../components/home/AboutSanctuary";
 import FeaturedServices from "../components/home/FeaturedServices";
 import MasonryGallery from "../components/home/MasonryGallery";
 import CtaSection from "../components/home/CtaSection";
+
 
 const Home = () => {
   return (
