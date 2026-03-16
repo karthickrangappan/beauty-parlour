@@ -46,7 +46,6 @@ export default function Checkout() {
     }
   };
 
-  // Calculate final total correctly: Subtotal - Discounts + GST + Pincode-specific Shipping
   const finalTotal = subtotal - couponDiscount - loyaltyDiscount + gst + shippingStats.charge;
 
   const validateForm = () => {
@@ -185,9 +184,7 @@ export default function Checkout() {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          {/* Main Form Area */}
           <div className="lg:col-span-8 space-y-8">
-            {/* Step 1: Shipping */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -296,7 +293,7 @@ export default function Checkout() {
               </div>
             </motion.div>
 
-            {/* Step 2: Payment */}
+
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -39,7 +39,6 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-12 sm:gap-16 lg:gap-8">
           
-          {/* Brand Identity - Full width on mobile, half on tablet, 1/3 on desktop */}
           <div className="lg:col-span-4 space-y-8">
             <Link to="/" className="text-3xl sm:text-4xl text-gold-300 tracking-[0.2em] uppercase font-light inline-block" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
               {footerData.brand.name}
@@ -60,7 +59,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Navigation Columns */}
           <div className="lg:col-span-5 grid grid-cols-2 gap-8">
             <div className="space-y-6">
               <h4 className="text-white text-[11px] sm:text-xs uppercase tracking-[0.25em] font-bold">Explore</h4>
@@ -85,7 +83,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Newsletter section */}
           <div className="lg:col-span-3 space-y-6 sm:col-span-2 lg:col-start-10">
             <h4 className="text-white text-[11px] sm:text-xs uppercase tracking-[0.25em] font-bold">{footerData.newsletter.title}</h4>
             <p className="text-neutral-400 text-sm font-light leading-relaxed">
@@ -108,7 +105,6 @@ const Footer = () => {
           
         </div>
 
-        {/* Bottom Bar */}
         <div className="mt-20 sm:mt-24 pt-8 border-t border-neutral-800/50 flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-4 text-center sm:text-left">
           <p className="text-neutral-600 text-[10px] sm:text-xs font-light tracking-wide order-2 sm:order-1">
             © {new Date().getFullYear()} {footerData.brand.name}. Crafted for timeless elegance.

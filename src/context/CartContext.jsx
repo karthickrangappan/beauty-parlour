@@ -29,10 +29,9 @@ export const CartProvider = ({ children }) => {
   const [activeCoupon, setActiveCoupon] = useState(null);
   const [loyaltyDiscount, setLoyaltyDiscount] = useState(0);
 
-  // Real-time listener on users/{uid} — reads the 'cart' field
   useEffect(() => {
     if (!user) {
-      setItems([]); // clear cart when user logs out
+      setItems([]); 
       return;
     }
 
@@ -48,7 +47,6 @@ export const CartProvider = ({ children }) => {
     return () => unsubscribe();
   }, [user]);
 
-  // UI calculation updates
   useEffect(() => {
     const subtotal = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
@@ -57,7 +55,7 @@ export const CartProvider = ({ children }) => {
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
 
     const taxableAmount = Math.max(0, subtotal - couponDiscount);
-    const gst = taxableAmount * 0.18; // 18% GST for applicable products
+    const gst = taxableAmount * 0.18; 
     const delivery = subtotal > 0 && subtotal < 500 ? 49 : 0;
     const totalAmount =
       subtotal > 0
@@ -73,7 +71,6 @@ export const CartProvider = ({ children }) => {
     });
   }, [items, couponDiscount, loyaltyDiscount]);
 
-  // Write cart array into users/{uid}.cart
   const syncCartToFirestore = async (newItems) => {
     if (!user) return;
     try {
@@ -144,7 +141,6 @@ export const CartProvider = ({ children }) => {
     
     try {
       await runTransaction(db, async (transaction) => {
-        // 1. Gather all product snapshots (READS MUST COME FIRST)
         const snaps = [];
         for (const item of items) {
           const productRef = doc(db, "products", item.id);
@@ -152,7 +148,6 @@ export const CartProvider = ({ children }) => {
           snaps.push({ item, productSnap, productRef });
         }
 
-        // 2. Perform all stock updates (WRITES AFTER ALL READS)
         for (const { item, productSnap, productRef } of snaps) {
           if (productSnap.exists()) {
             const currentStock = productSnap.data().stock || 0;
@@ -165,7 +160,6 @@ export const CartProvider = ({ children }) => {
           }
         }
 
-        // 2. Prepare Order
         const totalAmount = orderInfo.totalAmount || totals.totalAmount;
         const pts = Math.floor(totalAmount / 10);
         

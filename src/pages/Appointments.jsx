@@ -26,7 +26,6 @@ import {
   Loader2
 } from "lucide-react";
 
-// Logic utilities
 import { generateTimeSlots } from "../utils/logicUtils";
 import { loadRazorpay } from "../utils/loadRazorpay";
 import { toast } from "react-hot-toast";
@@ -40,7 +39,6 @@ const Appointments = () => {
 
   const [step, setStep] = useState(1);
 
-  // Selections
   const [selectedService, setSelectedService] = useState(null);
   const [selectedStaff, setSelectedStaff] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
@@ -53,7 +51,6 @@ const Appointments = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
-  // Fetch Services & Staff
   useEffect(() => {
     const fetchData = async () => {
       const sSnap = await getDocs(collection(db, "services"));
@@ -64,11 +61,10 @@ const Appointments = () => {
       const stData = stSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setStaffList(stData);
 
-      // Handle service coming from navigation state
       if (location.state?.selectedService) {
         const preSelected = location.state.selectedService;
         setSelectedService(preSelected);
-        setAvailableStaff(stData); // Show ALL specialists
+        setAvailableStaff(stData); 
         setStep(2);
       }
     };
@@ -86,10 +82,8 @@ const Appointments = () => {
     setSelectedSlot("");
   };
 
-  // Step 1: Select Service -> Filter Staff
   const handleServiceSelect = (service) => {
     setSelectedService(service);
-    // Show all specialists for every service as requested
     setAvailableStaff(staffList);
     setSelectedStaff(null);
     setSelectedDate("");
@@ -97,7 +91,6 @@ const Appointments = () => {
     setStep(2);
   };
 
-  // Step 2: Select Staff
   const handleStaffSelect = (staff) => {
     setSelectedStaff(staff);
     setSelectedDate("");
@@ -105,7 +98,6 @@ const Appointments = () => {
     setStep(3);
   };
 
-  // Step 3: Date & Slot Selection
   const handleDateSelect = async (e) => {
     const dateStr = e.target.value;
     setSelectedDate(dateStr);
@@ -113,7 +105,6 @@ const Appointments = () => {
 
     if (!selectedStaff || !selectedService) return;
 
-    // Slot Generation Logic using refined utility
     const allSlots = generateTimeSlots(selectedStaff, selectedService, dateStr);
 
     if (allSlots.length === 0) {
@@ -122,7 +113,6 @@ const Appointments = () => {
       return;
     }
 
-    // Booked Slots Exclusion
     setIsLoadingSlots(true);
     try {
       const appointmentsRef = collection(db, "appointments");
@@ -133,7 +123,6 @@ const Appointments = () => {
       );
       const querySnapshot = await getDocs(q);
 
-      // Check if ALREADY booked for this day (One booking per day rule)
       const confirmedBookings = querySnapshot.docs.filter(d => d.data().status !== "cancelled");
 
       if (confirmedBookings.length > 0) {
@@ -156,7 +145,6 @@ const Appointments = () => {
     setStep(4);
   };
 
-  // Step 4: Confirm & Pay with Razorpay
   const confirmBooking = async () => {
     if (!user) {
       toast.error("Please login to book an appointment");
@@ -167,7 +155,6 @@ const Appointments = () => {
     setIsBooking(true);
 
     try {
-      // 1. Double check availability (Atomic check using individual slot ID)
       const slotDocId = `${selectedStaff.id}_${selectedDate}_${selectedSlot}`;
       const slotDocRef = doc(db, "appointments", slotDocId);
 
@@ -180,7 +167,6 @@ const Appointments = () => {
         throw new Error("This date was just claimed by someone else.");
       }
 
-      // 2. Load Razorpay
       const isLoaded = await loadRazorpay();
       if (!isLoaded) {
         throw new Error("Razorpay SDK failed to load. Please check your connection.");
@@ -247,7 +233,6 @@ const Appointments = () => {
     }
   };
 
-  // Minimum date for date picker (today)
   const todayStr = new Date().toISOString().split("T")[0];
 
   return (
@@ -261,7 +246,6 @@ const Appointments = () => {
       <div className="max-w-6xl mx-auto px-6">
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          {/* Left: Progress Summary Panel */}
           <div className="lg:col-span-4 bg-white shadow-xl shadow-gold-300/5 border border-gold-300/10 sticky top-16 sm:top-20 lg:top-32 z-30 transition-all duration-300">
             <button 
               onClick={() => setIsSummaryOpen(!isSummaryOpen)}
@@ -281,7 +265,6 @@ const Appointments = () => {
             </button>
 
             <div className={`${isSummaryOpen ? 'block' : 'hidden'} lg:block px-6 pb-6 lg:px-10 lg:pb-10 space-y-4 lg:space-y-6`}>
-              {/* Service Summary */}
               <div
                 className={`p-4 border ${selectedService ? "border-gold-300/40 bg-cream-50/30" : "border-neutral-100"} transition-all`}
               >
@@ -310,7 +293,6 @@ const Appointments = () => {
                 )}
               </div>
 
-              {/* Staff Summary */}
               <div
                 className={`p-4 border ${selectedStaff ? "border-gold-300/40 bg-cream-50/30" : "border-neutral-100"} transition-all`}
               >
@@ -340,7 +322,6 @@ const Appointments = () => {
                 )}
               </div>
 
-              {/* Date & Time Summary */}
               <div
                 className={`p-4 border ${selectedSlot ? "border-gold-300/40 bg-cream-50/30" : "border-neutral-100"} transition-all`}
               >
@@ -379,10 +360,10 @@ const Appointments = () => {
             </div>
           </div>
 
-          {/* Right: Dynamic Selection Flow */}
+
           <div className="lg:col-span-8">
             <AnimatePresence mode="wait">
-              {/* STEP 1: SERVICES */}
+
               {step === 1 && (
                 <motion.div
                   key="step1"
@@ -423,7 +404,6 @@ const Appointments = () => {
                 </motion.div>
               )}
 
-              {/* STEP 2: STAFF */}
               {step === 2 && (
                 <motion.div
                   key="step2"
@@ -477,7 +457,6 @@ const Appointments = () => {
                 </motion.div>
               )}
 
-              {/* STEP 3: DATE & TIME */}
               {step === 3 && (
                 <motion.div
                   key="step3"
@@ -553,7 +532,6 @@ const Appointments = () => {
                 </motion.div>
               )}
 
-              {/* STEP 4: CONFIRMATION */}
               {step === 4 && (
                 <motion.div
                   key="step4"

@@ -17,7 +17,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Utility removed in favor of fmtCurrency
+
 
 const OverviewSection = ({
   totalRevenue,
@@ -29,7 +29,6 @@ const OverviewSection = ({
 }) => {
   return (
     <>
-      {/* stat cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {[
           {
@@ -87,7 +86,6 @@ const OverviewSection = ({
         ))}
       </div>
 
-      {/* chart */}
       <div className="bg-white p-8 border border-neutral-100 shadow-sm mb-8">
         <div className="flex items-center gap-3 mb-8 border-b border-neutral-100 pb-4">
           <TrendingUp className="w-5 h-5 text-gold-500" />

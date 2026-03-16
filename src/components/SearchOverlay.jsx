@@ -106,14 +106,14 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                     animate={{ opacity: 1 }} 
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="fixed inset-0 z-[100] bg-cream-50/95 backdrop-blur-xl flex justify-center pt-24 md:pt-32 px-6 overflow-y-auto"
+                    className="fixed inset-0 z-[100] bg-cream-50/95 backdrop-blur-xl flex justify-center pt-20 md:pt-32 px-4 md:px-6 overflow-y-auto"
                 >
                     <div className="w-full max-w-4xl">
                         
                         <div className="flex justify-between items-center mb-8">
-                           <h2 className="text-sm uppercase tracking-widest text-neutral-500 font-medium" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>Discover</h2>
+                           <h2 className="text-[10px] md:text-sm uppercase tracking-widest text-neutral-500 font-medium" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>Discover</h2>
                            <button onClick={onClose} className="p-2 text-neutral-800 hover:text-gold-500 transition-colors">
-                               <X className="w-6 h-6 stroke-[1.5]" />
+                               <X className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" />
                            </button>
                         </div>
 
@@ -123,12 +123,12 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search products, treatments, or ingredients..."
-                                className="w-full bg-transparent border-b-2 border-neutral-300 pb-3 text-2xl md:text-4xl lg:text-4xl font-light text-neutral-800 focus:outline-none focus:border-gold-500 transition-colors placeholder:text-neutral-300"
+                                placeholder="Search products, treatments..."
+                                className="w-full bg-transparent border-b-2 border-neutral-300 pb-2 md:pb-3 text-xl md:text-4xl lg:text-4xl font-light text-neutral-800 focus:outline-none focus:border-gold-500 transition-colors placeholder:text-neutral-300"
                                 style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                             />
-                            <button type="submit" className="absolute right-0 bottom-6 text-neutral-400 hover:text-gold-500 transition-colors">
-                                <Search className="w-8 h-8 stroke-[1.5]" />
+                            <button type="submit" className="absolute right-0 bottom-4 md:bottom-6 text-neutral-400 hover:text-gold-500 transition-colors">
+                                <Search className="w-6 h-6 md:w-8 md:h-8 stroke-[1.5]" />
                             </button>
                         </form>
 
@@ -138,12 +138,12 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                 {searchQuery.trim() === '' ? (
                                     <div className="space-y-6 opacity-60">
                                         <h3 className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-4">Trending Searches</h3>
-                                        <div className="flex flex-wrap gap-3">
-                                            {['Cleansers', 'Serums', 'Treatments', 'rose water', 'exfoliant'].map(term => (
+                                        <div className="flex flex-wrap gap-2 md:gap-3">
+                                            {['Cleansers', 'Serums', 'Treatments', 'rose water'].map(term => (
                                                 <button 
                                                     key={term}
                                                     onClick={() => setSearchQuery(term)}
-                                                    className="px-4 py-2 bg-white/50 border border-neutral-200 text-xs uppercase tracking-widest text-neutral-600 hover:border-gold-500 hover:text-gold-600 transition-colors rounded-full"
+                                                    className="px-3 md:px-4 py-1.5 md:py-2 bg-white/50 border border-neutral-200 text-[9px] md:text-xs uppercase tracking-widest text-neutral-600 hover:border-gold-500 hover:text-gold-600 transition-colors rounded-full"
                                                 >
                                                     {term}
                                                 </button>
@@ -165,19 +165,19 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                                             exit={{ opacity: 0, y: -10 }}
                                                             transition={{ delay: idx * 0.05 }}
                                                             onClick={() => handleResultClick(product)}
-                                                            className="flex items-center gap-6 p-4 bg-white hover:shadow-lg hover:shadow-gold-300/10 border border-transparent hover:border-gold-300/30 transition-all cursor-pointer group rounded-sm"
+                                                            className="flex items-center gap-4 md:gap-6 p-3 md:p-4 bg-white hover:shadow-lg hover:shadow-gold-300/10 border border-transparent hover:border-gold-300/30 transition-all cursor-pointer group rounded-sm"
                                                         >
-                                                            <div className="w-16 h-20 bg-neutral-100 overflow-hidden flex-shrink-0">
+                                                            <div className="w-12 h-16 md:w-16 md:h-20 bg-neutral-100 overflow-hidden flex-shrink-0">
                                                                 <img src={product.image} alt={product.name} onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                                             </div>
                                                             <div className="flex-1">
-                                                                <h4 className="text-sm uppercase tracking-widest text-neutral-800 font-medium mb-1 group-hover:text-gold-600 transition-colors">{product.name}</h4>
-                                                                <p className="text-[10px] text-neutral-400 font-serif italic mb-2">{product.category}</p>
-                                                                <p className="text-xs text-neutral-500 line-clamp-1">{product.shortDesc}</p>
+                                                                <h4 className="text-xs md:text-sm uppercase tracking-widest text-neutral-800 font-medium mb-1 group-hover:text-gold-600 transition-colors">{product.name}</h4>
+                                                                <p className="text-[9px] md:text-[10px] text-neutral-400 font-serif italic mb-1 md:mb-2">{product.category}</p>
+                                                                <p className="text-[10px] md:text-xs text-neutral-500 line-clamp-1">{product.shortDesc}</p>
                                                             </div>
-                                                            <div className="text-right flex flex-col items-end gap-2 pl-4">
-                                                                <p className="text-sm font-medium text-neutral-900">{fmtCurrency(product.price)}</p>
-                                                                <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-gold-500 transition-colors" />
+                                                            <div className="text-right flex flex-col items-end gap-1 md:gap-2 pl-2 md:pl-4">
+                                                                <p className="text-xs md:text-sm font-medium text-neutral-900">{fmtCurrency(product.price)}</p>
+                                                                <ChevronRight className="w-3 h-3 md:w-4 md:h-4 text-neutral-300 group-hover:text-gold-500 transition-colors" />
                                                             </div>
                                                         </motion.div>
                                                     ))}
@@ -192,7 +192,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                 )}
                             </div>
 
-                            <div className="md:col-span-4 pl-0 md:pl-8 border-t md:border-t-0 md:border-l border-neutral-200/50 pt-8 md:pt-0">
+                            <div className="md:col-span-4 pl-0 md:pl-8 border-t md:border-t-0 md:border-l border-neutral-200/50 pt-8 md:pt-0 mb-12 md:mb-0">
                                 <div className="flex items-center justify-between mb-8">
                                     <h3 className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold flex items-center gap-2">
                                         <Clock className="w-3 h-3" /> Recent Searches

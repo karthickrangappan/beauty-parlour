@@ -47,7 +47,7 @@ const StaffSection = ({
         </div>
       </div>
 
-      {/* staff form modal */}
+
       <AnimatePresence>
         {showStaffForm && (
           <motion.div

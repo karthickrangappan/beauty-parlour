@@ -1,8 +1,5 @@
 import { Timestamp } from "firebase/firestore";
 
-/**
- * REVIEWS & RATINGS LOGIC
- */
 export const calculateNewAverage = (oldAvg, oldCount, newUserRating, oldUserRating = null, mode = "add") => {
   const currentAvg = oldAvg || 0;
   const currentCount = oldCount || 0;
@@ -29,12 +26,9 @@ export const calculateNewAverage = (oldAvg, oldCount, newUserRating, oldUserRati
   return { nextAvg: currentAvg, nextCount: currentCount };
 };
 
-/**
- * SHIPPING & DELIVERY LOGIC
- */
 export const getShippingStats = (subtotal, pincode) => {
   const isTN = pincode && String(pincode).startsWith("6");
-  const isRemote = pincode && ["7", "8", "9"].includes(String(pincode)[0]); // Simple heuristic for remote North/East
+  const isRemote = pincode && ["7", "8", "9"].includes(String(pincode)[0]); 
 
   let charge = 0;
   if (subtotal < 500) {
@@ -54,9 +48,6 @@ export const getShippingStats = (subtotal, pincode) => {
   };
 };
 
-/**
- * ORDER STATUS PROGRESSION
- */
 export const ORDER_STATUS_SEQUENCE = [
   "confirmed",
   "processing",
@@ -69,32 +60,25 @@ export const ORDER_STATUS_SEQUENCE = [
 export const canMoveToStatus = (current, next) => {
   const currIdx = ORDER_STATUS_SEQUENCE.indexOf(current);
   const nextIdx = ORDER_STATUS_SEQUENCE.indexOf(next);
-  // Status can only move forward
   return nextIdx > currIdx;
 };
 
 export const canCancelOrder = (status, isAdmin) => {
-  if (isAdmin) return true; // Admin can cancel any
+  if (isAdmin) return true; 
   const cancellable = ["confirmed", "processing", "packed"];
   return cancellable.includes(status);
 };
 
-/**
- * APPOINTMENT LOGIC
- */
 export const generateTimeSlots = (staff, service, dateStr) => {
   if (!staff || !service || !dateStr) return [];
 
-  // Robust date parsing (avoid UTC shift issues)
   const [y, m, d] = dateStr.split("-").map(Number);
   const date = new Date(y, m - 1, d);
-  const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }); // "Mon", etc
+  const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }); 
 
-  // 1. Check if working day (Default Mon-Sat if not specified)
   const workingDays = staff.workingDays || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   if (!workingDays.includes(dayName)) return [];
 
-  // 2. Check if manually blocked
   if (staff.blockedDates?.includes(dateStr)) return [];
 
   const slots = [];
@@ -113,7 +97,6 @@ export const generateTimeSlots = (staff, service, dateStr) => {
   while (current.getTime() + duration * 60000 <= end.getTime()) {
     const hour = current.getHours();
     
-    // Check break time
     const isInBreak = breakStart !== undefined && breakEnd !== undefined && 
                      hour >= breakStart && hour < breakEnd;
 

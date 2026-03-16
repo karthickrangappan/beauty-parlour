@@ -42,8 +42,7 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   
-  // Review State
-  const [reviewingItem, setReviewingItem] = useState(null); // { orderId, itemId }
+  const [reviewingItem, setReviewingItem] = useState(null); 
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
@@ -144,14 +143,12 @@ const Profile = () => {
           "add"
         );
 
-        // Update Product stats
         transaction.update(productRef, {
           averageRating: nextAvg,
           reviewCount: nextCount
         });
 
-        // Create Review Doc
-        const revId = `${user.uid}_${item.id}_${orderId}`; // Unique review per item per order
+        const revId = `${user.uid}_${item.id}_${orderId}`; 
         const revRef = doc(db, "reviews", revId);
         transaction.set(revRef, {
           productId: item.id,
@@ -226,7 +223,6 @@ const Profile = () => {
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           
-          {/* SIDEBAR - Responsive Nav */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -285,7 +281,6 @@ const Profile = () => {
             </button>
           </motion.div>
 
-          {/* MAIN CONTENT AREA */}
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, scale: 0.98 }}
@@ -421,7 +416,6 @@ const Profile = () => {
                                     <div className="p-4 md:p-8 border-t border-neutral-100">
                                       {!isSpecialStatus && (
                                         <div className="mb-10 md:mb-12">
-                                          {/* Mobile Vertical Stepper */}
                                           <div className="md:hidden space-y-4 py-4">
                                             {orderSteps.map((step, idx) => {
                                               const Icon = step.icon;
@@ -450,7 +444,6 @@ const Profile = () => {
                                             })}
                                           </div>
 
-                                          {/* Desktop Horizontal Stepper */}
                                           <div className="hidden md:block px-4">
                                             <div className="flex items-center justify-between relative px-2">
                                               <div className="absolute left-0 right-0 top-1/2 -mt-0.5 h-0.5 bg-neutral-100 -z-10 rounded"></div>
@@ -521,7 +514,6 @@ const Profile = () => {
                                                 </div>
                                               </div>
                                               
-                                              {/* In-line Review Form */}
                                               <AnimatePresence>
                                                 {isReviewing && (
                                                   <motion.div

@@ -18,7 +18,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { fmtCurrency } from "../../constants/config";
 
-// ─── Number to Words (INR) Helper ───────────────────────────────────────────
+
 function numberToWords(num) {
   if (!num || isNaN(num)) return "Zero Rupees";
   const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
@@ -112,7 +112,7 @@ export const InvoiceModal = ({ order: o, onClose }) => {
           className="relative w-full max-w-3xl bg-white shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Toolbar */}
+
           <div className="flex items-center justify-between px-6 py-3 bg-neutral-900 text-white">
             <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-400">
               Invoice Preview
@@ -133,13 +133,13 @@ export const InvoiceModal = ({ order: o, onClose }) => {
             </div>
           </div>
 
-          {/* Invoice Body */}
+
           <div
             ref={printRef}
             className="p-12 font-serif"
             style={{ fontFamily: "'Crimson Pro', Georgia, serif" }}
           >
-            {/* Header */}
+
             <div className="flex justify-between items-start pb-8 border-b-2 border-neutral-900 mb-8">
               <div>
                 <h1
@@ -183,7 +183,7 @@ export const InvoiceModal = ({ order: o, onClose }) => {
               </div>
             </div>
 
-            {/* Bill To */}
+
             <div className="grid grid-cols-2 gap-8 mb-10">
               <div>
                 <p className="text-[9px] uppercase tracking-[0.35em] font-black text-neutral-400 mb-3 pb-2 border-b border-neutral-200">
@@ -228,7 +228,7 @@ export const InvoiceModal = ({ order: o, onClose }) => {
               </div>
             </div>
 
-            {/* Items Table */}
+
             <table className="w-full mb-8 text-[12px]" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr className="bg-neutral-900 text-white">
@@ -265,7 +265,7 @@ export const InvoiceModal = ({ order: o, onClose }) => {
               </tbody>
             </table>
 
-            {/* Totals */}
+
             <div className="flex justify-end mb-10">
               <div className="w-72 space-y-2">
                 <div className="flex justify-between text-[12px] py-1.5 border-b border-neutral-100">
@@ -353,7 +353,7 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
           const isActive = idx === currentIndex;
           const isPending = idx > currentIndex;
 
-          if (isCompleted) return null; // Hide previous process
+          if (isCompleted) return null;
 
           return (
             <React.Fragment key={step.id}>

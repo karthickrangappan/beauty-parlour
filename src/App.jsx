@@ -31,7 +31,6 @@ const AppLayout = () => {
       {!isAdminPath && <Navbar />}
       <main className="flex-1 w-full flex flex-col bg-cream-50">
         <Routes>
-          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/services" element={<Services />} />
@@ -42,13 +41,11 @@ const AppLayout = () => {
           <Route path="/auth/register" element={<Register />} />
           <Route path="/product/:id" element={<ProductDetails />} />
 
-          {/* Protected User Routes */}
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
           <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
           <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
 
-          {/* Admin Routes */}
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         </Routes>
       </main>

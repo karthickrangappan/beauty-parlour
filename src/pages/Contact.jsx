@@ -48,7 +48,6 @@ const Contact = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitStatus("success");
@@ -72,11 +71,9 @@ const Contact = () => {
         description="Whether you have a question about our treatments, products, or wish to schedule an exclusive consultation, our dedicated team is at your service."
       />
 
-      {/* 2. Main Content Layout */}
       <section className="w-full max-w-[1400px] mx-auto px-6 sm:px-8 md:px-12 lg:px-16">
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
           
-          {/* Left Column: Contact Cards */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -104,7 +101,6 @@ const Contact = () => {
             ))}
           </motion.div>
 
-          {/* Right Column: Form */}
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -113,7 +109,6 @@ const Contact = () => {
             className="w-full lg:w-7/12"
           >
             <div className="bg-white p-8 lg:p-12 rounded-3xl shadow-[0_20px_40px_rgb(0,0,0,0.06)] border border-neutral-100 relative overflow-hidden">
-              {/* Decorative Blur */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-gold-50 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
               
               <h2 
@@ -210,7 +205,6 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* 3. Image Break Section */}
       <section className="mt-24 sm:mt-32 w-full h-[400px] sm:h-[500px] md:h-[60vh] relative overflow-hidden">
         <motion.div
            initial={{ scale: 1.05 }}
