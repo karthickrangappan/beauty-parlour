@@ -27,7 +27,6 @@ const ProductReviews = ({ productId }) => {
             fetched.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
             setReviews(fetched);
             
-            // Get stats from product doc
             const productRef = doc(db, "products", productId);
             const pSnap = await getDocs(query(collection(db, "products"), where("id", "==", productId)));
             

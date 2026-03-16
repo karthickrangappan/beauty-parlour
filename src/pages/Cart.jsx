@@ -14,7 +14,6 @@ const Cart = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const navigate = useNavigate();
 
-    // Show a login gate for guests — don't silently redirect
     if (!user) {
         return (
             <div className="min-h-screen bg-cream-50 pt-32 pb-24 flex items-center justify-center">

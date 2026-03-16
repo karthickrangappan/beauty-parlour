@@ -147,7 +147,6 @@ const Shop = () => {
         description="Curated elixirs and luxury treatments designed to restore and perfect your natural radiance."
       />
       <div className="max-w-7xl mx-auto px-6">
-        {/* MOBILE FILTER BUTTON */}
         <div className="lg:hidden flex items-center justify-between mb-8 pb-4 border-b border-neutral-100">
           <button
             onClick={() => setIsMobileFilterOpen(true)}
@@ -171,8 +170,6 @@ const Shop = () => {
         </div>
 
         <div className="flex gap-10 items-start">
-
-          {/* FILTER PANEL */}
 
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -198,7 +195,6 @@ const Shop = () => {
                 )}
               </div>
 
-              {/* SEARCH */}
               <div className="relative mb-6">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
                 <input
@@ -218,8 +214,6 @@ const Shop = () => {
                 )}
               </div>
 
-              {/* COLLECTIONS */}
-
               <FilterSection title="Collections">
                 <div className="flex flex-col gap-1.5">
                   {displayCollections.map((col) => (
@@ -238,8 +232,6 @@ const Shop = () => {
                 </div>
               </FilterSection>
 
-              {/* CATEGORIES */}
-
               <FilterSection title="Categories">
                 <div className="flex flex-col gap-1.5">
                   {allCategories.map((cat) => (
@@ -257,8 +249,6 @@ const Shop = () => {
                   ))}
                 </div>
               </FilterSection>
-
-              {/* PRICE */}
 
               <FilterSection title="Price Range">
                 <div className="flex flex-col gap-1.5">
@@ -287,8 +277,6 @@ const Shop = () => {
                   })}
                 </div>
               </FilterSection>
-
-              {/* RATING */}
 
               <FilterSection title="Minimum Rating">
                 <div className="flex flex-col gap-1.5">
@@ -325,7 +313,6 @@ const Shop = () => {
             </div>
           </motion.div>
 
-          {/* MOBILE FILTER DRAWER */}
           <AnimatePresence>
             {isMobileFilterOpen && (
               <>
@@ -357,7 +344,7 @@ const Shop = () => {
                   </div>
 
                   <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                    {/* SEARCH */}
+
                     <div className="relative mb-8">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                       <input
@@ -377,7 +364,6 @@ const Shop = () => {
                       )}
                     </div>
 
-                    {/* COLLECTIONS */}
                     <FilterSection title="Collections">
                       <div className="flex flex-col gap-2">
                         {displayCollections.map((col) => (
@@ -385,8 +371,7 @@ const Shop = () => {
                             key={col.id}
                             onClick={() => {
                               setActiveCollection(col.id);
-                              // Keep open for better UX, or close if preferred:
-                              // setIsMobileFilterOpen(false);
+                             
                             }}
                             className={`text-left text-xs px-4 py-3 rounded-sm font-medium transition-colors ${
                               activeCollection === col.id
@@ -400,7 +385,6 @@ const Shop = () => {
                       </div>
                     </FilterSection>
 
-                    {/* CATEGORIES */}
                     <FilterSection title="Categories">
                       <div className="flex flex-col gap-2">
                         {allCategories.map((cat) => (
@@ -419,7 +403,6 @@ const Shop = () => {
                       </div>
                     </FilterSection>
 
-                    {/* PRICE */}
                     <FilterSection title="Price Range">
                       <div className="flex flex-col gap-2">
                         {PRICE_OPTIONS.map((opt) => {
@@ -448,7 +431,6 @@ const Shop = () => {
                       </div>
                     </FilterSection>
 
-                    {/* RATING */}
                     <FilterSection title="Minimum Rating">
                       <div className="flex flex-col gap-2">
                         {[0, 4, 3, 2, 1].map((stars) => {
@@ -490,8 +472,6 @@ const Shop = () => {
               </>
             )}
           </AnimatePresence>
-
-          {/* PRODUCTS GRID */}
 
           <div className="flex-1">
 

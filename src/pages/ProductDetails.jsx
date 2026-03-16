@@ -36,7 +36,6 @@ const ProductDetails = () => {
       if (docSnap.exists()) {
         const productData = { id: docSnap.id, ...docSnap.data() };
         setProduct(productData);
-        // fetch related products from same category
         const q = query(
           collection(db, "products"),
           where("category", "==", productData.category),
@@ -100,7 +99,6 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-white pb-24">
-      {/* Breadcrumbs */}
       <div className="bg-cream-50 py-4 mt-16 md:mt-20">
         <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10 flex flex-wrap items-center gap-2 text-[9px] md:text-[10px] uppercase tracking-widest text-neutral-400">
           <Link to="/" className="hover:text-neutral-900 transition font-medium">Home</Link>
@@ -114,7 +112,6 @@ const ProductDetails = () => {
       <div className="max-w-7xl mx-auto px-4 md:px-6 mt-8 md:mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 lg:gap-24 items-start">
           
-          {/* Image Gallery */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -130,7 +127,6 @@ const ProductDetails = () => {
             </div>
           </motion.div>
 
-          {/* Info Side */}
           <div className="space-y-6 md:space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -167,7 +163,6 @@ const ProductDetails = () => {
               )}
             </motion.div>
 
-            {/* Actions */}
             <div className="space-y-6 pt-6 border-t border-neutral-100">
               <div className="flex items-center gap-4 md:gap-6">
                 <div className="flex items-center border border-neutral-200 rounded-full bg-neutral-50 p-0.5 md:p-1">
@@ -208,7 +203,6 @@ const ProductDetails = () => {
               </button>
             </div>
 
-            {/* Benefits Labels */}
             <div className="grid grid-cols-3 gap-3 md:gap-4 py-6 md:py-8 border-y border-neutral-100 mt-8 md:mt-12">
               <div className="flex flex-col items-center text-center gap-2">
                 <div className="p-2.5 md:p-3 bg-cream-100 rounded-xl md:rounded-2xl">
@@ -232,7 +226,6 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* Tabs Section */}
         <div className="mt-16 md:mt-20">
            <div className="flex gap-6 md:gap-12 border-b border-neutral-100 mb-8 md:mb-10 overflow-x-auto no-scrollbar">
               {["description", "how to use", "ingredients"].map(tab => (
@@ -274,10 +267,8 @@ const ProductDetails = () => {
            </div>
         </div>
 
-        {/* Reviews Section */}
         <ProductReviews productId={product.id} />
 
-        {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div className="mt-20 md:mt-32">
             <h2 className="text-2xl md:text-3xl font-light mb-8 md:mb-12" style={{ fontFamily: "ui-serif, Georgia, serif" }}>You May Also Like</h2>

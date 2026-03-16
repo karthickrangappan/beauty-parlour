@@ -55,7 +55,6 @@ const PageHeader = ({
           </p>
         )}
 
-        {/* Decorative bottom separator */}
         <div className="mt-10 flex items-center justify-center gap-4">
           <span className="block w-16 h-px bg-gold-400/50" />
           <span className="block w-2 h-2 rounded-full bg-gold-400/60" />

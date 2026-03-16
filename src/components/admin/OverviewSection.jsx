@@ -17,7 +17,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Utility removed in favor of fmtCurrency
+
 
 const OverviewSection = ({
   totalRevenue,
@@ -29,8 +29,7 @@ const OverviewSection = ({
 }) => {
   return (
     <>
-      {/* stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {[
           {
             label: "Revenue",
@@ -87,7 +86,6 @@ const OverviewSection = ({
         ))}
       </div>
 
-      {/* chart */}
       <div className="bg-white p-8 border border-neutral-100 shadow-sm mb-8">
         <div className="flex items-center gap-3 mb-8 border-b border-neutral-100 pb-4">
           <TrendingUp className="w-5 h-5 text-gold-500" />
@@ -95,9 +93,9 @@ const OverviewSection = ({
             Revenue Analytics
           </h3>
         </div>
-        <div className="h-64 md:h-80 w-full">
+        <div className="h-80 w-full min-h-[320px]">
           {chartData?.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} aspect={3}>
               <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">

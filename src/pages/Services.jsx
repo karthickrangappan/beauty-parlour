@@ -18,9 +18,6 @@ import {
 } from "lucide-react";
 import PageHeader from "../components/PageHeader";
 
-/* ─────────────────────────────────────────────
-   Constants  (defined at module level)
-───────────────────────────────────────────── */
 const DURATION_OPTIONS = [
   { label: "Any Duration", value: null },
   { label: "Under 30 min", value: [0, 30] },
@@ -37,9 +34,6 @@ const PRICE_OPTIONS = [
   { label: "₹2,000+", value: [2000, Infinity] },
 ];
 
-/* ─────────────────────────────────────────────
-   FilterSection  (stable, module-level component)
-───────────────────────────────────────────── */
 const FilterSection = ({ title, children, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -74,11 +68,6 @@ const FilterSection = ({ title, children, defaultOpen = true }) => {
   );
 };
 
-/* ─────────────────────────────────────────────
-   FilterPanel  (stable, module-level component)
-   *** MUST stay outside Services so React
-       never remounts it during re-renders ***
-───────────────────────────────────────────── */
 const FilterPanel = ({
   searchTerm,
   setSearchTerm,
@@ -93,7 +82,6 @@ const FilterPanel = ({
   resetFilters,
 }) => (
   <aside className="w-full">
-    {/* SEARCH */}
     <div className="relative mb-6">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
       <input
@@ -113,7 +101,6 @@ const FilterPanel = ({
       )}
     </div>
 
-    {/* Category */}
     <FilterSection title="Category">
       <div className="flex flex-col gap-1.5">
         {categories.map((cat) => (
@@ -132,7 +119,6 @@ const FilterPanel = ({
       </div>
     </FilterSection>
 
-    {/* Price */}
     <FilterSection title="Price Range">
       <div className="flex flex-col gap-1.5">
         {PRICE_OPTIONS.map((opt) => {
@@ -164,7 +150,6 @@ const FilterPanel = ({
       </div>
     </FilterSection>
 
-    {/* Duration */}
     <FilterSection title="Duration">
       <div className="flex flex-col gap-1.5">
         {DURATION_OPTIONS.map((opt) => {
@@ -198,9 +183,6 @@ const FilterPanel = ({
   </aside>
 );
 
-/* ─────────────────────────────────────────────
-   Services (main page)
-───────────────────────────────────────────── */
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -232,7 +214,6 @@ const Services = () => {
   const filteredServices = services.filter((s) => {
     const matchCat = category === "All" || s.category === category;
 
-    // Search across name, category AND description so results are broader
     const term = searchTerm.trim().toLowerCase();
     const matchSearch =
       !term ||
@@ -264,7 +245,6 @@ const Services = () => {
     setSearchTerm("");
   };
 
-  // Props bundle passed to both desktop sidebar and mobile drawer
   const filterProps = {
     searchTerm,
     setSearchTerm,
@@ -281,7 +261,6 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-cream-50 pb-24">
-      {/* Full-bleed hero header */}
       <PageHeader
         eyebrow="The Art of Transformation"
         titleStart="Our"
@@ -290,7 +269,6 @@ const Services = () => {
       />
 
       <div className="max-w-7xl mx-auto px-6">
-        {/* Mobile filter toggle */}
         <div className="lg:hidden flex items-center justify-between mb-8 pb-4 border-b border-neutral-100">
           <button
             onClick={() => setPanelOpen(true)}
@@ -313,7 +291,6 @@ const Services = () => {
           )}
         </div>
 
-        {/* Mobile drawer */}
         <AnimatePresence>
           {panelOpen && (
             <>
@@ -369,9 +346,7 @@ const Services = () => {
           )}
         </AnimatePresence>
 
-        {/* Desktop layout */}
         <div className="flex gap-10 items-start">
-          {/* Sticky sidebar */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -398,7 +373,6 @@ const Services = () => {
             </div>
           </motion.div>
 
-          {/* Services grid */}
           <div className="flex-1 min-w-0">
             <div className="hidden lg:flex items-center justify-between mb-6">
               <p className="text-xs text-neutral-400 tracking-widest uppercase">

@@ -19,14 +19,11 @@ export const useWishlist = () => {
 
 export const WishlistProvider = ({ children }) => {
   const { user } = useAuth();
-  // In memory we store full product objects so we don't have to fetch them on every render unless needed.
-  // However, to align with requirements, we'll sync the "IDs" to firestore, and here we just keep the items.
   const [wishlistItems, setWishlistItems] = useState([]);
 
-  // Real-time listener on users/{uid} — reads the 'wishlist' field
   useEffect(() => {
     if (!user) {
-      setWishlistItems([]); // clear wishlist when user logs out
+      setWishlistItems([]); 
       return;
     }
 

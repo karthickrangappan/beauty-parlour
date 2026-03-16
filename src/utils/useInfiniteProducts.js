@@ -42,7 +42,7 @@ export const useInfiniteProducts = (filters) => {
       let hasMoreResults = false;
 
       try {
-        // Primary Query: Order by newest first
+
         const firestoreQuery = query(
           q, 
           ...constraints, 
@@ -58,16 +58,16 @@ export const useInfiniteProducts = (filters) => {
 
       } catch (err) {
         console.warn("Falling back to local sort due to missing index", err);
-        // Fallback: No orderBy (to avoid index requirement)
+
         const fallbackQuery = query(q, ...constraints, limit(40));
         const snapshot = await getDocs(fallbackQuery);
         fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        // Sort newest first locally
+
         fetchedDocs.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
         hasMoreResults = false;
       }
 
-      // 2. Client-side filters
+
       if (filters.priceRange) {
         fetchedDocs = fetchedDocs.filter(p => p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]);
       }
@@ -82,7 +82,7 @@ export const useInfiniteProducts = (filters) => {
         );
       }
 
-      // 3. Update state
+
       lastDocRef.current = lastDoc;
       setHasMore(hasMoreResults);
       setProducts(prev => isNextPage ? [...prev, ...fetchedDocs] : fetchedDocs);

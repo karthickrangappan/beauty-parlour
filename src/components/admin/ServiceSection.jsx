@@ -3,7 +3,7 @@ import { fmtCurrency } from "../../constants/config";
 import { Search, Plus, X, Edit3, Trash2, Save, Loader2, Upload, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Local fmt removed in favor of fmtCurrency
+
 
 const ServiceSection = ({
   services,
@@ -52,7 +52,7 @@ const ServiceSection = ({
         </div>
       </div>
 
-      {/* service form modal */}
+
       <AnimatePresence>
         {showServiceForm && (
           <motion.div
@@ -184,7 +184,7 @@ const ServiceSection = ({
                   </label>
                 </div>
 
-                {/* image upload */}
+
                 <div className="space-y-4">
                   <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
                     Service Highlight Image
@@ -263,7 +263,7 @@ const ServiceSection = ({
         )}
       </AnimatePresence>
 
-      {/* services table */}
+
       <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[900px]">

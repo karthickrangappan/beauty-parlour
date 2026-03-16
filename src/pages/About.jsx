@@ -63,7 +63,6 @@ const About = () => {
         description="Where the raw power of botanical ingredients meets the sophisticated precision of modern skincare science."
       />
 
-      {/* 2. Philosophy Section */}
       <section className="py-20 sm:py-24 md:py-32 lg:py-40 px-6 sm:px-10 lg:px-16 xl:px-24 w-full max-w-[1600px] mx-auto overflow-hidden">
         <div className="flex flex-col lg:flex-row gap-16 md:gap-20 lg:gap-24 xl:gap-32 items-center">
           <motion.div
@@ -110,7 +109,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* 3. Pillars Section */}
       <section className="bg-[#fdf8f3] py-24 sm:py-32 md:py-40">
         <div className="w-full max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="text-center mb-20 sm:mb-24">
@@ -151,7 +149,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* 4. Deep Story Section */}
       <section className="py-24 sm:py-32 md:py-40 px-6 sm:px-10 lg:px-16 xl:px-24 w-full max-w-[1600px] mx-auto overflow-hidden">
         <div className="flex flex-col-reverse lg:flex-row gap-16 md:gap-20 lg:gap-24 xl:gap-32 items-center">
           <motion.div
@@ -196,7 +193,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* 5. CTA Section */}
       <section className="relative py-32 sm:py-40 lg:py-52 bg-neutral-900 overflow-hidden text-center">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(200,169,106,0.18)_0%,rgba(0,0,0,0)_75%)] pointer-events-none" />
         
