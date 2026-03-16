@@ -54,7 +54,10 @@ export const ORDER_STATUS_SEQUENCE = [
   "packed",
   "shipped",
   "out_for_delivery", 
-  "delivered"
+  "delivered",
+  "return_requested",
+  "return_accepted",
+  "refunded"
 ];
 
 export const canMoveToStatus = (current, next) => {

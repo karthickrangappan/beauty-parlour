@@ -334,7 +334,10 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
       { id: 'processing', label: 'Processing', icon: Clock },
       { id: 'packed', label: 'Packed', icon: Package },
       { id: 'shipped', label: 'Shipped', icon: Truck },
-      { id: 'delivered', label: 'Delivered', icon: CheckCircle2 }
+      { id: 'delivered', label: 'Delivered', icon: CheckCircle2 },
+      { id: 'return_requested', label: 'Return Req', icon: Clock },
+      { id: 'return_accepted', label: 'Return Acc', icon: CheckCircle2 },
+      { id: 'refunded', label: 'Refunded', icon: Package }
     ];
 
     const currentIndex = steps.findIndex(s => s.id === currentStatus);
@@ -488,6 +491,9 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
                         <option value="shipped">Ship Items</option>
                         <option value="out_for_delivery">Out for Delivery</option>
                         <option value="delivered">Delivered</option>
+                        <option value="return_requested">Return Requested</option>
+                        <option value="return_accepted">Accept Return</option>
+                        <option value="refunded">Refunded</option>
                         <option value="cancelled">Cancel Order</option>
                       </select>
                       <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none rotate-90" />
