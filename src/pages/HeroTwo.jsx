@@ -77,7 +77,7 @@ const HeroTwo = () => {
                             </span>
 
                             
-                            <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-[#c7a75b] drop-shadow-[0_3px_10px_rgba(0,0,0,0.6)]">
+                            <span className="relative text-gold-400 bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-[#c7a75b] drop-shadow-[0_3px_10px_rgba(0,0,0,0.6)]">
                                 {heroTwoData.titleHighlight}
                             </span>
 

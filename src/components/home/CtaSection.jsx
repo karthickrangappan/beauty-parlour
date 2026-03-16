@@ -20,7 +20,7 @@ const CtaSection = () => {
          <HeartIcon />
          <h2 className="text-4xl md:text-6xl text-white font-light mb-8 mt-6" style={{ fontFamily: "ui-serif, Georgia, serif" }}>Ready to reveal your radiance?</h2>
          <p className="text-white/70 text-lg mb-10 max-w-xl mx-auto">Join us for a personalized consultation and allow us to tailor a beauty ritual exclusively for you.</p>
-         <Link to="/appointments" className="inline-block px-10 py-5 bg-gold-500 text-white hover:bg-white hover:text-neutral-900 transition-colors duration-300 font-medium uppercase tracking-[0.2em] text-sm shadow-xl shadow-gold-500/20">
+         <Link to="/appointments" className="bg-gold-500 text-white px-10 py-5 rounded-full hover:bg-gold-400 shadow-lg hover:shadow-gold-500/30">
             Schedule Your Visit
          </Link>
       </div>

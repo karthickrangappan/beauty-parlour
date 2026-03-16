@@ -31,7 +31,6 @@ const Hero = () => {
 
     return (
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#fdf8f3]">
-            {/* Parallax Background */}
             <motion.div
                 className="absolute inset-0 w-full h-full"
                 style={{ y: yBg }}
