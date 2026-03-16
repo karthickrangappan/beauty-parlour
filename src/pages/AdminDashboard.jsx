@@ -176,31 +176,29 @@ const AdminDashboard = () => {
           .map(([date, revenue]) => ({ date, revenue }))
           .slice(-10)
       );
-    });
+    }, (err) => console.error("Orders sync failed:", err));
     unsubs.push(uO);
 
     // appointments
     const uA = onSnapshot(collection(db, "appointments"), (snap) => {
       setAppointments(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    });
+    }, (err) => console.error("Appointments sync failed:", err));
     unsubs.push(uA);
 
     // products
     const uP = onSnapshot(collection(db, "products"), (snap) => {
       setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    });
+    }, (err) => console.error("Products sync failed:", err));
     unsubs.push(uP);
 
     // services
-    const uS = onSnapshot(collection(db, "services"), (s) => setServices(s.docs.map(d => ({id: d.id, ...d.data()}))));
+    const uS = onSnapshot(collection(db, "services"), (s) => setServices(s.docs.map(d => ({id: d.id, ...d.data()}))), (err) => console.error("Services sync failed:", err));
     unsubs.push(uS);
 
-    // staff
-    const uStaff = onSnapshot(collection(db, "staff"), (s) => setStaff(s.docs.map(d => ({id: d.id, ...d.data()}))));
+    const uStaff = onSnapshot(collection(db, "staff"), (s) => setStaff(s.docs.map(d => ({id: d.id, ...d.data()}))), (err) => console.error("Staff sync failed:", err));
     unsubs.push(uStaff);
 
-    // users
-    const uU = onSnapshot(collection(db, "users"), (s) => setUsers(s.docs.map(d => ({id: d.id, ...d.data()}))));
+    const uU = onSnapshot(collection(db, "users"), (s) => setUsers(s.docs.map(d => ({id: d.id, ...d.data()}))), (err) => console.error("Users sync failed:", err));
     unsubs.push(uU);
 
     setIsLoading(false);
@@ -620,7 +618,7 @@ const AdminDashboard = () => {
 
   /* ════════════════════════ RENDER ═══════════════════ */
   return (
-    <div className="min-h-screen bg-neutral-50 flex overflow-x-hidden">
+    <div className="h-screen bg-neutral-50 flex overflow-hidden">
       {/* ─── sidebar ─────────────────────────────────── */}
       <Sidebar 
         tabs={tabs} 
@@ -647,7 +645,7 @@ const AdminDashboard = () => {
       </AnimatePresence>
 
       {/* ─── main content ────────────────────────────── */}
-      <div className="flex-1 lg:ml-64 p-6 lg:p-12 pt-24 lg:pt-12">
+      <div className="flex-1 lg:ml-64 h-full overflow-y-auto overflow-x-auto custom-scrollbar p-6 lg:p-12 pt-24 lg:pt-12">
         <div className="max-w-6xl mx-auto">
           {/* mobile trigger */}
           <button

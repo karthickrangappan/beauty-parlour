@@ -4,8 +4,8 @@ import { ArrowLeft, X } from "lucide-react";
 
 const Sidebar = ({ tabs, activeTab, setActiveTab, isOpen, onClose }) => {
   return (
-    <div className={`w-64 bg-white border-r border-neutral-200 fixed h-full flex flex-col pt-8 z-30 transition-transform duration-300 transform lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
-      <div className="px-8 mb-12 flex items-center justify-between">
+    <div className={`w-64 bg-white border-r border-neutral-200 fixed inset-y-0 left-0 flex flex-col pt-8 z-30 transition-transform duration-300 transform lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className="px-8 mb-12 flex items-center justify-between flex-shrink-0">
         <div>
           <span
             className="text-2xl tracking-widest uppercase font-light text-gold-500"
@@ -25,12 +25,12 @@ const Sidebar = ({ tabs, activeTab, setActiveTab, isOpen, onClose }) => {
         </button>
       </div>
 
-      <div className="flex flex-col space-y-2 px-4">
+      <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col space-y-2 px-4">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-4 px-4 py-3 text-xs uppercase tracking-widest font-medium rounded-sm transition-all ${
+            className={`flex items-center gap-4 px-4 py-3 text-xs uppercase tracking-widest font-medium rounded-sm transition-all flex-shrink-0 ${
               activeTab === tab.id
                 ? "bg-neutral-900 text-white shadow-md"
                 : "text-neutral-500 hover:bg-cream-50 hover:text-neutral-900"
@@ -42,7 +42,7 @@ const Sidebar = ({ tabs, activeTab, setActiveTab, isOpen, onClose }) => {
         ))}
       </div>
 
-      <div className="mt-auto mb-8 px-4 w-full">
+      <div className="mt-auto py-8 px-4 w-full flex-shrink-0">
         <Link
           to="/shop"
           className="flex items-center gap-3 w-full px-4 py-3 text-xs uppercase tracking-widest font-bold bg-cream-50 text-neutral-600 hover:bg-neutral-900 hover:text-white transition-all rounded-sm border border-neutral-200"

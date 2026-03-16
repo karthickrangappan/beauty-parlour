@@ -22,10 +22,10 @@ const UserSection = ({ users, userSearch, setUserSearch, updateUserRole }) => {
 
 
       <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-auto max-h-[70vh] custom-scrollbar pb-2">
           <table className="w-full text-left min-w-[700px]">
 
-          <thead className="bg-cream-50">
+          <thead className="bg-cream-50 sticky top-0 z-10 shadow-sm">
             <tr>
               <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
                 UID
