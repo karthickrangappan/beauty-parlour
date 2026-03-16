@@ -1,8 +1,9 @@
 import React from "react";
+import { fmtCurrency } from "../../constants/config";
 import { Search, Plus, X, Edit3, Trash2, Save, Loader2, Upload, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const fmt = (n) => (n ?? 0).toFixed(2);
+// Local fmt removed in favor of fmtCurrency
 
 const ProductSection = ({
   products,
@@ -112,7 +113,7 @@ const ProductSection = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                        Price ($)
+                        Price (₹)
                       </label>
                       <input
                         type="number"
@@ -345,7 +346,7 @@ const ProductSection = ({
                     </p>
                   </td>
                   <td className="px-6 py-4 text-neutral-800 font-medium">
-                    ${fmt(p.price)}
+                    {fmtCurrency(p.price)}
                   </td>
                   <td className="px-6 py-4 text-neutral-600">
                     {p.stock ?? "—"}

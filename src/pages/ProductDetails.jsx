@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { fmtCurrency } from "../constants/config";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, Star, ArrowLeft, ShieldCheck, Truck, RefreshCw, ChevronRight, Loader2 } from "lucide-react";
 import { useCart } from "../context/CartContext";
@@ -151,7 +152,7 @@ const ProductDetails = () => {
                 {product.name}
               </h1>
               
-              <p className="text-2xl font-light text-neutral-900">${(product.price || 0).toFixed(2)}</p>
+              <p className="text-2xl font-light text-neutral-900">{fmtCurrency(product.price || 0)}</p>
               
               <p className="text-neutral-500 leading-relaxed text-lg max-w-xl">
                 Elevate your daily ritual with the {product.name}. Carefully formulated to provide {(product.shortDesc || 'exceptional results').toLowerCase()} for a truly luminous finish.
@@ -289,7 +290,7 @@ const ProductDetails = () => {
                   <div className="text-center space-y-1">
                     <h3 className="text-sm font-medium uppercase tracking-widest text-neutral-900">{p.name}</h3>
                     <p className="text-xs text-neutral-400 font-serif italic">{p.category}</p>
-                    <p className="text-sm font-medium mt-2">${(p.price || 0).toFixed(2)}</p>
+                    <p className="text-sm font-medium mt-2">{fmtCurrency(p.price || 0)}</p>
                   </div>
                 </Link>
               ))}

@@ -1,4 +1,5 @@
 import React from "react";
+import { fmtCurrency } from "../constants/config";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
@@ -112,7 +113,7 @@ const Wishlist = () => {
                     </p>
 
                     <p className="text-neutral-900 text-base font-medium mt-2">
-                      ${product.price.toFixed(2)}
+                      {fmtCurrency(product.price)}
                     </p>
 
                   </div>

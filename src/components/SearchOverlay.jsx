@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { fmtCurrency } from '../constants/config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, Clock, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -173,7 +174,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                                                 <p className="text-xs text-neutral-500 line-clamp-1">{product.shortDesc}</p>
                                                             </div>
                                                             <div className="text-right flex flex-col items-end gap-2 pl-4">
-                                                                <p className="text-sm font-medium text-neutral-900">${product.price}</p>
+                                                                <p className="text-sm font-medium text-neutral-900">{fmtCurrency(product.price)}</p>
                                                                 <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-gold-500 transition-colors" />
                                                             </div>
                                                         </motion.div>
@@ -182,7 +183,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                             </div>
                                         ) : (
                                             <div className="text-center py-12 text-neutral-400 italic font-serif">
-                                                No matches found for "{query}".
+                                                No matches found for "{debouncedQuery}".
                                             </div>
                                         )}
                                     </div>
@@ -205,7 +206,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                         {recentSearches.map((term, idx) => (
                                             <li key={idx}>
                                                 <button 
-                                                    onClick={() => setQuery(term)}
+                                                    onClick={() => setSearchQuery(term)}
                                                     className="text-sm text-neutral-600 hover:text-gold-600 transition-colors flex items-center justify-between w-full text-left"
                                                 >
                                                     <span>{term}</span>

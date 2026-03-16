@@ -38,7 +38,7 @@ import AppointmentSection from "../components/admin/AppointmentSection";
 import UserSection from "../components/admin/UserSection";
 
 /* ───────────────────── helpers ───────────────────── */
-const fmt = (n) => (n ?? 0).toFixed(2);
+// Local helpers
 const statusColors = {
   confirmed: "bg-blue-100 text-blue-700",
   processing: "bg-yellow-100 text-yellow-700",

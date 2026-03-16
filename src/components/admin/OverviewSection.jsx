@@ -1,4 +1,5 @@
 import React from "react";
+import { fmtCurrency } from "../../constants/config";
 import {
   DollarSign,
   ShoppingBag,
@@ -16,7 +17,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const fmt = (n) => (n ?? 0).toFixed(2);
+// Utility removed in favor of fmtCurrency
 
 const OverviewSection = ({
   totalRevenue,
@@ -33,7 +34,7 @@ const OverviewSection = ({
         {[
           {
             label: "Revenue",
-            val: `$${fmt(totalRevenue)}`,
+            val: fmtCurrency(totalRevenue),
             icon: DollarSign,
             bg: "bg-green-50 text-green-600",
           },
@@ -94,9 +95,10 @@ const OverviewSection = ({
             Revenue Analytics
           </h3>
         </div>
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
+        <div className="h-80 w-full min-h-[320px]">
+          {chartData?.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3} />
@@ -131,8 +133,13 @@ const OverviewSection = ({
                 fillOpacity={1}
                 fill="url(#colorRevenue)"
               />
-            </AreaChart>
-          </ResponsiveContainer>
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full w-full flex items-center justify-center text-neutral-300 italic text-xs">
+              Waiting for data stream...
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { fmtCurrency } from "../constants/config";
 import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
@@ -117,7 +118,7 @@ const ProductCard = ({ product, index }) => {
           </p>
 
           <p className="text-neutral-900 text-base font-medium mt-2">
-            ${(product.price || 0).toFixed(2)}
+            {fmtCurrency(product.price || 0)}
           </p>
 
         </div>

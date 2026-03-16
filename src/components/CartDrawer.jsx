@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { fmtCurrency } from '../constants/config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -25,7 +26,7 @@ const CartDrawer = () => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY || "rzp_test_MockKeyForDevelopment", 
       amount: Math.round(totalAmount * 100), 
-      currency: "usd",
+      currency: "INR",
       name: "Lumière Spa & Salon",
       description: "Luxury Collection Checkout",
       image: "https://your-logo-url.com/logo.png",
@@ -145,7 +146,7 @@ const CartDrawer = () => {
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
-                        <span className="text-gold-500 font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                        <span className="text-gold-500 font-medium">{fmtCurrency(item.price * item.quantity)}</span>
                       </div>
                     </div>
                   </div>
@@ -159,7 +160,7 @@ const CartDrawer = () => {
                 <div className="flex items-center justify-between text-neutral-800">
                   <span className="text-sm uppercase tracking-widest">Subtotal</span>
                   <span className="text-xl font-light" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-                    ${subtotal?.toFixed(2) || '0.00'}
+                    {fmtCurrency(subtotal)}
                   </span>
                 </div>
                 <p className="text-xs text-neutral-500 font-light">

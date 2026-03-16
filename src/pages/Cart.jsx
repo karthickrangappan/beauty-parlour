@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { X, Minus, Plus, ShoppingBag, ArrowRight, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { loadRazorpay } from '../utils/loadRazorpay';
+import { fmtCurrency } from '../constants/config';
 import PageHeader from '../components/PageHeader';
 
 const Cart = () => {
@@ -138,7 +139,7 @@ const Cart = () => {
                                         </div>
 
                                         <div className="text-right">
-                                            <span className="text-neutral-800 font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                                            <span className="text-neutral-800 font-medium">{fmtCurrency(item.price * item.quantity)}</span>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -155,25 +156,25 @@ const Cart = () => {
                             <div className="space-y-6">
                                 <div className="flex justify-between text-neutral-500 text-sm italic font-serif">
                                     <span>Subtotal</span>
-                                    <span>${subtotal?.toFixed(2) || '0.00'}</span>
+                                    <span>{fmtCurrency(subtotal)}</span>
                                 </div>
                                 <div className="flex justify-between text-neutral-500 text-sm italic font-serif">
                                     <span>Shipping</span>
                                     {delivery === 0 ? (
                                         <span className="text-gold-500 uppercase tracking-widest text-[10px]">Complimentary</span>
                                     ) : (
-                                        <span>${delivery?.toFixed(2)}</span>
+                                        <span>{fmtCurrency(delivery)}</span>
                                     )}
                                 </div>
                                 <div className="flex justify-between text-neutral-500 text-sm italic font-serif border-b border-gold-300/20 pb-6">
                                     <span>Estimated Tax (5% GST)</span>
-                                    <span>${gst?.toFixed(2) || '0.00'}</span>
+                                    <span>{fmtCurrency(gst)}</span>
                                 </div>
                                 
                                 <div className="flex justify-between items-end pt-2">
                                     <span className="text-sm uppercase tracking-widest text-neutral-800 font-medium">Total</span>
                                     <span className="text-3xl text-neutral-800 font-light" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-                                        ${totalAmount?.toFixed(2) || '0.00'}
+                                        {fmtCurrency(totalAmount)}
                                     </span>
                                 </div>
 

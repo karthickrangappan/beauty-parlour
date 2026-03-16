@@ -1,8 +1,9 @@
 import React from "react";
+import { fmtCurrency } from "../../constants/config";
 import { Search, Plus, X, Edit3, Trash2, Save, Loader2, Upload, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const fmt = (n) => (n ?? 0).toFixed(2);
+// Local fmt removed in favor of fmtCurrency
 
 const ServiceSection = ({
   services,
@@ -321,7 +322,7 @@ const ServiceSection = ({
                     </p>
                   </td>
                   <td className="px-6 py-4 text-neutral-800 font-medium">
-                    ₹{s.price}
+                    {fmtCurrency(s.price)}
                   </td>
                   <td className="px-6 py-4 text-neutral-600">
                     {s.duration} min
