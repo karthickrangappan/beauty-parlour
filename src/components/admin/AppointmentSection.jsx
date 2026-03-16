@@ -1,5 +1,6 @@
 import React from "react";
 import { Calendar, CheckCircle, XCircle } from "lucide-react";
+import { fmtCurrency } from "../../constants/config";
 
 const AppointmentSection = ({
   appointments,
@@ -16,7 +17,7 @@ const AppointmentSection = ({
       {appointments.map((a) => (
         <div
           key={a.id}
-          className="bg-white p-6 border border-neutral-100 shadow-sm flex flex-col justify-between"
+          className="bg-white p-4 sm:p-6 border border-neutral-100 shadow-sm flex flex-col justify-between"
         >
           <div>
             <div className="flex justify-between items-start mb-4">
@@ -36,7 +37,7 @@ const AppointmentSection = ({
                   fontFamily: "ui-serif, Georgia, serif",
                 }}
               >
-                ${a.price}
+                {fmtCurrency(a.price)}
               </span>
             </div>
             <h4 className="text-sm font-bold uppercase tracking-widest text-neutral-800 mb-1">
@@ -53,13 +54,13 @@ const AppointmentSection = ({
             <div className="flex gap-2">
               <button
                 onClick={() => handleAppointment(a.id, "confirmed")}
-                className="flex-1 bg-green-500 text-white py-2 text-[10px] uppercase font-bold hover:bg-green-600 transition-colors flex justify-center items-center gap-1"
+                className="flex-1 bg-green-500 text-white py-3 text-[10px] uppercase font-bold hover:bg-green-600 transition-colors flex justify-center items-center gap-1"
               >
                 <CheckCircle className="w-3 h-3" /> Approve
               </button>
               <button
                 onClick={() => handleAppointment(a.id, "cancelled")}
-                className="flex-1 bg-red-50 text-red-600 py-2 text-[10px] uppercase font-bold hover:bg-red-100 transition-colors flex justify-center items-center gap-1"
+                className="flex-1 bg-red-50 text-red-600 py-3 text-[10px] uppercase font-bold hover:bg-red-100 transition-colors flex justify-center items-center gap-1"
               >
                 <XCircle className="w-3 h-3" /> Reject
               </button>
@@ -69,13 +70,13 @@ const AppointmentSection = ({
             <div className="flex gap-2">
               <button
                 onClick={() => handleAppointment(a.id, "completed")}
-                className="flex-1 bg-neutral-900 text-white py-2 text-[10px] uppercase font-bold hover:bg-gold-500 transition-colors"
+                className="flex-1 bg-neutral-900 text-white py-3 text-[10px] uppercase font-bold hover:bg-gold-500 transition-colors"
               >
                 Mark Completed
               </button>
               <button
                 onClick={() => handleAppointment(a.id, "no_show")}
-                className="flex-1 bg-neutral-100 text-neutral-500 py-2 text-[10px] uppercase font-bold hover:bg-neutral-200 transition-colors"
+                className="flex-1 bg-neutral-100 text-neutral-500 py-3 text-[10px] uppercase font-bold hover:bg-neutral-200 transition-colors"
               >
                 No Show
               </button>

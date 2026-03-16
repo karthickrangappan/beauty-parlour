@@ -16,6 +16,8 @@ import {
   runTransaction,
   increment,
 } from "firebase/firestore";
+import { Menu, X as CloseIcon } from "lucide-react";
+
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { canMoveToStatus, calculateNewAverage } from "../utils/logicUtils";
 import {
@@ -55,6 +57,8 @@ const statusColors = {
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
 
   /* shared data */
   const [orders, setOrders] = useState([]);
@@ -616,17 +620,46 @@ const AdminDashboard = () => {
 
   /* ════════════════════════ RENDER ═══════════════════ */
   return (
-    <div className="min-h-screen bg-neutral-50 flex">
+    <div className="min-h-screen bg-neutral-50 flex overflow-x-hidden">
       {/* ─── sidebar ─────────────────────────────────── */}
-      <Sidebar tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar 
+        tabs={tabs} 
+        activeTab={activeTab} 
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          setIsSidebarOpen(false);
+        }} 
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+
+      {/* mobile toggle overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-20 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
 
       {/* ─── main content ────────────────────────────── */}
-      <div className="ml-64 flex-1 p-12">
+      <div className="flex-1 lg:ml-64 p-6 lg:p-12 pt-24 lg:pt-12">
         <div className="max-w-6xl mx-auto">
+          {/* mobile trigger */}
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="lg:hidden fixed top-6 left-6 z-30 p-3 bg-white border border-neutral-100 shadow-sm"
+          >
+            <Menu className="w-5 h-5 text-neutral-800" />
+          </button>
           {/* header */}
-          <div className="flex justify-between items-center mb-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
             <h1
-              className="text-3xl font-light text-neutral-800"
+              className="text-2xl sm:text-3xl font-light text-neutral-800"
               style={{ fontFamily: "ui-serif, Georgia, serif" }}
             >
               {tabs.find((t) => t.id === activeTab)?.label}
