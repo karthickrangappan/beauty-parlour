@@ -9,14 +9,14 @@
   --color-blush-100: #fde4e9;
   --color-blush-200: #fbcfe0;
 
-  --color-cream-50: #fbf9f6;
+  --color-cream-50: #ffffff;
   --color-cream-100: #f4eee2;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--color-cream-50);
+  background-color: #ffffff;
   font-family: "Inter", "Helvetica Neue", sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;

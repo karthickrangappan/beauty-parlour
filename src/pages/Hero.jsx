@@ -30,18 +30,18 @@ const Hero = () => {
     const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
 
     return (
-        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#fdf8f3]">
-            <motion.div
-                className="absolute inset-0 w-full h-full"
-                style={{ y: yBg }}
-            >
-                <img
-                    src={heroData.backgroundImg}
-                    alt={heroData.backgroundAlt}
-                    className="w-full h-full object-cover object-center scale-105"
-                />
-                <div className="absolute inset-0 bg-neutral-900/40 mix-blend-multiply" />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neutral-900/20 to-[#fdf8f3]" />
+        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-white">
+          <motion.div
+            className="absolute inset-0 w-full h-full"
+            style={{ y: yBg }}
+          >
+            <img
+              src={heroData.backgroundImg}
+              alt={heroData.backgroundAlt}
+              className="w-full h-full object-cover object-center scale-105"
+            />
+            <div className="absolute inset-0 bg-neutral-900/40 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neutral-900/20 to-white" />
             </motion.div>
 
             <div className="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center mt-16">

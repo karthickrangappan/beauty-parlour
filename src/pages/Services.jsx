@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import PageHeader from "../components/PageHeader";
 import ServiceQuickView from "../components/ServiceQuickView";
+import ServiceCard from "../components/ServiceCard";
 
 const DURATION_OPTIONS = [
   { label: "Any Duration", value: null },
@@ -398,76 +399,12 @@ const Services = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                     <AnimatePresence mode="popLayout">
                       {filteredServices.map((service, idx) => (
-                        <motion.div
+                        <ServiceCard
                           key={service.id}
-                          layout
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.4, delay: idx * 0.04 }}
-                          className="group bg-white border border-neutral-100 overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-gold-500/5 transition-all duration-700"
-                        >
-                          <div className="relative h-64 overflow-hidden">
-                            <img
-                              src={service.image}
-                              alt={service.name}
-                              onError={(e) => {
-                                e.target.src =
-                                  "https://ui-avatars.com/api/?name=Service&background=D4AF37&color=fff";
-                              }}
-                              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[20%] group-hover:grayscale-0"
-                            />
-                            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-neutral-800 shadow-sm border border-neutral-100">
-                              {service.category}
-                            </div>
-                            
-                            {/* Quick View Overlay */}
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                              <button 
-                                onClick={() => handleQuickView(service)}
-                                className="bg-white text-neutral-900 px-6 py-2.5 flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-xl"
-                              >
-                                <Eye className="w-4 h-4" />
-                                Quick View
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="p-6">
-                            <div className="flex justify-between items-start mb-3">
-                              <h3
-                                className="text-lg text-neutral-800 font-light group-hover:text-gold-600 transition-colors leading-snug"
-                                style={{ fontFamily: "ui-serif, Georgia, serif" }}
-                              >
-                                {service.name}
-                              </h3>
-                              <span className="text-base font-semibold text-gold-600 ml-2 flex-shrink-0">
-                                ₹{service.price}
-                              </span>
-                            </div>
-
-                            <p className="text-neutral-500 text-xs font-light leading-relaxed mb-5 line-clamp-2">
-                              {service.description}
-                            </p>
-
-                            <div className="flex items-center justify-between pt-4 border-t border-cream-100">
-                              <div className="flex items-center gap-2 text-neutral-400">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span className="text-[10px] uppercase tracking-widest font-medium">
-                                  {service.duration} mins
-                                </span>
-                              </div>
-                              <Link
-                                to="/appointments"
-                                state={{ selectedService: service }}
-                                className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-neutral-800 hover:text-gold-500 transition-colors group/link"
-                              >
-                                Book Now
-                                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1" />
-                              </Link>
-                            </div>
-                          </div>
-                        </motion.div>
+                          service={service}
+                          index={idx}
+                          onQuickView={() => handleQuickView(service)}
+                        />
                       ))}
                     </AnimatePresence>
                   </div>

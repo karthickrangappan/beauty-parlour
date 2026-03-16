@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const MasonryGallery = () => {
   return (
-    <section className="py-24 bg-[#1a1a1a] text-white">
+    <section className="py-24 bg-white text-neutral-800">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
         <div className="text-center max-w-2xl mx-auto mb-16">

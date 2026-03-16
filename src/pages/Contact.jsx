@@ -63,7 +63,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fdf8f3] pb-24">
+    <div className="min-h-screen bg-white pb-24">
       <PageHeader
         eyebrow="Concierge"
         titleStart="Get in"

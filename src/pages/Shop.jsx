@@ -12,6 +12,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import ProductCard from "../components/ProductCard";
+import ProductQuickView from "../components/ProductQuickView";
 import { useInfiniteProducts } from "../utils/useInfiniteProducts";
 import PageHeader from "../components/PageHeader";
 
@@ -74,6 +75,13 @@ const Shop = () => {
   const [minRating, setMinRating] = useState(0);
   const [searchText, setSearchText] = useState("");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+  const handleQuickView = (product) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
 
   const { products: filteredProducts, loading, hasMore, loadMore } =
     useInfiniteProducts({
@@ -467,7 +475,12 @@ const Shop = () => {
             {filteredProducts.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {filteredProducts.map((product, idx) => (
-                  <ProductCard key={product.id} product={product} index={idx} />
+                  <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    index={idx} 
+                    onQuickView={() => handleQuickView(product)}
+                  />
                 ))}
               </div>
             )}
@@ -492,6 +505,11 @@ const Shop = () => {
           </div>
         </div>
       </div>
+      <ProductQuickView 
+        product={selectedProduct} 
+        isOpen={isQuickViewOpen} 
+        onClose={() => setIsQuickViewOpen(false)} 
+      />
     </div>
   );
 };

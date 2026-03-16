@@ -104,12 +104,12 @@ const About = () => {
               />
             </div>
             <div className="absolute bottom-10 -right-8 sm:-right-16 w-64 h-64 sm:w-80 sm:h-80 bg-gold-100/40 rounded-full blur-[80px] z-0" />
-            <div className="absolute top-10 -left-8 sm:-left-16 w-48 h-48 sm:w-64 sm:h-64 bg-[#fdf8f3] rounded-full blur-[80px] z-0" />
+            <div className="absolute top-10 -left-8 sm:-left-16 w-48 h-48 sm:w-64 sm:h-64 bg-white rounded-full blur-[80px] z-0" />
           </motion.div>
         </div>
       </section>
 
-      <section className="bg-[#fdf8f3] py-24 sm:py-32 md:py-40">
+      <section className="bg-white py-24 sm:py-32 md:py-40">
         <div className="w-full max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-16">
           <div className="text-center mb-20 sm:mb-24">
             <h3 className="text-gold-500 font-bold uppercase tracking-[0.3em] text-[10px] sm:text-xs mb-6">

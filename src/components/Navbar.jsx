@@ -29,7 +29,7 @@ const Navbar = () => {
 
   const isHome = location.pathname === '/';
   const navBackground = isScrolled || !isHome
-    ? 'bg-cream-50/95 backdrop-blur-md shadow-sm  border-gold-300/20'
+    ? 'bg-cream-50 backdrop-blur-md shadow-sm  border-gold-300/20'
     : 'bg-transparent ';
   const textColor = isScrolled || !isHome ? 'text-neutral-800' : 'text-neutral-800 lg:text-white';
 
@@ -145,7 +145,7 @@ const Navbar = () => {
                 </Link>
               )}
 
-              
+
             </div>
           </div>
 
@@ -204,8 +204,8 @@ const Navbar = () => {
                         to={link.path}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`flex items-center py-3.5 text-sm tracking-[0.2em] uppercase font-light border-b border-neutral-100 transition-colors ${location.pathname === link.path
-                            ? 'text-gold-500'
-                            : 'text-neutral-600 hover:text-gold-500'
+                          ? 'text-gold-500'
+                          : 'text-neutral-600 hover:text-gold-500'
                           }`}
                       >
                         {link.name}

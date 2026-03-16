@@ -7,7 +7,7 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 
-const ProductCard = ({ product, index }) => {
+const ProductCard = ({ product, index, onQuickView }) => {
   const { addItemToCart, toggleCartDrawer } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
@@ -44,6 +44,16 @@ const ProductCard = ({ product, index }) => {
       : addToWishlist(product);
   };
 
+  const handleQuickViewClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onQuickView) {
+      onQuickView();
+    } else {
+      navigate(`/product/${product.id}`);
+    }
+  };
+
   return (
     <motion.div
       layout
@@ -68,11 +78,7 @@ const ProductCard = ({ product, index }) => {
 
 
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              navigate(`/product/${product.id}`);
-            }}
+            onClick={handleQuickViewClick}
             className="absolute top-4 left-4 z-30 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition opacity-0 group-hover:opacity-100 duration-300"
             title="Quick View"
           >
