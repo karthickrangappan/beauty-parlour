@@ -98,7 +98,7 @@ const ProductSection = ({
                     <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
                       Short Description
                     </label>
-                    <input
+                    <textarea
                       value={formData.shortDesc}
                       onChange={(e) =>
                         setFormData({

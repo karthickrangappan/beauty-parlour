@@ -472,24 +472,13 @@ const AdminDashboard = () => {
   const saveService = async () => {
     setIsSaving(true);
     try {
-      let imageUrl = serviceFormData.image;
-
-      if (imageFile) {
-        const storageRef = ref(
-          storage,
-          `services/${Date.now()}_${imageFile.name}`
-        );
-        await uploadBytes(storageRef, imageFile);
-        imageUrl = await getDownloadURL(storageRef);
-      }
-
       const payload = {
         name: serviceFormData.name.trim(),
         description: serviceFormData.description.trim(),
         price: parseFloat(serviceFormData.price) || 0,
         duration: parseInt(serviceFormData.duration, 10) || 0,
         category: serviceFormData.category,
-        image: imageUrl,
+        image: serviceFormData.image.trim(),
         isActive: serviceFormData.isActive,
         updatedAt: Timestamp.now(),
       };

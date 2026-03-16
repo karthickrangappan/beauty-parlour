@@ -177,27 +177,38 @@ const ServiceSection = ({
 
                 <div className="space-y-4">
                   <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
-                    Service Image
+                    Service Image URL
                   </label>
-                  <div
-                    onClick={() => fileRef.current?.click()}
-                    className="aspect-video bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center cursor-pointer hover:border-gold-500 transition-colors overflow-hidden relative group"
-                  >
-                    {imagePreview ? (
-                      <img
-                        src={imagePreview}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <ImageIcon className="w-12 h-12 text-neutral-300" />
-                    )}
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      value={serviceFormData.image}
+                      onChange={(e) => {
+                        const url = e.target.value;
+                        setServiceFormData({
+                          ...serviceFormData,
+                          image: url,
+                        });
+                        setImagePreview(url);
+                      }}
+                      className="w-full p-3 bg-neutral-50 border border-neutral-200 text-sm focus:outline-none focus:border-gold-500"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <div className="aspect-video bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group">
+                      {serviceFormData.image ? (
+                        <img
+                          src={serviceFormData.image}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "https://placehold.co/600x400?text=Invalid+URL";
+                          }}
+                        />
+                      ) : (
+                        <ImageIcon className="w-12 h-12 text-neutral-300" />
+                      )}
+                    </div>
                   </div>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
                 </div>
               </div>
 
