@@ -16,6 +16,8 @@ import {
   runTransaction,
   increment,
 } from "firebase/firestore";
+import { Menu, X as CloseIcon } from "lucide-react";
+
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { canMoveToStatus, calculateNewAverage } from "../utils/logicUtils";
 import {
@@ -28,6 +30,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
+// Modular Components
 import Sidebar from "../components/admin/Sidebar";
 import OverviewSection from "../components/admin/OverviewSection";
 import ProductSection from "../components/admin/ProductSection";
@@ -37,6 +40,8 @@ import OrderSection from "../components/admin/OrderSection";
 import AppointmentSection from "../components/admin/AppointmentSection";
 import UserSection from "../components/admin/UserSection";
 
+/* ───────────────────── helpers ───────────────────── */
+// Local helpers
 const statusColors = {
   confirmed: "bg-blue-100 text-blue-700",
   processing: "bg-yellow-100 text-yellow-700",
@@ -48,10 +53,14 @@ const statusColors = {
   return_requested: "bg-neutral-100 text-neutral-600",
 };
 
+/* ───────────────────── main component ───────────────────── */
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+
+  /* shared data */
   const [orders, setOrders] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [products, setProducts] = useState([]);
@@ -61,12 +70,14 @@ const AdminDashboard = () => {
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  /* search states */
   const [productSearch, setProductSearch] = useState("");
   const [serviceSearch, setServiceSearch] = useState("");
   const [orderSearch, setOrderSearch] = useState("");
   const [userSearch, setUserSearch] = useState("");
   const [staffSearch, setStaffSearch] = useState("");
 
+  /* product form state */
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
@@ -92,6 +103,7 @@ const AdminDashboard = () => {
     isActive: true,
   });
 
+  /* service form state */
   const [showServiceForm, setShowServiceForm] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [serviceFormData, setServiceFormData] = useState({
@@ -109,6 +121,7 @@ const AdminDashboard = () => {
   const [isSaving, setIsSaving] = useState(false);
   const fileRef = useRef(null);
 
+  /* collection helpers */
   const collectionOptions = [
     { id: "skin-care", name: "Skin Care" },
     { id: "hair-care", name: "Hair Care" },
@@ -137,13 +150,16 @@ const AdminDashboard = () => {
     "Shoots",
   ];
 
+  /* ─── fetch all ────────────────────────────────────── */
   useEffect(() => {
     setIsLoading(true);
     const unsubs = [];
 
+    // orders
     const uO = onSnapshot(collection(db, "orders"), (snap) => {
       const d = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setOrders(d);
+      // chart
       const grouped = {};
       d.forEach((o) => {
         const dt = o.createdAt?.toDate
@@ -163,22 +179,27 @@ const AdminDashboard = () => {
     });
     unsubs.push(uO);
 
+    // appointments
     const uA = onSnapshot(collection(db, "appointments"), (snap) => {
       setAppointments(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
     unsubs.push(uA);
 
+    // products
     const uP = onSnapshot(collection(db, "products"), (snap) => {
       setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
     unsubs.push(uP);
 
+    // services
     const uS = onSnapshot(collection(db, "services"), (s) => setServices(s.docs.map(d => ({id: d.id, ...d.data()}))));
     unsubs.push(uS);
 
+    // staff
     const uStaff = onSnapshot(collection(db, "staff"), (s) => setStaff(s.docs.map(d => ({id: d.id, ...d.data()}))));
     unsubs.push(uStaff);
 
+    // users
     const uU = onSnapshot(collection(db, "users"), (s) => setUsers(s.docs.map(d => ({id: d.id, ...d.data()}))));
     unsubs.push(uU);
 
@@ -186,9 +207,11 @@ const AdminDashboard = () => {
     return () => unsubs.forEach((u) => u());
   }, []);
 
+  /* ─── order status ────────────────────────────────── */
   const updateOrderStatus = async (order, nextStatus) => {
     if (order.status === nextStatus) return;
     
+    // Status can never go backward
     if (nextStatus !== 'cancelled' && !canMoveToStatus(order.status, nextStatus)) {
       toast.error(`Cannot move order status from ${order.status} to ${nextStatus}.`);
       return;
@@ -210,7 +233,9 @@ const AdminDashboard = () => {
           ]
         };
 
+        // IF CANCELLING
         if (nextStatus === "cancelled") {
+          // 1. Restore Stock
           if (data.items) {
             for (const item of data.items) {
               const productRef = doc(db, "products", item.id);
@@ -218,6 +243,7 @@ const AdminDashboard = () => {
             }
           }
 
+          // 2. Deduct Loyalty Points awarded on this order
           if (data.userId && data.pointsEarned) {
             const userRef = doc(db, "users", data.userId);
             transaction.update(userRef, { loyaltyPoints: increment(-data.pointsEarned) });
@@ -227,11 +253,13 @@ const AdminDashboard = () => {
           updatePayload.cancelReason = "Cancelled by Administrator";
         }
 
+        // IF SHIPPED -> Assign random tracking
         if (nextStatus === "shipped") {
           updatePayload.trackingId = `TRK${Math.floor(Math.random() * 9000000 + 1000000)}`;
           updatePayload.courier = "FastLane Logistics";
         }
 
+        // IF DELIVERED -> Set delivery date & Award Points
         if (nextStatus === "delivered") {
           updatePayload.deliveredAt = Timestamp.now();
           if (data.userId && data.pointsEarned) {
@@ -242,6 +270,7 @@ const AdminDashboard = () => {
 
         transaction.update(orderRef, updatePayload);
         
+        // 3. Send Notification (atomic collection add)
         const notificationRef = doc(collection(db, "notifications"));
         transaction.set(notificationRef, {
           userId: data.userId,
@@ -269,6 +298,7 @@ const AdminDashboard = () => {
 
         let updatePayload = { status, updatedAt: Timestamp.now() };
         
+        // IF COMPLETED -> Award Points (1 per 10 units of price)
         if (status === "completed") {
           if (data.userId && data.price) {
             const userRef = doc(db, "users", data.userId);
@@ -276,6 +306,7 @@ const AdminDashboard = () => {
           }
         }
 
+        // IF NO_SHOW -> Increment no-show counter
         if (status === "no_show") {
           if (data.userId) {
              const userRef = doc(db, "users", data.userId);
@@ -285,6 +316,7 @@ const AdminDashboard = () => {
 
         transaction.update(apptRef, updatePayload);
 
+        // Send Notification
         const notificationRef = doc(collection(db, "notifications"));
         transaction.set(notificationRef, {
           userId: data.userId,
@@ -302,10 +334,12 @@ const AdminDashboard = () => {
     }
   };
 
+  /* ─── user role ───────────────────────────────────── */
   const updateUserRole = async (uid, role) => {
     await updateDoc(doc(db, "users", uid), { role });
   };
 
+  /* ─── product form helpers ────────────────────────── */
   const resetForm = () => {
     setFormData({
       name: "",
@@ -352,6 +386,7 @@ const AdminDashboard = () => {
     try {
       let imageUrl = formData.image;
 
+      // upload image if new file selected
       if (imageFile) {
         const storageRef = ref(
           storage,
@@ -401,6 +436,7 @@ const AdminDashboard = () => {
     }
   };
 
+  /* ─── service form helpers ────────────────────────── */
   const resetServiceForm = () => {
     setServiceFormData({
       name: "",
@@ -486,6 +522,7 @@ const AdminDashboard = () => {
   };
 
 
+  /* ─── staff form helpers ─────────────────────────── */
   const resetStaffForm = () => {
     setStaffFormData({
       name: "",
@@ -560,6 +597,7 @@ const AdminDashboard = () => {
     }
   };
 
+  /* ─── sidebar tabs config ─────────────────────────── */
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "products", label: "Products", icon: Box },
@@ -570,6 +608,7 @@ const AdminDashboard = () => {
     { id: "users", label: "Users", icon: Users },
   ];
 
+  /* ─── derived stats ───────────────────────────────── */
   const totalRevenue = orders.reduce((s, o) => s + (o.totalAmount || 0), 0);
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const pendingAppts = appointments.filter(
@@ -579,16 +618,48 @@ const AdminDashboard = () => {
   const totalServices = services.length;
   const totalUsers = users.length;
 
+  /* ════════════════════════ RENDER ═══════════════════ */
   return (
-    <div className="min-h-screen bg-neutral-50 flex">
-      <Sidebar tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="min-h-screen bg-neutral-50 flex overflow-x-hidden">
+      {/* ─── sidebar ─────────────────────────────────── */}
+      <Sidebar 
+        tabs={tabs} 
+        activeTab={activeTab} 
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          setIsSidebarOpen(false);
+        }} 
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
-      <div className="ml-64 flex-1 p-12">
+      {/* mobile toggle overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-20 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ─── main content ────────────────────────────── */}
+      <div className="flex-1 lg:ml-64 p-6 lg:p-12 pt-24 lg:pt-12">
         <div className="max-w-6xl mx-auto">
-
-          <div className="flex justify-between items-center mb-10">
+          {/* mobile trigger */}
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="lg:hidden fixed top-6 left-6 z-30 p-3 bg-white border border-neutral-100 shadow-sm"
+          >
+            <Menu className="w-5 h-5 text-neutral-800" />
+          </button>
+          {/* header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
             <h1
-              className="text-3xl font-light text-neutral-800"
+              className="text-2xl sm:text-3xl font-light text-neutral-800"
               style={{ fontFamily: "ui-serif, Georgia, serif" }}
             >
               {tabs.find((t) => t.id === activeTab)?.label}
@@ -612,6 +683,7 @@ const AdminDashboard = () => {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
               >
+                {/* ═══ OVERVIEW ════════════════════════ */}
                 {activeTab === "overview" && (
                   <OverviewSection 
                     totalRevenue={totalRevenue}
@@ -623,6 +695,7 @@ const AdminDashboard = () => {
                   />
                 )}
 
+                {/* ═══ PRODUCTS ═══════════════════════ */}
                 {activeTab === "products" && (
                   <ProductSection 
                     products={products}
@@ -648,6 +721,7 @@ const AdminDashboard = () => {
                   />
                 )}
 
+                {/* ═══ SERVICES ════════════════════════ */}
                 {activeTab === "services" && (
                   <ServiceSection 
                     services={services}
@@ -672,6 +746,7 @@ const AdminDashboard = () => {
                   />
                 )}
 
+                {/* ═══ STAFF ═══════════════════════════ */}
                 {activeTab === "staff" && (
                   <StaffSection 
                     staff={staff}
@@ -703,6 +778,7 @@ const AdminDashboard = () => {
                   />
                 )}
 
+                {/* ═══ APPOINTMENTS ═══════════════════ */}
                 {activeTab === "appointments" && (
                   <AppointmentSection 
                     appointments={appointments}
@@ -711,6 +787,7 @@ const AdminDashboard = () => {
                   />
                 )}
 
+                {/* ═══ USERS ═════════════════════════ */}
                 {activeTab === "users" && (
                   <UserSection 
                     users={users}

@@ -3,8 +3,6 @@ import { fmtCurrency } from "../../constants/config";
 import { Search, Plus, X, Edit3, Trash2, Save, Loader2, Upload, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-
-
 const ProductSection = ({
   products,
   productSearch,
@@ -40,21 +38,23 @@ const ProductSection = ({
             className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
           />
         </div>
-        <p className="text-sm text-neutral-500 hidden md:block">
-          {products.filter((p) => p.name?.toLowerCase().includes(productSearch.toLowerCase())).length} products found
-        </p>
-        <button
-          onClick={() => {
-            resetForm();
-            setShowForm(true);
-          }}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Product
-        </button>
+        <div className="flex items-center justify-between sm:justify-end gap-4">
+          <p className="text-xs text-neutral-500 hidden md:block">
+            {products.filter((p) => p.name?.toLowerCase().includes(productSearch.toLowerCase())).length} products
+          </p>
+          <button
+            onClick={() => {
+              resetForm();
+              setShowForm(true);
+            }}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add Product
+          </button>
+        </div>
       </div>
 
-
+      {/* product form modal */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -76,7 +76,7 @@ const ProductSection = ({
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                   <div>
                     <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
@@ -110,7 +110,7 @@ const ProductSection = ({
                       placeholder="e.g. Purifying & Illuminating"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
                         Price (₹)
@@ -146,7 +146,7 @@ const ProductSection = ({
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
                         Collection
@@ -208,7 +208,7 @@ const ProductSection = ({
                   </label>
                 </div>
 
-
+                {/* image upload */}
                 <div className="space-y-4">
                   <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-2">
                     Product Image
@@ -287,109 +287,109 @@ const ProductSection = ({
         )}
       </AnimatePresence>
 
-
+      {/* products table */}
       <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[800px]">
-          <thead className="bg-cream-50">
-            <tr>
-              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                Image
-              </th>
-              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                Product
-              </th>
-              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                Price
-              </th>
-              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                Stock
-              </th>
-              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                Status
-              </th>
-              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 text-sm">
-            {products
-              .filter(
-                (p) =>
-                  !productSearch ||
-                  p.name?.toLowerCase().includes(productSearch.toLowerCase()) ||
-                  p.category?.toLowerCase().includes(productSearch.toLowerCase()) ||
-                  p.collection?.toLowerCase().includes(productSearch.toLowerCase())
-              )
-              .map((p) => (
-                <tr
-                  key={p.id}
-                  className="hover:bg-neutral-50 transition-colors"
-                >
-                  <td className="px-6 py-4">
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      onError={(e) => {
-                        e.target.src =
-                          "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff";
-                      }}
-                      className="w-12 h-14 object-cover border border-neutral-100"
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="font-medium text-neutral-800 text-xs uppercase tracking-wider">
-                      {p.name}
-                    </p>
-                    <p className="text-[10px] text-neutral-400 mt-1">
-                      {p.collection?.replace("-", " ")} · {p.category}
-                    </p>
-                  </td>
-                  <td className="px-6 py-4 text-neutral-800 font-medium">
-                    {fmtCurrency(p.price)}
-                  </td>
-                  <td className="px-6 py-4 text-neutral-600">
-                    {p.stock ?? "—"}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold rounded-sm ${p.isActive !== false ? "bg-green-100 text-green-700" : "bg-neutral-100 text-neutral-500"}`}
-                    >
-                      {p.isActive !== false ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => openEditForm(p)}
-                        className="text-neutral-400 hover:text-gold-500 transition-colors"
+          <table className="w-full text-left min-w-[900px]">
+            <thead className="bg-cream-50">
+              <tr>
+                <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
+                  Image
+                </th>
+                <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
+                  Product
+                </th>
+                <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
+                  Price
+                </th>
+                <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
+                  Stock
+                </th>
+                <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-100 text-sm">
+              {products
+                .filter(
+                  (p) =>
+                    !productSearch ||
+                    p.name?.toLowerCase().includes(productSearch.toLowerCase()) ||
+                    p.category?.toLowerCase().includes(productSearch.toLowerCase()) ||
+                    p.collection?.toLowerCase().includes(productSearch.toLowerCase())
+                )
+                .map((p) => (
+                  <tr
+                    key={p.id}
+                    className="hover:bg-neutral-50 transition-colors"
+                  >
+                    <td className="px-6 py-4">
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        onError={(e) => {
+                          e.target.src =
+                            "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff";
+                        }}
+                        className="w-12 h-14 object-cover border border-neutral-100"
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="font-medium text-neutral-800 text-xs uppercase tracking-wider">
+                        {p.name}
+                      </p>
+                      <p className="text-[10px] text-neutral-400 mt-1">
+                        {p.collection?.replace("-", " ")} · {p.category}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4 text-neutral-800 font-medium">
+                      {fmtCurrency(p.price)}
+                    </td>
+                    <td className="px-6 py-4 text-neutral-600">
+                      {p.stock ?? "—"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold rounded-sm ${p.isActive !== false ? "bg-green-100 text-green-700" : "bg-neutral-100 text-neutral-500"}`}
                       >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteProduct(p.id)}
-                        className="text-neutral-400 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                        {p.isActive !== false ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => openEditForm(p)}
+                          className="text-neutral-400 hover:text-gold-500 transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteProduct(p.id)}
+                          className="text-neutral-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              {products.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-6 py-12 text-center text-neutral-400 text-sm italic"
+                  >
+                    No products yet. Click "+ Add Product" to create your first
+                    product.
                   </td>
                 </tr>
-              ))}
-            {products.length === 0 && (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="px-6 py-12 text-center text-neutral-400 text-sm italic"
-                >
-                  No products yet. Click "+ Add Product" to create your first
-                  product.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
