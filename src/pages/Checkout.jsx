@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { fmtCurrency, APP_NAME } from "../constants/config";
 import { getShippingStats } from "../utils/logicUtils";
-import { useToaster } from "../context/ToastContext";
+import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ChevronLeft, 
@@ -24,7 +24,6 @@ import PageHeader from "../components/PageHeader";
 export default function Checkout() {
   const { cart, subtotal, gst, couponDiscount, loyaltyDiscount, placeOrder } = useCart();
   const { user } = useAuth();
-  const { toast } = useToaster();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -52,7 +51,7 @@ export default function Checkout() {
 
   const validateForm = () => {
     if (!form.name || !form.email || !form.phone || !form.address || !form.city || !form.zip) {
-      toast("Please fill in all required fields.", "error");
+      toast.error("Please fill in all required fields.");
       return false;
     }
     return true;
@@ -72,10 +71,10 @@ export default function Checkout() {
         totalAmount: finalTotal
       });
 
-      toast("Order placed successfully 🚚 (Cash on Delivery)", "success");
+      toast.success("Order placed successfully 🚚 (Cash on Delivery)");
       navigate("/profile");
     } catch (err) {
-      toast("Failed to place order. Try again.", "error");
+      toast.error("Failed to place order. Try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -97,7 +96,7 @@ export default function Checkout() {
 
     const isLoaded = await loadRazorpay();
     if (!isLoaded) {
-      toast("Razorpay SDK failed to load. Check internet.", "error");
+      toast.error("Razorpay SDK failed to load. Check internet.");
       setIsProcessing(false);
       return;
     }
@@ -120,10 +119,10 @@ export default function Checkout() {
             totalAmount: finalTotal
           });
 
-          toast("Payment successful ✅", "success");
+          toast.success("Payment successful ✅");
           navigate("/profile");
         } catch (err) {
-          toast("Payment confirmed but order failed. Contact support.", "error");
+          toast.error("Payment confirmed but order failed. Contact support.");
         }
       },
       prefill: {

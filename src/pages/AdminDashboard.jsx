@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { db, storage } from "../firebase";
@@ -208,7 +209,7 @@ const AdminDashboard = () => {
     
     // Status can never go backward
     if (nextStatus !== 'cancelled' && !canMoveToStatus(order.status, nextStatus)) {
-      alert(`Cannot move order status from ${order.status} to ${nextStatus}.`);
+      toast.error(`Cannot move order status from ${order.status} to ${nextStatus}.`);
       return;
     }
 
@@ -276,10 +277,10 @@ const AdminDashboard = () => {
           read: false
         });
       });
-      alert(`Order status updated to ${nextStatus}`);
+      toast.success(`Order status updated to ${nextStatus.replace('_', ' ')}`);
     } catch (err) {
       console.error("Update status failed", err);
-      alert("Failed to update status. Check console.");
+      toast.error("Failed to update status. Check console.");
     }
   };
 
@@ -322,10 +323,10 @@ const AdminDashboard = () => {
           read: false
         });
       });
-      alert(`Appointment marked as ${status}`);
+      toast.success(`Appointment marked as ${status}`);
     } catch (err) {
       console.error("Appointment update failed", err);
-      alert("Failed to update appointment.");
+      toast.error("Failed to update appointment.");
     }
   };
 
@@ -412,9 +413,10 @@ const AdminDashboard = () => {
       }
 
       resetForm();
+      toast.success(editingProduct ? "Product updated." : "Product published.");
     } catch (err) {
       console.error("Save product failed", err);
-      alert("Failed to save product.");
+      toast.error("Failed to save product.");
     } finally {
       setIsSaving(false);
     }
@@ -422,7 +424,12 @@ const AdminDashboard = () => {
 
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product permanently?")) return;
-    await deleteDoc(doc(db, "products", id));
+    try {
+      await deleteDoc(doc(db, "products", id));
+      toast.success("Product removed.");
+    } catch (err) {
+      toast.error("Failed to delete product.");
+    }
   };
 
   /* ─── service form helpers ────────────────────────── */
@@ -491,9 +498,10 @@ const AdminDashboard = () => {
       }
 
       resetServiceForm();
+      toast.success(editingService ? "Service updated." : "Service published.");
     } catch (err) {
       console.error("Save service failed", err);
-      alert("Failed to save service.");
+      toast.error("Failed to save service.");
     } finally {
       setIsSaving(false);
     }
@@ -501,7 +509,12 @@ const AdminDashboard = () => {
 
   const deleteService = async (id) => {
     if (!window.confirm("Delete this service permanently?")) return;
-    await deleteDoc(doc(db, "services", id));
+    try {
+      await deleteDoc(doc(db, "services", id));
+      toast.success("Service removed.");
+    } catch (err) {
+      toast.error("Failed to delete service.");
+    }
   };
 
 
@@ -561,9 +574,10 @@ const AdminDashboard = () => {
         await addDoc(collection(db, "staff"), payload);
       }
       resetStaffForm();
+      toast.success(editingStaff ? "Specialist updated." : "Specialist added.");
     } catch (err) {
       console.error("Save staff failed", err);
-      alert("Failed to save specialist.");
+      toast.error("Failed to save specialist.");
     } finally {
       setIsSaving(false);
     }
@@ -571,7 +585,12 @@ const AdminDashboard = () => {
 
   const deleteStaff = async (id) => {
     if (!window.confirm("Remove this specialist?")) return;
-    await deleteDoc(doc(db, "staff", id));
+    try {
+      await deleteDoc(doc(db, "staff", id));
+      toast.success("Specialist removed.");
+    } catch (err) {
+      toast.error("Failed to remove specialist.");
+    }
   };
 
   /* ─── sidebar tabs config ─────────────────────────── */

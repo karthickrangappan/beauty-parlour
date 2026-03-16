@@ -97,7 +97,7 @@ const OverviewSection = ({
         </div>
         <div className="h-80 w-full min-h-[320px]">
           {chartData?.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} aspect={3}>
               <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
