@@ -480,16 +480,45 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
                     <p className="text-[9px] uppercase tracking-widest font-black text-neutral-400 mb-3 flex items-center gap-2">
                         <Package className="w-3 h-3 text-gold-500" /> Consignment Manifest
                     </p>
-                    <div className="space-y-3 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
-                      {order.items?.map((item, i) => (
-                        <div key={i} className="flex items-center justify-between text-[11px] group/item">
-                          <span className="text-neutral-500 font-medium">
-                            {item.qty || item.quantity} <span className="text-[9px] text-neutral-300 mx-1">×</span> 
-                            <span className="text-neutral-800 group-hover/item:text-gold-600 transition-colors uppercase tracking-tight">{item.name}</span>
-                          </span>
-                          <span className="font-bold text-neutral-700">{fmtCurrency(item.price * (item.qty || item.quantity))}</span>
-                        </div>
-                      ))}
+                    <div className="bg-neutral-50/30 border border-neutral-100/50 rounded-sm overflow-hidden">
+                      <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                        <table className="w-full text-left border-collapse">
+                          <thead className="sticky top-0 bg-neutral-100 z-10">
+                            <tr>
+                              <th className="p-3 text-[9px] uppercase tracking-widest text-neutral-500 font-black">Item</th>
+                              <th className="p-3 text-[9px] uppercase tracking-widest text-neutral-500 font-black text-center">Qty</th>
+                              <th className="p-3 text-[9px] uppercase tracking-widest text-neutral-500 font-black text-right">Price</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-neutral-50">
+                            {order.items?.map((item, i) => (
+                              <tr key={i} className="group/item hover:bg-white transition-colors">
+                                <td className="p-3">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-white border border-neutral-100 p-0.5 flex-shrink-0">
+                                      <img 
+                                        src={item.image} 
+                                        alt={item.name} 
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => { e.target.src = "https://placehold.co/100x100?text=No+Img"; }}
+                                      />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-neutral-700 uppercase tracking-tighter truncate max-w-[120px]">
+                                      {item.name}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="p-3 text-center text-[10px] font-medium text-neutral-500">
+                                  {item.qty || item.quantity}
+                                </td>
+                                <td className="p-3 text-right text-[10px] font-black text-neutral-800">
+                                  {fmtCurrency(item.price * (item.qty || item.quantity))}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
 
@@ -502,13 +531,12 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
                       >
                         {ORDER_STATUS_SEQUENCE.map((status, idx) => {
                           const currentIdx = ORDER_STATUS_SEQUENCE.indexOf(order.status);
-                          const isReturnFlow = ["return_requested", "return_accepted", "refunded"].includes(order.status);
                           
                           // Logic: Hide previous statuses
                           if (idx < currentIdx) return null;
-                          
-                          // Logic: If in Return Flow, hide any non-return future statuses (though sequence is already set up)
-                          if (isReturnFlow && !["return_requested", "return_accepted", "refunded"].includes(status)) return null;
+
+                          // Logic: Move forward "step by step" -> only show current and immediate next
+                          if (idx > currentIdx + 1) return null;
 
                           const labelMap = {
                              confirmed: "Confirm",

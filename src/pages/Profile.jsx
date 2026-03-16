@@ -28,9 +28,10 @@ import {
   ChevronDown,
   Send,
   Edit3,
+  XCircle,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { calculateNewAverage } from "../utils/logicUtils";
+import { calculateNewAverage, canCancelOrder } from "../utils/logicUtils";
 
 const Profile = () => {
   const { user, logoutUser } = useAuth();
@@ -188,6 +189,50 @@ const Profile = () => {
         alert("Return requested successfully. Subject to admin approval.");
       } catch (err) {
         console.error("Return failed", err);
+      }
+    }
+  };
+
+  const cancelOrder = async (orderId) => {
+    if (window.confirm("Are you sure you want to cancel this order? This action will restore stock and cannot be undone.")) {
+      try {
+        setIsLoading(true);
+        await runTransaction(db, async (transaction) => {
+          const orderRef = doc(db, "orders", orderId);
+          const orderSnap = await transaction.get(orderRef);
+          if (!orderSnap.exists()) throw new Error("Order not found");
+          const orderData = orderSnap.data();
+
+          if (!canCancelOrder(orderData.status, false)) {
+            throw new Error("Order cannot be cancelled at this stage.");
+          }
+
+          // Restore stock
+          for (const item of (orderData.items || [])) {
+            const productRef = doc(db, "products", item.id);
+            const pSnap = await transaction.get(productRef);
+            if(pSnap.exists()){
+               transaction.update(productRef, {
+                 stock: (pSnap.data().stock || 0) + (item.qty || item.quantity)
+               });
+            }
+          }
+
+          // Update status
+          transaction.update(orderRef, {
+            status: "cancelled",
+            cancelledAt: Timestamp.now(),
+            cancelledBy: "user"
+          });
+        });
+
+        toast.success("Order cancelled successfully.");
+        fetchOrders();
+      } catch (err) {
+        console.error("Cancel order failed", err);
+        toast.error(err.message || "Failed to cancel order.");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -574,6 +619,17 @@ const Profile = () => {
                                         <div className="mt-8 pt-6 border-t border-neutral-100 flex justify-end">
                                           <button onClick={() => requestReturn(order.id)} className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 hover:text-red-500 flex items-center gap-2 transition-colors duration-300">
                                             <RefreshCw className="w-3 h-3" /> Request Return
+                                          </button>
+                                        </div>
+                                      )}
+
+                                      {canCancelOrder(order.status, false) && (
+                                        <div className="mt-8 pt-6 border-t border-neutral-100 flex justify-end">
+                                          <button 
+                                            onClick={() => cancelOrder(order.id)} 
+                                            className="text-[10px] uppercase tracking-[0.2em] text-red-500 hover:text-red-700 font-bold flex items-center gap-2 transition-colors duration-300"
+                                          >
+                                            <XCircle className="w-3 h-3" /> Cancel Order
                                           </button>
                                         </div>
                                       )}
