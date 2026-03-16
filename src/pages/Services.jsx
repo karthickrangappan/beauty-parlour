@@ -9,7 +9,7 @@ import {
   ArrowRight,
   Loader2,
   Search,
-  SlidersHorizontal,
+  Filter,
   X,
   ChevronDown,
   ChevronUp,
@@ -93,22 +93,22 @@ const FilterPanel = ({
   resetFilters,
 }) => (
   <aside className="w-full">
-    {/* Search */}
+    {/* SEARCH */}
     <div className="relative mb-6">
-      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-300 pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
       <input
         type="text"
         placeholder="Search services…"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full bg-cream-50 border border-neutral-100 py-2.5 pl-10 pr-9 text-xs focus:outline-none focus:border-gold-400 transition-colors placeholder:text-neutral-300 rounded-sm italic font-serif"
+        className="w-full bg-cream-50 border border-neutral-100 py-2.5 pl-9 pr-8 text-xs focus:outline-none focus:border-gold-400 transition-colors placeholder:text-neutral-300 rounded-sm italic font-serif"
       />
       {searchTerm && (
         <button
           onClick={() => setSearchTerm("")}
-          className="absolute right-3.5 top-1/2 -translate-y-1/2"
+          className="absolute right-3 top-1/2 -translate-y-1/2"
         >
-          <X className="w-3 h-3 text-neutral-400 hover:text-neutral-700 transition-colors" />
+          <X className="w-3 h-3 text-neutral-400 hover:text-neutral-900 transition-colors" />
         </button>
       )}
     </div>
@@ -291,22 +291,26 @@ const Services = () => {
 
       <div className="max-w-7xl mx-auto px-6">
         {/* Mobile filter toggle */}
-        <div className="lg:hidden flex items-center justify-between mb-6 border-b border-neutral-100 pb-4">
-          <p className="text-xs text-neutral-400 tracking-widest uppercase">
-            {filteredServices.length} services
-          </p>
+        <div className="lg:hidden flex items-center justify-between mb-8 pb-4 border-b border-neutral-100">
           <button
             onClick={() => setPanelOpen(true)}
-            className="flex items-center gap-2 bg-neutral-900 text-white text-[10px] uppercase tracking-widest font-bold px-4 py-2.5 rounded-sm"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-sm hover:border-gold-500 group transition-colors"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="bg-gold-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-black">
-                {activeFilterCount}
-              </span>
-            )}
+            <Filter className="w-4 h-4 text-neutral-400 group-hover:text-gold-500 transition-colors" />
+            <span className="text-[10px] uppercase tracking-widest font-bold text-neutral-600 group-hover:text-neutral-900">
+              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+            </span>
           </button>
+
+          {activeFilterCount > 0 && (
+            <button
+              onClick={resetFilters}
+              className="text-[10px] uppercase tracking-widest font-bold text-neutral-400 hover:text-red-500 transition-colors flex items-center gap-2"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Clear All
+            </button>
+          )}
         </div>
 
         {/* Mobile drawer */}
@@ -326,30 +330,40 @@ const Services = () => {
                 initial={{ x: "-100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
-                transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                className="fixed top-0 left-0 h-full w-72 bg-white z-50 overflow-y-auto p-6 shadow-2xl lg:hidden"
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="fixed inset-y-0 left-0 w-[85%] max-w-xs bg-white z-[120] lg:hidden flex flex-col shadow-2xl"
               >
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-700 flex items-center gap-2">
-                    <SlidersHorizontal className="w-3.5 h-3.5 text-gold-500" />
-                    Filter Services
+                <div className="flex items-center justify-between p-6 border-b border-neutral-100">
+                  <span className="text-xs uppercase tracking-[0.3em] font-bold text-neutral-800 flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-gold-500" />
+                    Filters
                   </span>
-                  <div className="flex items-center gap-3">
-                    {activeFilterCount > 0 && (
-                      <button
-                        onClick={resetFilters}
-                        className="p-1.5 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-red-500 transition-colors"
-                        title="Clear Filters"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button onClick={() => setPanelOpen(false)}>
-                      <X className="w-4 h-4 text-neutral-400 hover:text-neutral-700 transition-colors" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setPanelOpen(false)}
+                    className="p-2 text-neutral-400 hover:text-neutral-900 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <FilterPanel {...filterProps} />
+
+                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                  <FilterPanel {...filterProps} />
+                </div>
+
+                <div className="p-6 bg-cream-50/50 border-t border-neutral-100 grid grid-cols-2 gap-4">
+                  <button
+                    onClick={resetFilters}
+                    className="py-3 px-4 border border-neutral-200 text-neutral-600 text-[10px] uppercase tracking-widest font-bold hover:bg-white transition-colors"
+                  >
+                    Clear
+                  </button>
+                  <button
+                    onClick={() => setPanelOpen(false)}
+                    className="py-3 px-4 bg-neutral-900 text-white text-[10px] uppercase tracking-widest font-bold hover:bg-gold-500 transition-colors shadow-lg shadow-neutral-900/10"
+                  >
+                    Show Results
+                  </button>
+                </div>
               </motion.div>
             </>
           )}
@@ -367,13 +381,13 @@ const Services = () => {
             <div className="bg-white border border-neutral-100 p-6 shadow-sm max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar">
               <div className="flex items-center justify-between mb-6">
                 <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-700 flex items-center gap-2">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-gold-500" />
+                  <Filter className="w-3.5 h-3.5 text-gold-500" />
                   Filters
                 </span>
                 {activeFilterCount > 0 && (
                   <button
                     onClick={resetFilters}
-                    className="p-1.5 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-red-500 transition-colors"
+                    className="p-1 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-red-500 transition-colors"
                     title="Clear Filters"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />

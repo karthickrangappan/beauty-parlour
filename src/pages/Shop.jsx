@@ -21,6 +21,14 @@ export const collections = [
   { id: "body-care", name: "Body Care" }
 ];
 
+const PRICE_OPTIONS = [
+  { label: "Any Price", value: [0, 10000] },
+  { label: "Under ₹1,000", value: [0, 1000] },
+  { label: "₹1,000 – ₹2,500", value: [1000, 2500] },
+  { label: "₹2,500 – ₹5,000", value: [2500, 5000] },
+  { label: "₹5,000+", value: [5000, 10000] },
+];
+
 
 const FilterSection = ({ title, children, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -61,7 +69,7 @@ const FilterSection = ({ title, children, defaultOpen = true }) => {
 
 const Shop = () => {
   const [activeCollection, setActiveCollection] = useState("all");
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [minRating, setMinRating] = useState(0);
   const [searchText, setSearchText] = useState("");
@@ -70,7 +78,7 @@ const Shop = () => {
   const { products: filteredProducts, loading, hasMore, loadMore } =
     useInfiniteProducts({
       collectionId: activeCollection,
-      categories: selectedCategories,
+      categories: selectedCategory === "All" ? [] : [selectedCategory],
       priceRange,
       minRating,
       searchText
@@ -79,6 +87,7 @@ const Shop = () => {
   const displayCollections = [{ id: "all", name: "All Collections" }, ...collections];
 
   const allCategories = [
+    "All",
     "Cleansers",
     "Serums",
     "Moisturizers",
@@ -89,16 +98,8 @@ const Shop = () => {
     "Lotions"
   ];
 
-  const toggleCategory = (category) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
-  };
-
   const clearFilters = () => {
-    setSelectedCategories([]);
+    setSelectedCategory("All");
     setPriceRange([0, 10000]);
     setMinRating(0);
     setActiveCollection("all");
@@ -121,8 +122,8 @@ const Shop = () => {
 
   const activeFilterCount =
     (activeCollection !== "all" ? 1 : 0) +
-    selectedCategories.length +
-    (priceRange[0] !== 0 || priceRange[1] !== 1000 ? 1 : 0) +
+    (selectedCategory !== "All" ? 1 : 0) +
+    (priceRange[0] !== 0 || priceRange[1] !== 10000 ? 1 : 0) +
     (minRating > 0 ? 1 : 0) +
     (searchText ? 1 : 0);
 
@@ -240,17 +241,19 @@ const Shop = () => {
               {/* CATEGORIES */}
 
               <FilterSection title="Categories">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1.5">
                   {allCategories.map((cat) => (
-                    <label key={cat} className="flex items-center gap-2 text-xs">
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(cat)}
-                        onChange={() => toggleCategory(cat)}
-                        className="accent-neutral-900"
-                      />
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide ${
+                        selectedCategory === cat
+                          ? "bg-neutral-900 text-white"
+                          : "text-neutral-500 hover:bg-cream-100 hover:text-neutral-800"
+                      }`}
+                    >
                       {cat}
-                    </label>
+                    </button>
                   ))}
                 </div>
               </FilterSection>
@@ -258,21 +261,30 @@ const Shop = () => {
               {/* PRICE */}
 
               <FilterSection title="Price Range">
-                <div className="space-y-3">
-                  <span className="text-xs text-neutral-500">
-                    ₹{priceRange[0]} - ₹{priceRange[1]}
-                  </span>
-
-                  <input
-                    type="range"
-                    min="0"
-                    max="10000"
-                    value={priceRange[1]}
-                    onChange={(e) =>
-                      setPriceRange([0, parseInt(e.target.value)])
-                    }
-                    className="w-full accent-neutral-900"
-                  />
+                <div className="flex flex-col gap-1.5">
+                  {PRICE_OPTIONS.map((opt) => {
+                    const active =
+                      priceRange[0] === opt.value[0] &&
+                      priceRange[1] === opt.value[1];
+                    return (
+                      <button
+                        key={opt.label}
+                        onClick={() => setPriceRange(opt.value)}
+                        className={`text-left text-xs px-3 py-2 rounded-sm transition-all duration-200 font-medium tracking-wide flex items-center gap-2 ${
+                          active
+                            ? "bg-gold-500/10 text-gold-700 font-semibold"
+                            : "text-neutral-500 hover:bg-cream-100 hover:text-neutral-800"
+                        }`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full border flex-shrink-0 ${
+                            active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
+                          }`}
+                        />
+                        {opt.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </FilterSection>
 
@@ -390,42 +402,49 @@ const Shop = () => {
 
                     {/* CATEGORIES */}
                     <FilterSection title="Categories">
-                      <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
                         {allCategories.map((cat) => (
-                          <label key={cat} className="flex items-center gap-3 text-sm cursor-pointer group">
-                            <div className="relative flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={selectedCategories.includes(cat)}
-                                onChange={() => toggleCategory(cat)}
-                                className="peer appearance-none w-4 h-4 border border-neutral-300 rounded-sm checked:bg-neutral-900 checked:border-neutral-900 transition-all cursor-pointer"
-                              />
-                              <X className={`absolute w-2.5 h-2.5 text-white left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none rotate-45`} />
-                            </div>
-                            <span className={`transition-colors ${selectedCategories.includes(cat) ? 'text-neutral-900 font-medium' : 'text-neutral-500 group-hover:text-neutral-700'}`}>
-                              {cat}
-                            </span>
-                          </label>
+                          <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`text-left text-xs px-4 py-3 rounded-sm font-medium transition-colors ${
+                              selectedCategory === cat
+                                ? "bg-neutral-900 text-white shadow-md shadow-neutral-900/10"
+                                : "text-neutral-500 hover:bg-cream-100"
+                            }`}
+                          >
+                            {cat}
+                          </button>
                         ))}
                       </div>
                     </FilterSection>
 
                     {/* PRICE */}
                     <FilterSection title="Price Range">
-                      <div className="space-y-4 px-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-neutral-800">Max Price</span>
-                          <span className="text-xs font-bold text-gold-600">₹{priceRange[1]}</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="10000"
-                          step="100"
-                          value={priceRange[1]}
-                          onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                          className="w-full accent-neutral-900 h-1.5 bg-neutral-100 rounded-lg appearance-none cursor-pointer"
-                        />
+                      <div className="flex flex-col gap-2">
+                        {PRICE_OPTIONS.map((opt) => {
+                          const active =
+                            priceRange[0] === opt.value[0] &&
+                            priceRange[1] === opt.value[1];
+                          return (
+                            <button
+                              key={opt.label}
+                              onClick={() => setPriceRange(opt.value)}
+                              className={`text-left text-xs px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-all ${
+                                active
+                                  ? "bg-gold-500/10 text-gold-700 border-l-2 border-gold-500"
+                                  : "text-neutral-500 hover:bg-cream-100 border-l-2 border-transparent"
+                              }`}
+                            >
+                               <span
+                                className={`w-2 h-2 rounded-full border flex-shrink-0 ${
+                                  active ? "bg-gold-500 border-gold-500" : "border-neutral-300"
+                                }`}
+                              />
+                              {opt.label}
+                            </button>
+                          );
+                        })}
                       </div>
                     </FilterSection>
 

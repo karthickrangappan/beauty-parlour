@@ -101,86 +101,86 @@ const ProductDetails = () => {
   return (
     <div className="min-h-screen bg-white pb-24">
       {/* Breadcrumbs */}
-      <div className="bg-cream-50 py-4 mt-20">
-        <div className="max-w-7xl mx-auto px-6 flex items-center gap-2 text-[10px] uppercase tracking-widest text-neutral-400">
+      <div className="bg-cream-50 py-4 mt-16 md:mt-20">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10 flex flex-wrap items-center gap-2 text-[9px] md:text-[10px] uppercase tracking-widest text-neutral-400">
           <Link to="/" className="hover:text-neutral-900 transition font-medium">Home</Link>
-          <ChevronRight className="w-3 h-3" />
+          <ChevronRight className="w-2.5 h-2.5 md:w-3 h-3" />
           <Link to="/shop" className="hover:text-neutral-900 transition font-medium">Shop</Link>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-neutral-900 font-semibold">{product.name}</span>
+          <ChevronRight className="w-2.5 h-2.5 md:w-3 h-3" />
+          <span className="text-neutral-900 font-semibold truncate max-w-[150px] md:max-w-none">{product.name}</span>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 mt-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mt-8 md:mt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 lg:gap-24 items-start">
           
           {/* Image Gallery */}
           <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="space-y-4 md:space-y-6"
           >
-            <div className="aspect-[4/5] bg-neutral-50 rounded-3xl overflow-hidden border border-neutral-100 shadow-sm group">
+            <div className="aspect-square bg-neutral-50 rounded-2xl md:rounded-3xl overflow-hidden border border-neutral-100 shadow-sm group">
               <img 
                 src={product.image} 
                 alt={product.name}
                 onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
               />
             </div>
           </motion.div>
 
           {/* Info Side */}
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
+              className="space-y-3 md:space-y-4"
             >
-              <div className="flex items-center gap-4">
-                <span className="px-3 py-1 bg-gold-50 text-gold-600 text-[10px] uppercase tracking-widest font-bold rounded-full border border-gold-200">
+              <div className="flex items-center gap-3 md:gap-4">
+                <span className="px-2.5 py-1 bg-gold-50 text-gold-600 text-[9px] md:text-[10px] uppercase tracking-widest font-bold rounded-full border border-gold-200">
                   {product.collection?.replace('-', ' ') || 'Collection'}
                 </span>
                 {product.rating > 0 && (
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-gold-500 text-gold-500" />
-                    <span className="text-sm font-medium text-neutral-900 mt-0.5">{product.rating}</span>
+                    <Star className="w-3.5 h-3.5 md:w-4 h-4 fill-gold-500 text-gold-500" />
+                    <span className="text-xs md:text-sm font-medium text-neutral-900 mt-0.5">{product.rating}</span>
                   </div>
                 )}
               </div>
 
-              <h1 className="text-4xl md:text-5xl font-light text-neutral-900 leading-tight" style={{ fontFamily: "ui-serif, Georgia, serif" }}>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-light text-neutral-900 leading-tight" style={{ fontFamily: "ui-serif, Georgia, serif" }}>
                 {product.name}
               </h1>
               
-              <p className="text-2xl font-light text-neutral-900">{fmtCurrency(product.price || 0)}</p>
+              <p className="text-xl md:text-2xl font-light text-neutral-900">{fmtCurrency(product.price || 0)}</p>
               
-              <p className="text-neutral-500 leading-relaxed text-lg max-w-xl">
+              <p className="text-neutral-500 leading-relaxed text-sm md:text-lg max-w-xl">
                 Elevate your daily ritual with the {product.name}. Carefully formulated to provide {(product.shortDesc || 'exceptional results').toLowerCase()} for a truly luminous finish.
               </p>
 
               {product.stock !== undefined && product.stock <= 10 && product.stock > 0 && (
-                <p className="text-xs text-orange-600 uppercase tracking-widest font-bold">Only {product.stock} left in stock</p>
+                <p className="text-[10px] md:text-xs text-orange-600 uppercase tracking-widest font-bold">Only {product.stock} left in stock</p>
               )}
               {product.stock === 0 && (
-                <p className="text-xs text-red-600 uppercase tracking-widest font-bold">Out of stock</p>
+                <p className="text-[10px] md:text-xs text-red-600 uppercase tracking-widest font-bold">Out of stock</p>
               )}
             </motion.div>
 
             {/* Actions */}
             <div className="space-y-6 pt-6 border-t border-neutral-100">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center border border-neutral-200 rounded-full bg-neutral-50 p-1">
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="flex items-center border border-neutral-200 rounded-full bg-neutral-50 p-0.5 md:p-1">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition rounded-full"
+                    className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition rounded-full"
                   >
                     -
                   </button>
-                  <span className="w-10 text-center text-sm font-medium">{quantity}</span>
+                  <span className="w-8 md:w-10 text-center text-xs md:text-sm font-medium">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(product.stock ? Math.min(product.stock, quantity + 1) : quantity + 1)}
-                    className="w-10 h-10 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition rounded-full"
+                    className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition rounded-full"
                   >
                     +
                   </button>
@@ -188,20 +188,20 @@ const ProductDetails = () => {
 
                 <button 
                   onClick={handleWishlist}
-                  className={`p-4 rounded-full border transition-all ${
+                  className={`p-3 md:p-4 rounded-full border transition-all ${
                     isInWishlist(product.id) 
                       ? "bg-red-50 border-red-200 text-red-500 shadow-sm" 
                       : "bg-white border-neutral-200 text-neutral-400 hover:border-neutral-900 hover:text-neutral-900"
                   }`}
                 >
-                  <Heart className={`w-6 h-6 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
+                  <Heart className={`w-5 h-5 md:w-6 md:h-6 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
                 </button>
               </div>
 
               <button 
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
-                className="w-full py-5 bg-neutral-900 text-white rounded-2xl flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs font-bold hover:bg-neutral-800 transition shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 md:py-5 bg-neutral-900 text-white rounded-xl md:rounded-2xl flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold hover:bg-neutral-800 transition shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ShoppingBag className="w-4 h-4" />
                 {product.stock === 0 ? "Out of Stock" : "Add to Luxury Cart"}
@@ -209,37 +209,37 @@ const ProductDetails = () => {
             </div>
 
             {/* Benefits Labels */}
-            <div className="grid grid-cols-3 gap-4 py-8 border-y border-neutral-100 mt-12">
+            <div className="grid grid-cols-3 gap-3 md:gap-4 py-6 md:py-8 border-y border-neutral-100 mt-8 md:mt-12">
               <div className="flex flex-col items-center text-center gap-2">
-                <div className="p-3 bg-cream-100 rounded-2xl">
-                  <ShieldCheck className="w-5 h-5 text-neutral-600" />
+                <div className="p-2.5 md:p-3 bg-cream-100 rounded-xl md:rounded-2xl">
+                  <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-neutral-600" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">100% Pure</span>
+                <span className="text-[8px] md:text-[10px] uppercase tracking-widest text-neutral-500 font-bold leading-tight">100% Pure</span>
               </div>
               <div className="flex flex-col items-center text-center gap-2">
-                <div className="p-3 bg-cream-100 rounded-2xl">
-                  <Truck className="w-5 h-5 text-neutral-600" />
+                <div className="p-2.5 md:p-3 bg-cream-100 rounded-xl md:rounded-2xl">
+                  <Truck className="w-4 h-4 md:w-5 md:h-5 text-neutral-600" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Fast Delivery</span>
+                <span className="text-[8px] md:text-[10px] uppercase tracking-widest text-neutral-500 font-bold leading-tight">Fast Delivery</span>
               </div>
               <div className="flex flex-col items-center text-center gap-2">
-                <div className="p-3 bg-cream-100 rounded-2xl">
-                  <RefreshCw className="w-5 h-5 text-neutral-600" />
+                <div className="p-2.5 md:p-3 bg-cream-100 rounded-xl md:rounded-2xl">
+                  <RefreshCw className="w-4 h-4 md:w-5 md:h-5 text-neutral-600" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Easy Returns</span>
+                <span className="text-[8px] md:text-[10px] uppercase tracking-widest text-neutral-500 font-bold leading-tight">Easy Returns</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabs Section */}
-        <div className="mt-28">
-           <div className="flex gap-12 border-b border-neutral-100 mb-10">
+        <div className="mt-16 md:mt-20">
+           <div className="flex gap-6 md:gap-12 border-b border-neutral-100 mb-8 md:mb-10 overflow-x-auto no-scrollbar">
               {["description", "how to use", "ingredients"].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`pb-4 text-xs uppercase tracking-[0.2em] font-bold transition-all relative ${
+                  className={`pb-4 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold transition-all relative whitespace-nowrap ${
                     activeTab === tab ? "text-neutral-900" : "text-neutral-300 hover:text-neutral-500"
                   }`}
                 >
@@ -251,14 +251,14 @@ const ProductDetails = () => {
               ))}
            </div>
            
-           <div className="min-h-[150px]">
+           <div className="min-h-[80px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="max-w-3xl text-neutral-500 leading-relaxed"
+                  className="max-w-3xl text-neutral-500 leading-relaxed text-sm md:text-base"
                 >
                    {activeTab === "description" && (
                     <p>Designed for the discerning individual, our {product.name} delivers unparalleled results by utilizing high-performance active ingredients. It works deeply into the surface of your skin to provide {(product.shortDesc || 'exceptional results').toLowerCase()} while maintaining its natural moisture barrier.</p>
@@ -279,9 +279,9 @@ const ProductDetails = () => {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <div className="mt-32">
-            <h2 className="text-3xl font-light mb-12" style={{ fontFamily: "ui-serif, Georgia, serif" }}>You May Also Like</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="mt-20 md:mt-32">
+            <h2 className="text-2xl md:text-3xl font-light mb-8 md:mb-12" style={{ fontFamily: "ui-serif, Georgia, serif" }}>You May Also Like</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
               {relatedProducts.map((p, idx) => (
                 <ProductCard key={p.id} product={p} index={idx} />
               ))}

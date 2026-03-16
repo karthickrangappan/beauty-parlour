@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from '../firebase';
-import { collection, query, where, getDocs, addDoc, doc, updateDoc, Timestamp, runTransaction } from "firebase/firestore";
-import { Star, Edit3, Send, CheckCircle, AlertCircle, Trash2 } from "lucide-react";
+import { collection, query, where, getDocs, doc, deleteDoc, runTransaction } from "firebase/firestore";
+import { Star, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateNewAverage } from "../utils/logicUtils";
 import { toast } from "react-hot-toast";
@@ -11,25 +11,15 @@ const ProductReviews = ({ productId }) => {
     const { user } = useAuth();
     
     const [reviews, setReviews] = useState([]);
-    const [isEligible, setIsEligible] = useState(false);
-    const [existingReview, setExistingReview] = useState(null);
     const [stats, setStats] = useState({ avg: 0, count: 0 });
-    
-    // Form state
-    const [rating, setRating] = useState(5);
-    const [comment, setComment] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [successMsg, setSuccessMsg] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         fetchReviews();
-        if (user) {
-            checkEligibility();
-            checkExistingReview();
-        }
-    }, [productId, user]);
+    }, [productId]);
 
     const fetchReviews = async () => {
+        setIsLoading(true);
         try {
             const q = query(collection(db, "reviews"), where("productId", "==", productId));
             const querySnapshot = await getDocs(q);
@@ -38,141 +28,41 @@ const ProductReviews = ({ productId }) => {
             setReviews(fetched);
             
             // Get stats from product doc
+            const productRef = doc(db, "products", productId);
             const pSnap = await getDocs(query(collection(db, "products"), where("id", "==", productId)));
+            
             if (!pSnap.empty) {
                 const data = pSnap.docs[0].data();
-                setStats({ avg: data.averageRating || 0, count: data.reviewCount || 0 });
+                setStats({ 
+                    avg: data.averageRating || 0, 
+                    count: data.reviewCount || 0 
+                });
             } else {
-                // fallback to calculation if product doc doesn't have it
                 const count = fetched.length;
                 const avg = count > 0 ? fetched.reduce((a, b) => a + b.rating, 0) / count : 0;
                 setStats({ avg: parseFloat(avg.toFixed(1)), count });
             }
         } catch (error) {
             console.error("Error fetching reviews", error);
-        }
-    };
-
-    const checkEligibility = async () => {
-        // Mock eligibility check: check if user has a 'delivered' order containing this productId
-        // For demonstration, we'll try to query orders
-        try {
-            const q = query(
-                collection(db, "orders"), 
-                where("userId", "==", user.uid),
-                where("status", "==", "delivered")
-            );
-            const querySnapshot = await getDocs(q);
-            let eligible = false;
-            querySnapshot.forEach((doc) => {
-                const orderData = doc.data();
-                const hasProduct = orderData.items?.some(item => item.id === productId);
-                if (hasProduct) {
-                    eligible = true;
-                }
-            });
-            setIsEligible(eligible);
-        } catch (error) {
-            console.error("Error checking eligibility", error);
-        }
-    };
-
-    const checkExistingReview = async () => {
-        try {
-            const q = query(
-                collection(db, "reviews"), 
-                where("productId", "==", productId),
-                where("userId", "==", user.uid)
-            );
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-                const rev = querySnapshot.docs[0];
-                setExistingReview({ id: rev.id, ...rev.data() });
-                setRating(rev.data().rating);
-                setComment(rev.data().comment);
-            }
-        } catch (error) {
-            console.error("Error checking existing review", error);
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!isEligible && !existingReview) return;
-        if (comment.length < 10) {
-            toast.error("Description must be at least 10 characters.");
-            return;
-        }
-
-        // Check 30 day window for edit
-        if (existingReview) {
-            const created = existingReview.createdAt?.toDate() || new Date();
-            const diff = (new Date() - created) / (1000 * 60 * 60 * 24);
-            if (diff > 30) {
-                toast.error("Editing is only allowed within 30 days of submission.");
-                return;
-            }
-        }
-        
-        setIsSubmitting(true);
-        try {
-            await runTransaction(db, async (transaction) => {
-                const productRef = doc(db, "products", productId);
-                const pSnap = await transaction.get(productRef);
-                const pData = pSnap.exists() ? pSnap.data() : { averageRating: 0, reviewCount: 0 };
-                
-                const mode = existingReview ? "edit" : "add";
-                const { nextAvg, nextCount } = calculateNewAverage(
-                    pData.averageRating, 
-                    pData.reviewCount, 
-                    rating, 
-                    existingReview?.rating, 
-                    mode
-                );
-
-                // Update Product
-                transaction.update(productRef, {
-                    averageRating: nextAvg,
-                    reviewCount: nextCount
-                });
-
-                // Update/Create Review Doc
-                const revId = existingReview?.id || `${user.uid}_${productId}`;
-                const revRef = doc(db, "reviews", revId);
-                const reviewData = {
-                    productId,
-                    userId: user.uid,
-                    userName: user.displayName || "Anonymous",
-                    rating,
-                    comment,
-                    updatedAt: Timestamp.now(),
-                    ...(existingReview ? {} : { createdAt: Timestamp.now() })
-                };
-                transaction.set(revRef, reviewData, { merge: true });
-            });
-
-            toast.success(existingReview ? "Review updated." : "Experience published.");
-            setSuccessMsg(existingReview ? "Review updated." : "Experience published.");
-            fetchReviews();
-        } catch (error) {
-            console.error("Review submission failed", error);
-            toast.error("Failed to save review.");
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
     const deleteReview = async (review) => {
-        if (!window.confirm("Delete this experience?")) return;
+        if (!window.confirm("Are you sure you want to remove your shared experience? This will also update the product's overall rating.")) return;
+        
         try {
             await runTransaction(db, async (transaction) => {
                 const productRef = doc(db, "products", productId);
                 const pSnap = await transaction.get(productRef);
+                
+                if (!pSnap.exists()) throw new Error("Product not found");
+                
                 const pData = pSnap.data();
-
                 const { nextAvg, nextCount } = calculateNewAverage(
-                    pData.averageRating, 
-                    pData.reviewCount, 
+                    pData.averageRating || 0, 
+                    pData.reviewCount || 0, 
                     null, 
                     review.rating, 
                     "delete"
@@ -185,155 +75,106 @@ const ProductReviews = ({ productId }) => {
 
                 transaction.delete(doc(db, "reviews", review.id));
             });
-            toast("Review removed.");
-            setExistingReview(null);
+            
+            toast.success("Ritual review removed.");
             fetchReviews();
         } catch (error) {
-            toast.error("Deletion failed.");
+            console.error("Deletion failed", error);
+            toast.error("Process failed. Please try again later.");
         }
     };
 
     return (
         <div className="mt-24 border-t border-neutral-100 pt-16">
-            <div className="flex items-center justify-between mb-12">
-                <h2 className="text-3xl font-light text-neutral-800" style={{ fontFamily: "ui-serif, Georgia, serif" }}>Client Experiences</h2>
-                <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 fill-gold-500 text-gold-500" />
-                    <span className="text-xl font-medium">{stats.avg}</span>
-                    <span className="text-neutral-400 text-sm ml-2">({stats.count} reviews)</span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
+                <div>
+                    <h2 className="text-3xl font-light text-neutral-800" style={{ fontFamily: "ui-serif, Georgia, serif" }}>Client Experiences</h2>
+                    <p className="text-xs text-neutral-400 mt-2 uppercase tracking-widest font-medium">Verified thoughts from our community</p>
+                </div>
+                <div className="flex items-center gap-4 bg-cream-50 px-6 py-4 rounded-2xl border border-gold-300/10 shadow-sm shadow-gold-100/20">
+                    <div className="flex gap-1">
+                        {[...Array(5)].map((_, i) => (
+                            <Star 
+                                key={i} 
+                                className={`w-4 h-4 ${i < Math.round(stats.avg) ? 'fill-gold-500 text-gold-500' : 'text-neutral-200'}`} 
+                            />
+                        ))}
+                    </div>
+                    <div className="h-4 w-[1px] bg-neutral-200 mx-2 hidden md:block" />
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-bold text-neutral-900">{stats.avg}</span>
+                        <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">/ 5.0</span>
+                    </div>
+                    <span className="text-neutral-500 text-[10px] uppercase tracking-widest font-bold ml-2">({stats.count} reviews)</span>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-                
-                {/* Review Form Area */}
-                <div className="lg:col-span-4">
-                    {!user ? (
-                        <div className="bg-cream-50 p-8 text-center border border-gold-300/10">
-                            <h3 className="text-sm uppercase tracking-widest text-neutral-800 mb-2">Share Your Thoughts</h3>
-                            <p className="text-xs text-neutral-500 leading-relaxed font-serif italic mb-6">Please sign in to leave a review for your purchased rituals.</p>
-                        </div>
-                    ) : !isEligible && !existingReview ? (
-                        <div className="bg-cream-50 p-8 border border-gold-300/10 space-y-4">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-gold-50 rounded-full border border-gold-200">
-                                    <AlertCircle className="w-4 h-4 text-gold-500"/>
-                                </div>
-                                <h3 className="text-sm uppercase tracking-widest text-neutral-700 font-bold">Share Your Experience</h3>
-                            </div>
-                            <p className="text-xs text-neutral-500 leading-relaxed font-serif italic">
-                                Only clients who have <strong className="not-italic font-semibold text-neutral-700">received this product</strong> (order status: Delivered) can write a review.
-                            </p>
-                            <a href="/profile" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-gold-600 hover:text-neutral-900 font-bold border-b border-gold-400/50 pb-0.5 transition-colors">
-                                Check your orders →
-                            </a>
-                        </div>
-                    ) : (
-                        <div className="bg-white p-8 shadow-xl shadow-gold-300/5 border border-gold-300/10">
-                            <h3 className="text-sm uppercase tracking-widest text-neutral-800 mb-6 flex items-center gap-2">
-                                <Edit3 className="w-4 h-4 text-gold-500"/>
-                                {existingReview ? "Edit Your Review" : "Write a Review"}
-                            </h3>
-                            
-                            {successMsg ? (
-                                <div className="bg-green-50 text-green-700 p-4 text-xs tracking-wide flex items-center gap-3 mb-6">
-                                    <CheckCircle className="w-4 h-4"/>
-                                    {successMsg}
-                                </div>
-                            ) : null}
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-3">Rate Your Return</label>
-                                    <div className="flex gap-2">
-                                        {[1,2,3,4,5].map(star => (
-                                            <button 
-                                                type="button" 
-                                                key={star} 
-                                                onClick={() => setRating(star)}
-                                                className="focus:outline-none transition-transform hover:scale-110"
-                                            >
-                                                <Star className={`w-6 h-6 ${rating >= star ? 'fill-gold-500 text-gold-500' : 'text-neutral-200'}`} />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 block mb-3">Your Experience</label>
-                                    <textarea 
-                                        required
-                                        rows="4"
-                                        value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
-                                        className="w-full bg-cream-50/50 border border-gold-300/20 focus:outline-none focus:border-gold-500 transition-colors p-4 text-sm resize-none custom-scrollbar"
-                                        placeholder="Detailed thoughts on luxury and efficacy..."
-                                    />
-                                </div>
-                                <button 
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full bg-neutral-900 text-white py-4 uppercase tracking-[0.2em] text-[10px] font-bold hover:bg-gold-500 transition-colors flex items-center justify-center gap-2"
-                                >
-                                    {isSubmitting ? "Publishing..." : "Submit Experience"}
-                                    {!isSubmitting && <Send className="w-3 h-3"/>}
-                                </button>
-                            </form>
-                        </div>
-                    )}
-                </div>
-
-                {/* Reviews List */}
-                <div className="lg:col-span-8 space-y-8">
-                    {reviews.length === 0 ? (
-                        <div className="text-center py-12 border border-dashed border-neutral-200">
-                            <p className="text-neutral-400 font-serif italic">No experiences shared yet. Be the first to grace this collection with your thoughts.</p>
-                        </div>
-                    ) : (
-                        <AnimatePresence>
+            <div className="grid grid-cols-1 gap-12">
+                {isLoading ? (
+                    <div className="py-20 flex flex-col items-center justify-center gap-4">
+                        <div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
+                        <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">Summoning experiences...</p>
+                    </div>
+                ) : reviews.length === 0 ? (
+                    <div className="text-center py-20 bg-neutral-50/50 border border-dashed border-neutral-200 rounded-3xl">
+                        <p className="text-neutral-400 font-serif italic text-lg mb-2">The collection is waiting for its first story.</p>
+                        <p className="text-[10px] uppercase tracking-widest text-neutral-300 font-bold">Share your ritual from your order history</p>
+                    </div>
+                ) : (
+                    <div className="space-y-10">
+                        <AnimatePresence mode="popLayout">
                             {reviews.map(review => (
                                 <motion.div 
                                     key={review.id}
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="pb-8 border-b border-neutral-100 last:border-0"
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    className="relative group pb-10 border-b border-neutral-100 last:border-0"
                                 >
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-cream-100 flex items-center justify-center text-gold-600 font-serif font-medium uppercase border border-gold-300/20">
+                                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-6">
+                                        <div className="flex items-center gap-5">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cream-100 to-cream-50 flex items-center justify-center text-gold-600 font-serif font-bold text-lg uppercase border border-gold-300/20 shadow-sm group-hover:shadow-md transition-all duration-500 group-hover:-translate-y-1">
                                                 {review.userName.charAt(0)}
                                             </div>
                                             <div>
-                                                <h4 className="text-sm font-medium text-neutral-800 uppercase tracking-wider">{review.userName}</h4>
-                                                <p className="text-[10px] text-neutral-400 mt-1">
-                                                    {review.createdAt ? review.createdAt.toDate().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric'}) : "Recently"}
-                                                </p>
+                                                <h4 className="text-sm font-bold text-neutral-800 uppercase tracking-wider">{review.userName}</h4>
+                                                <div className="flex items-center gap-3 mt-1.5">
+                                                    <div className="flex gap-0.5">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-gold-500 text-gold-500' : 'text-neutral-100'}`} />
+                                                        ))}
+                                                    </div>
+                                                    <span className="w-1 h-1 rounded-full bg-neutral-200" />
+                                                    <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold font-sans">
+                                                        {review.createdAt ? review.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'}) : "Just Now"}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-end gap-2">
-                                            <div className="flex gap-1">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-gold-500 text-gold-500' : 'text-neutral-200'}`} />
-                                                ))}
-                                            </div>
-                                            {user && user.uid === review.userId && (
-                                                <button 
-                                                    onClick={() => deleteReview(review)}
-                                                    className="text-[9px] text-red-400 uppercase tracking-widest hover:text-red-600 transition-colors flex items-center gap-1"
-                                                >
-                                                    <Trash2 size={10} /> Delete
-                                                </button>
-                                            )}
+                                        
+                                        {user && user.uid === review.userId && (
+                                            <button 
+                                                onClick={() => deleteReview(review)}
+                                                className="sm:opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-2 px-4 py-2 rounded-full border border-red-100 text-[10px] text-red-500 uppercase tracking-widest font-bold hover:bg-red-50"
+                                            >
+                                                <Trash2 size={12} /> Remove Experience
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="pl-0 sm:pl-[68px]">
+                                        <div className="relative">
+                                            <span className="absolute -left-4 -top-2 text-4xl text-cream-200 font-serif leading-none italic select-none">"</span>
+                                            <p className="text-base text-neutral-600 leading-relaxed font-light font-serif italic italic-none">
+                                                {review.comment}
+                                            </p>
+                                            <span className="absolute -right-4 bottom-0 text-4xl text-cream-200 font-serif leading-none italic rotate-180 select-none">"</span>
                                         </div>
                                     </div>
-                                    <p className="text-sm text-neutral-600 leading-relaxed font-light pl-14">
-                                        "{review.comment}"
-                                    </p>
                                 </motion.div>
                             ))}
                         </AnimatePresence>
-                    )}
-                </div>
-
+                    </div>
+                )}
             </div>
         </div>
     );
