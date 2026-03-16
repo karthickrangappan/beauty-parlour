@@ -1,5 +1,6 @@
 import React from "react";
 import { Calendar, CheckCircle, XCircle } from "lucide-react";
+import { fmtCurrency } from "../../constants/config";
 
 const AppointmentSection = ({
   appointments,
@@ -36,7 +37,7 @@ const AppointmentSection = ({
                   fontFamily: "ui-serif, Georgia, serif",
                 }}
               >
-                ${a.price}
+                {fmtCurrency(a.price)}
               </span>
             </div>
             <h4 className="text-sm font-bold uppercase tracking-widest text-neutral-800 mb-1">

@@ -23,8 +23,8 @@ const StaffSection = ({
 }) => {
   return (
     <div>
-      <div className="flex items-center justify-between mb-8 gap-4">
-        <div className="flex-1 max-w-sm relative">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-8 gap-4">
+        <div className="flex-1 max-w-none sm:max-w-sm relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
           <input
             type="text"
@@ -34,13 +34,13 @@ const StaffSection = ({
             className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
           />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center">
           <button
             onClick={() => {
               resetStaffForm();
               setShowStaffForm(true);
             }}
-            className="flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors"
           >
             <Plus className="w-4 h-4" /> Add Specialist
           </button>
@@ -56,7 +56,7 @@ const StaffSection = ({
             exit={{ opacity: 0, height: 0 }}
             className="bg-white border border-neutral-100 shadow-lg mb-8 overflow-hidden"
           >
-            <div className="p-8">
+            <div className="p-4 md:p-8">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-sm uppercase tracking-widest font-bold text-neutral-800">
                   {editingStaff ? "Edit Specialist" : "New Specialist"}
@@ -190,17 +190,17 @@ const StaffSection = ({
                 </div>
               </div>
 
-              <div className="mt-8 flex justify-end gap-4 pt-6 border-t border-neutral-100">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 md:gap-4 mt-8 pt-6 border-t border-neutral-100">
                 <button
                   onClick={resetStaffForm}
-                  className="text-xs uppercase tracking-widest text-neutral-500"
+                  className="w-full sm:w-auto px-6 py-3 text-xs uppercase tracking-widest text-neutral-500 hover:text-neutral-900 border border-neutral-100 sm:border-none"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveStaff}
                   disabled={isSaving || !staffFormData.name}
-                  className="px-8 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors disabled:opacity-50"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-gold-500 transition-colors disabled:opacity-50"
                 >
                   {isSaving ? "Saving..." : "Save Specialist"}
                 </button>
@@ -211,7 +211,8 @@ const StaffSection = ({
       </AnimatePresence>
 
       <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[900px]">
           <thead className="bg-cream-50">
             <tr>
               <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
@@ -305,6 +306,7 @@ const StaffSection = ({
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

@@ -136,7 +136,7 @@ export const InvoiceModal = ({ order: o, onClose }) => {
           {/* Invoice Body */}
           <div
             ref={printRef}
-            className="p-12 font-serif"
+            className="p-6 md:p-12 font-serif"
             style={{ fontFamily: "'Crimson Pro', Georgia, serif" }}
           >
             {/* Header */}
@@ -160,9 +160,9 @@ export const InvoiceModal = ({ order: o, onClose }) => {
               </div>
 
               <div className="text-right">
-                <div className="inline-block border-2 border-neutral-900 px-6 py-4">
+                <div className="inline-block border-2 border-neutral-900 px-4 md:px-6 py-3 md:py-4">
                   <p className="text-[9px] uppercase tracking-[0.35em] text-neutral-400 font-black mb-1">Tax Invoice</p>
-                  <p className="text-2xl font-bold text-neutral-900 tracking-wider" style={{ fontFamily: "'IM Fell English', Georgia, serif" }}>
+                  <p className="text-xl md:text-2xl font-bold text-neutral-900 tracking-wider" style={{ fontFamily: "'IM Fell English', Georgia, serif" }}>
                     {invoiceNumber}
                   </p>
                 </div>
@@ -184,7 +184,7 @@ export const InvoiceModal = ({ order: o, onClose }) => {
             </div>
 
             {/* Bill To */}
-            <div className="grid grid-cols-2 gap-8 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
               <div>
                 <p className="text-[9px] uppercase tracking-[0.35em] font-black text-neutral-400 mb-3 pb-2 border-b border-neutral-200">
                   Bill To
@@ -229,7 +229,8 @@ export const InvoiceModal = ({ order: o, onClose }) => {
             </div>
 
             {/* Items Table */}
-            <table className="w-full mb-8 text-[12px]" style={{ borderCollapse: "collapse" }}>
+            <div className="overflow-x-auto">
+              <table className="w-full mb-8 text-[12px] min-w-[500px]" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr className="bg-neutral-900 text-white">
                   <th className="py-3 px-4 text-left text-[9px] uppercase tracking-[0.3em] font-black w-8">#</th>
@@ -264,6 +265,7 @@ export const InvoiceModal = ({ order: o, onClose }) => {
                 ))}
               </tbody>
             </table>
+            </div>
 
             {/* Totals */}
             <div className="flex justify-end mb-10">
@@ -347,33 +349,35 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
     }
 
     return (
-      <div className="flex items-center gap-2">
-        {steps.map((step, idx) => {
-          const isCompleted = idx < currentIndex;
-          const isActive = idx === currentIndex;
-          const isPending = idx > currentIndex;
+      <div className="overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex items-center gap-2 min-w-max">
+          {steps.map((step, idx) => {
+            const isCompleted = idx < currentIndex;
+            const isActive = idx === currentIndex;
+            const isPending = idx > currentIndex;
 
-          if (isCompleted) return null; // Hide previous process
+            if (isCompleted) return null; // Hide previous process
 
-          return (
-            <React.Fragment key={step.id}>
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-500 ${
-                isActive ? 'bg-gold-500 text-white scale-105 shadow-md' : 'bg-neutral-50 text-neutral-400 border border-neutral-100'
-              }`}>
-                <step.icon className={`w-3 h-3 ${isActive ? 'animate-pulse' : ''}`} />
-                <span className="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">
-                    {step.label}
-                </span>
-              </div>
-              {idx < steps.length - 1 && !isActive && (
-                <div className="w-4 h-[1px] bg-neutral-100" />
-              )}
-              {isActive && idx < steps.length - 1 && (
-                <ArrowRight className="w-3 h-3 text-gold-300 animate-bounce-x" />
-              )}
-            </React.Fragment>
-          );
-        })}
+            return (
+              <React.Fragment key={step.id}>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-500 ${
+                  isActive ? 'bg-gold-500 text-white scale-105 shadow-md' : 'bg-neutral-50 text-neutral-400 border border-neutral-100'
+                }`}>
+                  <step.icon className={`w-3 h-3 ${isActive ? 'animate-pulse' : ''}`} />
+                  <span className="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">
+                      {step.label}
+                  </span>
+                </div>
+                {idx < steps.length - 1 && !isActive && (
+                  <div className="w-4 h-[1px] bg-neutral-100" />
+                )}
+                {isActive && idx < steps.length - 1 && (
+                  <ArrowRight className="w-3 h-3 text-gold-300 animate-bounce-x" />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
       </div>
     );
   };

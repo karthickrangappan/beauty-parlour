@@ -4,21 +4,22 @@ import { Search } from "lucide-react";
 const UserSection = ({ users, userSearch, setUserSearch, updateUserRole }) => {
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <div className="relative w-64">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-4">
+        <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
           <input
             type="text"
             placeholder="Search Name or Email..."
             value={userSearch}
             onChange={(e) => setUserSearch(e.target.value)}
-            className="w-full bg-white border border-neutral-100 py-2 pl-10 pr-4 text-xs focus:outline-none focus:border-gold-500"
+            className="w-full bg-white border border-neutral-200 py-3 pl-10 pr-4 text-xs focus:outline-none focus:border-gold-500 rounded-sm"
           />
         </div>
       </div>
 
       <div className="bg-white border border-neutral-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[800px]">
           <thead className="bg-cream-50">
             <tr>
               <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
@@ -95,6 +96,7 @@ const UserSection = ({ users, userSearch, setUserSearch, updateUserRole }) => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

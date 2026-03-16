@@ -26,6 +26,8 @@ import {
   Box,
   Loader2,
   Sparkles,
+  Menu,
+  X,
 } from "lucide-react";
 
 // Modular Components
@@ -55,6 +57,7 @@ const statusColors = {
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   /* shared data */
   const [orders, setOrders] = useState([]);
@@ -618,13 +621,52 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-neutral-50 flex">
       {/* ─── sidebar ─────────────────────────────────── */}
-      <Sidebar tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar 
+        tabs={tabs} 
+        activeTab={activeTab} 
+        setActiveTab={(id) => {
+          setActiveTab(id);
+          setIsSidebarOpen(false);
+        }} 
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+
+      {/* ─── mobile overlay ─────────────────────────── */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 z-20 lg:hidden backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
 
       {/* ─── main content ────────────────────────────── */}
-      <div className="ml-64 flex-1 p-12">
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 lg:ml-64`}>
+        {/* mobile header */}
+        <div className="lg:hidden bg-white border-b border-neutral-200 px-6 h-16 flex items-center justify-between sticky top-0 z-10">
+          <span
+            className="text-xl tracking-widest uppercase font-light text-gold-500"
+            style={{ fontFamily: "ui-serif, Georgia, serif" }}
+          >
+            Lumière
+          </span>
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 text-neutral-800"
+          >
+            {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        <div className="flex-1 p-6 md:p-12">
         <div className="max-w-6xl mx-auto">
           {/* header */}
-          <div className="flex justify-between items-center mb-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
             <h1
               className="text-3xl font-light text-neutral-800"
               style={{ fontFamily: "ui-serif, Georgia, serif" }}
@@ -766,6 +808,7 @@ const AdminDashboard = () => {
               </motion.div>
             </AnimatePresence>
           )}
+        </div>
         </div>
       </div>
     </div>

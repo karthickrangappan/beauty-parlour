@@ -2,9 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-const Sidebar = ({ tabs, activeTab, setActiveTab }) => {
+const Sidebar = ({ tabs, activeTab, setActiveTab, isOpen, onClose }) => {
   return (
-    <div className="w-64 bg-white border-r border-neutral-200 fixed h-full flex flex-col pt-8 z-30">
+    <div className={`w-64 bg-white border-r border-neutral-200 fixed h-full flex flex-col pt-8 z-30 transition-transform duration-300 transform lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
       <div className="px-8 mb-12">
         <span
           className="text-2xl tracking-widest uppercase font-light text-gold-500"
