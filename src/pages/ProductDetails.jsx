@@ -7,6 +7,7 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 import ProductReviews from "../components/ProductReviews";
+import ProductCard from "../components/ProductCard";
 import { db } from "../firebase";
 import { doc, getDoc, collection, query, where, getDocs, limit } from "firebase/firestore";
 
@@ -281,18 +282,8 @@ const ProductDetails = () => {
           <div className="mt-32">
             <h2 className="text-3xl font-light mb-12" style={{ fontFamily: "ui-serif, Georgia, serif" }}>You May Also Like</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-              {relatedProducts.map((p) => (
-                <Link key={p.id} to={`/product/${p.id}`} className="group block">
-                  <div className="aspect-[4/5] bg-neutral-50 rounded-2xl overflow-hidden mb-6 relative border border-neutral-100 shadow-sm transition-all duration-500 group-hover:shadow-lg">
-                    <img src={p.image} alt={p.name} onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Image+Error&background=D4AF37&color=fff"; }} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition duration-500" />
-                  </div>
-                  <div className="text-center space-y-1">
-                    <h3 className="text-sm font-medium uppercase tracking-widest text-neutral-900">{p.name}</h3>
-                    <p className="text-xs text-neutral-400 font-serif italic">{p.category}</p>
-                    <p className="text-sm font-medium mt-2">{fmtCurrency(p.price || 0)}</p>
-                  </div>
-                </Link>
+              {relatedProducts.map((p, idx) => (
+                <ProductCard key={p.id} product={p} index={idx} />
               ))}
             </div>
           </div>

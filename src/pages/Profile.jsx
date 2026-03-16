@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { db } from '../firebase';
 import {
@@ -19,6 +19,7 @@ import {
   Clock,
   ChevronRight,
   RefreshCw,
+  Star,
 } from "lucide-react";
 
 const Profile = () => {
@@ -387,8 +388,19 @@ const Profile = () => {
                                       Qty: {item.quantity}
                                     </p>
                                   </div>
-                                  <div className="text-sm font-medium text-neutral-800">
-                                    ${(item.price * item.quantity).toFixed(2)}
+                                  <div className="text-right">
+                                    <div className="text-sm font-medium text-neutral-800">
+                                      ₹{(item.price * item.quantity).toFixed(2)}
+                                    </div>
+                                    {order.status === "delivered" && (
+                                      <Link
+                                        to={`/product/${item.id}`}
+                                        className="inline-flex items-center gap-1 mt-2 text-[9px] uppercase tracking-widest text-gold-600 hover:text-gold-700 font-bold border-b border-gold-400/50 hover:border-gold-600 transition-colors pb-0.5"
+                                      >
+                                        <Star className="w-2.5 h-2.5 fill-gold-500" />
+                                        Review
+                                      </Link>
+                                    )}
                                   </div>
                                 </div>
                               ))}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from '../firebase';
-import { collection, query, where, getDocs, addDoc, doc, updateDoc, Timestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, doc, updateDoc, Timestamp, runTransaction } from "firebase/firestore";
 import { Star, Edit3, Send, CheckCircle, AlertCircle, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateNewAverage } from "../utils/logicUtils";
@@ -216,9 +216,19 @@ const ProductReviews = ({ productId }) => {
                             <p className="text-xs text-neutral-500 leading-relaxed font-serif italic mb-6">Please sign in to leave a review for your purchased rituals.</p>
                         </div>
                     ) : !isEligible && !existingReview ? (
-                        <div className="bg-cream-50 p-8 text-center border border-gold-300/10 bg-opacity-50">
-                            <AlertCircle className="w-6 h-6 text-neutral-300 mx-auto mb-3"/>
-                            <p className="text-xs text-neutral-500 leading-relaxed font-serif italic">Only clients who have received this product can pen an experience.</p>
+                        <div className="bg-cream-50 p-8 border border-gold-300/10 space-y-4">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2 bg-gold-50 rounded-full border border-gold-200">
+                                    <AlertCircle className="w-4 h-4 text-gold-500"/>
+                                </div>
+                                <h3 className="text-sm uppercase tracking-widest text-neutral-700 font-bold">Share Your Experience</h3>
+                            </div>
+                            <p className="text-xs text-neutral-500 leading-relaxed font-serif italic">
+                                Only clients who have <strong className="not-italic font-semibold text-neutral-700">received this product</strong> (order status: Delivered) can write a review.
+                            </p>
+                            <a href="/profile" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-gold-600 hover:text-neutral-900 font-bold border-b border-gold-400/50 pb-0.5 transition-colors">
+                                Check your orders →
+                            </a>
                         </div>
                     ) : (
                         <div className="bg-white p-8 shadow-xl shadow-gold-300/5 border border-gold-300/10">

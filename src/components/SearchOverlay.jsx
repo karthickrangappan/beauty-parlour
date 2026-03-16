@@ -14,20 +14,25 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
     const inputRef = useRef(null);
 
-    // Keep recent searches in state only, removing localStorage
     useEffect(() => {
-        // No-op for now since localStorage usage is requested to be removed
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
     }, [isOpen]);
 
-    // Focus input when opened
     useEffect(() => {
         if (isOpen && inputRef.current) {
             setTimeout(() => inputRef.current.focus(), 100);
-            setSearchQuery(''); // Reset query on open
+            setSearchQuery(''); 
         }
     }, [isOpen]);
 
-    // Debounce Logic (300ms)
     useEffect(() => {
         const timerId = setTimeout(() => {
             setDebouncedQuery(searchQuery);
@@ -35,7 +40,6 @@ const SearchOverlay = ({ isOpen, onClose }) => {
         return () => clearTimeout(timerId);
     }, [searchQuery]);
 
-    // Perform Search against Firestore
     useEffect(() => {
         if (!debouncedQuery.trim()) {
             setResults([]);
@@ -86,7 +90,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
 
     const saveRecentSearch = (searchTerm) => {
         let updatedSearches = [searchTerm, ...recentSearches.filter(s => s !== searchTerm)];
-        updatedSearches = updatedSearches.slice(0, 5); // keep max 5
+        updatedSearches = updatedSearches.slice(0, 5); 
         setRecentSearches(updatedSearches);
     };
 
@@ -102,7 +106,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                     animate={{ opacity: 1 }} 
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="fixed inset-0 z-[100] bg-cream-50/95 backdrop-blur-xl flex justify-center pt-24 md:pt-32 px-6"
+                    className="fixed inset-0 z-[100] bg-cream-50/95 backdrop-blur-xl flex justify-center pt-24 md:pt-32 px-6 overflow-y-auto"
                 >
                     <div className="w-full max-w-4xl">
                         
@@ -113,7 +117,6 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                            </button>
                         </div>
 
-                        {/* Search Input */}
                         <form onSubmit={handleSearchSubmit} className="relative mb-12">
                             <input 
                                 ref={inputRef}
@@ -121,7 +124,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search products, treatments, or ingredients..."
-                                className="w-full bg-transparent border-b-2 border-neutral-300 pb-6 text-2xl md:text-4xl lg:text-5xl font-light text-neutral-800 focus:outline-none focus:border-gold-500 transition-colors placeholder:text-neutral-300"
+                                className="w-full bg-transparent border-b-2 border-neutral-300 pb-3 text-2xl md:text-4xl lg:text-4xl font-light text-neutral-800 focus:outline-none focus:border-gold-500 transition-colors placeholder:text-neutral-300"
                                 style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                             />
                             <button type="submit" className="absolute right-0 bottom-6 text-neutral-400 hover:text-gold-500 transition-colors">
@@ -131,13 +134,12 @@ const SearchOverlay = ({ isOpen, onClose }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
                             
-                            {/* Suggestions / Results Panel */}
                             <div className="md:col-span-8">
                                 {searchQuery.trim() === '' ? (
                                     <div className="space-y-6 opacity-60">
                                         <h3 className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-4">Trending Searches</h3>
                                         <div className="flex flex-wrap gap-3">
-                                            {['Silk Facial', 'Vitamin C Serum', 'Bridal Package', 'Rose Water', 'Exfoliant'].map(term => (
+                                            {['Cleansers', 'Serums', 'Treatments', 'rose water', 'exfoliant'].map(term => (
                                                 <button 
                                                     key={term}
                                                     onClick={() => setSearchQuery(term)}
@@ -190,7 +192,6 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                 )}
                             </div>
 
-                            {/* Recent Searches Panel */}
                             <div className="md:col-span-4 pl-0 md:pl-8 border-t md:border-t-0 md:border-l border-neutral-200/50 pt-8 md:pt-0">
                                 <div className="flex items-center justify-between mb-8">
                                     <h3 className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold flex items-center gap-2">

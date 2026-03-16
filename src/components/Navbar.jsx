@@ -23,7 +23,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
@@ -44,7 +43,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* ─── Main Navbar ─── */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -53,7 +51,6 @@ const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 lg:h-24 flex items-center justify-between">
 
-          {/* Left: Hamburger (mobile) / Brand Logo (desktop) */}
           <div className="flex-1 flex items-center justify-start">
             <button
               className={`lg:hidden p-1.5 -ml-1 rounded-lg hover:bg-black/5 transition-colors ${textColor}`}
@@ -73,9 +70,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Center: Brand Logo (mobile) / Nav Links (desktop) */}
           <div className="flex-1 text  flex items-center pr-3 justify-center">
-            {/* Mobile Logo */}
             <Link to="/" className="lg:hidden text-xl sm:text-2xl tracking-widest uppercase font-light">
               <span
                 className={`block transition-colors duration-500 ${isScrolled || !isHome ? 'text-gold-500' : 'text-gold-300'}`}
@@ -85,7 +80,6 @@ const Navbar = () => {
               </span>
             </Link>
 
-            {/* Desktop Nav Links */}
             <div className="hidden lg:flex items-center justify-center gap-8 xl:gap-10">
               {navLinks.map((link) => (
                 <Link
@@ -100,10 +94,8 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Right: Icons */}
           <div className="flex-1 flex items-center justify-end">
             <div className={`flex items-center gap-1.5 sm:gap-2.5 lg:gap-4 ${textColor}`}>
-              {/* Search */}
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all"
@@ -112,7 +104,6 @@ const Navbar = () => {
                 <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
               </button>
 
-              {/* Wishlist */}
               <Link to="/wishlist" className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all relative" aria-label="Wishlist">
                 <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
                 {wishlistItems.length > 0 && (
@@ -122,7 +113,15 @@ const Navbar = () => {
                 )}
               </Link>
 
-              {/* User / Login */}
+              <Link to="/cart" className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all relative" aria-label="Cart">
+                <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
+                {totalItems > 0 && (
+                  <span className="absolute top-0 right-0 bg-gold-400 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold leading-none">
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
+
               <Link
                 to={user ? '/profile' : '/auth/login'}
                 className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all relative"
@@ -135,7 +134,6 @@ const Navbar = () => {
                 )}
               </Link>
 
-              {/* Admin (desktop only) */}
               {isAdmin && (
                 <Link
                   to="/admin"
@@ -147,26 +145,16 @@ const Navbar = () => {
                 </Link>
               )}
 
-              {/* Cart */}
-              <Link to="/cart" className="p-1.5 rounded-lg hover:text-gold-500 hover:bg-black/5 transition-all relative" aria-label="Cart">
-                <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[1.5]" />
-                {totalItems > 0 && (
-                  <span className="absolute top-0 right-0 bg-gold-400 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold leading-none">
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
+              
             </div>
           </div>
 
         </div>
       </motion.nav>
 
-      {/* ─── Mobile Drawer ─── */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -177,7 +165,6 @@ const Navbar = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
-            {/* Drawer Panel */}
             <motion.div
               key="drawer"
               initial={{ x: '-100%' }}
@@ -186,7 +173,6 @@ const Navbar = () => {
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               className="fixed top-0 left-0 bottom-0 z-[60] w-[78vw] max-w-[300px] bg-white shadow-2xl flex flex-col"
             >
-              {/* Drawer Header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100">
                 <Link
                   to="/"
@@ -205,7 +191,6 @@ const Navbar = () => {
                 </button>
               </div>
 
-              {/* Nav Links */}
               <nav className="flex-1 overflow-y-auto px-6 py-6">
                 <div className="flex flex-col">
                   {navLinks.map((link, idx) => (
@@ -231,7 +216,6 @@ const Navbar = () => {
                     </motion.div>
                   ))}
 
-                  {/* Profile / Sign In */}
                   <motion.div
                     initial={{ opacity: 0, x: -16 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -247,7 +231,6 @@ const Navbar = () => {
                     </Link>
                   </motion.div>
 
-                  {/* Admin Portal */}
                   {isAdmin && (
                     <motion.div
                       initial={{ opacity: 0, x: -16 }}

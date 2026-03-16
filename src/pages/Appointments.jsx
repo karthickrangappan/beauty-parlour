@@ -19,6 +19,8 @@ import {
   Sparkles,
   CheckCircle,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   ShieldCheck,
   CreditCard,
   Loader2
@@ -44,6 +46,7 @@ const Appointments = () => {
   const [selectedStaff, setSelectedStaff] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
   const [services, setServices] = useState([]);
   const [staffList, setStaffList] = useState([]);
@@ -57,7 +60,7 @@ const Appointments = () => {
       const sSnap = await getDocs(collection(db, "services"));
       const sData = sSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setServices(sData);
-      
+
       const stSnap = await getDocs(collection(db, "staff"));
       const stData = stSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setStaffList(stData);
@@ -113,7 +116,7 @@ const Appointments = () => {
 
     // Slot Generation Logic using refined utility
     const allSlots = generateTimeSlots(selectedStaff, selectedService, dateStr);
-    
+
     if (allSlots.length === 0) {
       setAvailableSlots([]);
       toast("No working sessions available on this day.", "info");
@@ -133,9 +136,9 @@ const Appointments = () => {
 
       // Check if ALREADY booked for this day (One booking per day rule)
       const confirmedBookings = querySnapshot.docs.filter(d => d.data().status !== "cancelled");
-      
+
       if (confirmedBookings.length > 0) {
-        setAvailableSlots([]); 
+        setAvailableSlots([]);
         toast(`${selectedStaff.name} is fully booked for ${dateStr}`, "warning");
       } else {
         setAvailableSlots(allSlots);
@@ -163,13 +166,13 @@ const Appointments = () => {
     }
 
     setIsBooking(true);
-    
+
     try {
       // 1. Double check availability (Atomic check using individual slot ID)
       const slotDocId = `${selectedStaff.id}_${selectedDate}_${selectedSlot}`;
       const slotDocRef = doc(db, "appointments", slotDocId);
 
-      const checkSnap = await getDocs(query(collection(db, "appointments"), 
+      const checkSnap = await getDocs(query(collection(db, "appointments"),
         where("staffId", "==", selectedStaff.id),
         where("date", "==", selectedDate)
       ));
@@ -214,7 +217,7 @@ const Appointments = () => {
 
             setSuccessMsg(`Reservation confirmed! Your payment ID is ${response.razorpay_payment_id}.`);
             toast("Appointment Booked Successfully!", "success");
-            
+
             setTimeout(() => {
               navigate("/profile");
             }, 3000);
@@ -258,14 +261,27 @@ const Appointments = () => {
       />
       <div className="max-w-6xl mx-auto px-6">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Left: Progress Summary Panel */}
-          <div className="lg:col-span-4 bg-white p-8 lg:p-10 shadow-xl shadow-gold-300/5 border border-gold-300/10 sticky top-32">
-            <h3 className="text-xl text-neutral-800 uppercase tracking-widest mb-8 border-b border-gold-300/20 pb-4">
-              Your Selection
-            </h3>
+          <div className="lg:col-span-4 bg-white shadow-xl shadow-gold-300/5 border border-gold-300/10 sticky top-16 sm:top-20 lg:top-32 z-30 transition-all duration-300">
+            <button 
+              onClick={() => setIsSummaryOpen(!isSummaryOpen)}
+              className="w-full flex items-center justify-between p-6 lg:p-0 lg:px-10 lg:pt-10 lg:pb-8 text-left"
+            >
+              <h3 className="text-sm lg:text-xl text-neutral-800 uppercase tracking-widest lg:border-b lg:border-gold-300/20 lg:flex-1 lg:pb-4 m-0 font-bold lg:font-normal">
+                Your Selection
+                {selectedService && (
+                  <span className="lg:hidden ml-2 text-[10px] text-gold-600 font-normal tracking-normal normal-case italic font-serif">
+                    • {selectedService.name}
+                  </span>
+                )}
+              </h3>
+              <div className="lg:hidden">
+                {isSummaryOpen ? <ChevronUp className="w-5 h-5 text-gold-500" /> : <ChevronDown className="w-5 h-5 text-neutral-400" />}
+              </div>
+            </button>
 
-            <div className="space-y-6">
+            <div className={`${isSummaryOpen ? 'block' : 'hidden'} lg:block px-6 pb-6 lg:px-10 lg:pb-10 space-y-4 lg:space-y-6`}>
               {/* Service Summary */}
               <div
                 className={`p-4 border ${selectedService ? "border-gold-300/40 bg-cream-50/30" : "border-neutral-100"} transition-all`}
@@ -352,16 +368,16 @@ const Appointments = () => {
                   </p>
                 )}
               </div>
-            </div>
 
-            {step > 1 && (
-              <button
-                onClick={resetSelections}
-                className="w-full mt-8 py-3 text-[10px] uppercase tracking-widest text-neutral-400 hover:text-gold-500 transition-colors"
-              >
-                Reset Booking
-              </button>
-            )}
+              {step > 1 && (
+                <button
+                  onClick={resetSelections}
+                  className="w-full py-3 text-[10px] lg:text-xs lg:mt-4 uppercase tracking-widest text-neutral-400 hover:text-gold-500 transition-colors border-t border-neutral-100 lg:border-none"
+                >
+                  Reset Booking
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Right: Dynamic Selection Flow */}
@@ -514,11 +530,10 @@ const Appointments = () => {
                             <button
                               key={time}
                               onClick={() => handleSlotSelect(time)}
-                              className={`py-3 px-2 text-xs tracking-widest transition-all duration-300 border ${
-                                selectedSlot === time
+                              className={`py-3 px-2 text-xs tracking-widest transition-all duration-300 border ${selectedSlot === time
                                   ? "bg-neutral-900 text-white border-neutral-900"
                                   : "bg-transparent text-neutral-800 border-gold-300/30 hover:border-gold-500"
-                              }`}
+                                }`}
                             >
                               {time}
                             </button>
@@ -527,10 +542,10 @@ const Appointments = () => {
                       ) : (
                         <div className="text-center py-8">
                           <p className="text-neutral-500 italic font-serif">
-                             No slots available for this period.
+                            No slots available for this period.
                           </p>
                           <p className="text-[10px] uppercase tracking-widest text-neutral-400 mt-2">
-                             Reason: Fully Booked or Non-working Day
+                            Reason: Fully Booked or Non-working Day
                           </p>
                         </div>
                       )}

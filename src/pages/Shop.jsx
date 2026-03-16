@@ -65,6 +65,7 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [minRating, setMinRating] = useState(0);
   const [searchText, setSearchText] = useState("");
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const { products: filteredProducts, loading, hasMore, loadMore } =
     useInfiniteProducts({
@@ -125,6 +126,17 @@ const Shop = () => {
     (minRating > 0 ? 1 : 0) +
     (searchText ? 1 : 0);
 
+  useEffect(() => {
+    if (isMobileFilterOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileFilterOpen]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-100 pb-28">
       <PageHeader
@@ -134,6 +146,29 @@ const Shop = () => {
         description="Curated elixirs and luxury treatments designed to restore and perfect your natural radiance."
       />
       <div className="max-w-7xl mx-auto px-6">
+        {/* MOBILE FILTER BUTTON */}
+        <div className="lg:hidden flex items-center justify-between mb-8 pb-4 border-b border-neutral-100">
+          <button
+            onClick={() => setIsMobileFilterOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-sm hover:border-gold-500 group transition-colors"
+          >
+            <Filter className="w-4 h-4 text-neutral-400 group-hover:text-gold-500 transition-colors" />
+            <span className="text-[10px] uppercase tracking-widest font-bold text-neutral-600 group-hover:text-neutral-900">
+              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+            </span>
+          </button>
+
+          {activeFilterCount > 0 && (
+            <button
+              onClick={clearFilters}
+              className="text-[10px] uppercase tracking-widest font-bold text-neutral-400 hover:text-red-500 transition-colors flex items-center gap-2"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Clear All
+            </button>
+          )}
+        </div>
+
         <div className="flex gap-10 items-start">
 
           {/* FILTER PANEL */}
@@ -277,6 +312,165 @@ const Shop = () => {
 
             </div>
           </motion.div>
+
+          {/* MOBILE FILTER DRAWER */}
+          <AnimatePresence>
+            {isMobileFilterOpen && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-[110] lg:hidden"
+                />
+                <motion.div
+                  initial={{ x: "-100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "-100%" }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                  className="fixed inset-y-0 left-0 w-[85%] max-w-xs bg-white z-[120] lg:hidden flex flex-col shadow-2xl"
+                >
+                  <div className="flex items-center justify-between p-6 border-b border-neutral-100">
+                    <span className="text-xs uppercase tracking-[0.3em] font-bold text-neutral-800 flex items-center gap-2">
+                      <Filter className="w-4 h-4 text-gold-500" />
+                      Filters
+                    </span>
+                    <button
+                      onClick={() => setIsMobileFilterOpen(false)}
+                      className="p-2 text-neutral-400 hover:text-neutral-900 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                    {/* SEARCH */}
+                    <div className="relative mb-8">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                      <input
+                        type="text"
+                        placeholder="Search elixirs..."
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        className="w-full bg-cream-50 border border-neutral-100 py-3 pl-10 pr-10 text-sm focus:outline-none focus:border-gold-400 transition-colors placeholder:text-neutral-300 rounded-sm italic font-serif"
+                      />
+                      {searchText && (
+                        <button
+                          onClick={() => setSearchText("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          <X className="w-4 h-4 text-neutral-400" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* COLLECTIONS */}
+                    <FilterSection title="Collections">
+                      <div className="flex flex-col gap-2">
+                        {displayCollections.map((col) => (
+                          <button
+                            key={col.id}
+                            onClick={() => {
+                              setActiveCollection(col.id);
+                              // Keep open for better UX, or close if preferred:
+                              // setIsMobileFilterOpen(false);
+                            }}
+                            className={`text-left text-xs px-4 py-3 rounded-sm font-medium transition-colors ${
+                              activeCollection === col.id
+                                ? "bg-neutral-900 text-white shadow-md shadow-neutral-900/10"
+                                : "text-neutral-500 hover:bg-cream-100"
+                            }`}
+                          >
+                            {col.name}
+                          </button>
+                        ))}
+                      </div>
+                    </FilterSection>
+
+                    {/* CATEGORIES */}
+                    <FilterSection title="Categories">
+                      <div className="flex flex-col gap-3">
+                        {allCategories.map((cat) => (
+                          <label key={cat} className="flex items-center gap-3 text-sm cursor-pointer group">
+                            <div className="relative flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedCategories.includes(cat)}
+                                onChange={() => toggleCategory(cat)}
+                                className="peer appearance-none w-4 h-4 border border-neutral-300 rounded-sm checked:bg-neutral-900 checked:border-neutral-900 transition-all cursor-pointer"
+                              />
+                              <X className={`absolute w-2.5 h-2.5 text-white left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none rotate-45`} />
+                            </div>
+                            <span className={`transition-colors ${selectedCategories.includes(cat) ? 'text-neutral-900 font-medium' : 'text-neutral-500 group-hover:text-neutral-700'}`}>
+                              {cat}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </FilterSection>
+
+                    {/* PRICE */}
+                    <FilterSection title="Price Range">
+                      <div className="space-y-4 px-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-neutral-800">Max Price</span>
+                          <span className="text-xs font-bold text-gold-600">₹{priceRange[1]}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="10000"
+                          step="100"
+                          value={priceRange[1]}
+                          onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
+                          className="w-full accent-neutral-900 h-1.5 bg-neutral-100 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+                    </FilterSection>
+
+                    {/* RATING */}
+                    <FilterSection title="Minimum Rating">
+                      <div className="flex flex-col gap-2">
+                        {[0, 4, 3, 2, 1].map((stars) => {
+                          const active = minRating === stars;
+                          return (
+                            <button
+                              key={stars}
+                              onClick={() => setMinRating(stars)}
+                              className={`text-left text-xs px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-all ${
+                                active
+                                  ? "bg-gold-500/10 text-gold-700 border-l-2 border-gold-500"
+                                  : "text-neutral-500 hover:bg-cream-100 border-l-2 border-transparent"
+                              }`}
+                            >
+                              <Star className={`w-4 h-4 ${active ? 'fill-gold-500 text-gold-500' : 'text-neutral-300'}`} />
+                              {stars === 0 ? "Any Rating" : `${stars} Stars & Up`}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </FilterSection>
+                  </div>
+
+                  <div className="p-6 bg-cream-50/50 border-t border-neutral-100 grid grid-cols-2 gap-4">
+                    <button
+                      onClick={clearFilters}
+                      className="py-3 px-4 border border-neutral-200 text-neutral-600 text-[10px] uppercase tracking-widest font-bold hover:bg-white transition-colors"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      onClick={() => setIsMobileFilterOpen(false)}
+                      className="py-3 px-4 bg-neutral-900 text-white text-[10px] uppercase tracking-widest font-bold hover:bg-gold-500 transition-colors shadow-lg shadow-neutral-900/10"
+                    >
+                      Show Results
+                    </button>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
 
           {/* PRODUCTS GRID */}
 
