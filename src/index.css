@@ -17,9 +17,16 @@ body {
   margin: 0;
   padding: 0;
   background-color: var(--color-cream-50);
-  font-family: "Inter", "Helvetica Neue", sans-serif;
+  font-family: "Outfit", "Inter", "Helvetica Neue", sans-serif;
+  letter-spacing: -0.01em;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Outfit", sans-serif;
+  letter-spacing: -0.03em;
 }
 
 .no-scrollbar::-webkit-scrollbar {

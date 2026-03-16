@@ -25,22 +25,51 @@ const ProductSection = ({
   collectionOptions,
   categoryOptions,
 }) => {
+  const [sortBy, setSortBy] = React.useState("newest");
+
+  const sortedProducts = [...products]
+    .filter(
+      (p) =>
+        !productSearch ||
+        p.name?.toLowerCase().includes(productSearch.toLowerCase()) ||
+        p.category?.toLowerCase().includes(productSearch.toLowerCase()) ||
+        p.collection?.toLowerCase().includes(productSearch.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === "alphabetical") return (a.name || "").localeCompare(b.name || "");
+      if (sortBy === "stock-low") return (a.stock || 0) - (b.stock || 0);
+      if (sortBy === "stock-high") return (b.stock || 0) - (a.stock || 0);
+      return (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0);
+    });
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-8 gap-4">
-        <div className="flex-1 max-w-none sm:max-w-sm relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input
-            type="text"
-            placeholder="Search catalogue..."
-            value={productSearch}
-            onChange={(e) => setProductSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
-          />
+        <div className="flex flex-1 gap-4">
+          <div className="flex-1 max-w-none sm:max-w-sm relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+            <input
+              type="text"
+              placeholder="Search catalogue..."
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
+            />
+          </div>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="hidden md:block bg-white border border-neutral-200 px-4 py-2 text-[10px] uppercase tracking-widest font-bold focus:outline-none focus:border-gold-500"
+          >
+            <option value="newest">Latest Arrivals</option>
+            <option value="alphabetical">A - Z Order</option>
+            <option value="stock-low">Stock: Low First</option>
+            <option value="stock-high">Stock: High First</option>
+          </select>
         </div>
         <div className="flex items-center justify-between sm:justify-end gap-4">
           <p className="text-xs text-neutral-500 hidden md:block">
-            {products.filter((p) => p.name?.toLowerCase().includes(productSearch.toLowerCase())).length} products
+            {sortedProducts.length} items
           </p>
           <button
             onClick={() => {
@@ -314,15 +343,7 @@ const ProductSection = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 text-sm">
-              {products
-                .filter(
-                  (p) =>
-                    !productSearch ||
-                    p.name?.toLowerCase().includes(productSearch.toLowerCase()) ||
-                    p.category?.toLowerCase().includes(productSearch.toLowerCase()) ||
-                    p.collection?.toLowerCase().includes(productSearch.toLowerCase())
-                )
-                .map((p) => (
+              {sortedProducts.map((p) => (
                   <tr
                     key={p.id}
                     className="hover:bg-neutral-50 transition-colors"

@@ -2,21 +2,51 @@ import React from "react";
 import { Search } from "lucide-react";
 
 const UserSection = ({ users, userSearch, setUserSearch, updateUserRole }) => {
+  const [sortBy, setSortBy] = React.useState("newest");
+
+  const sortedUsers = [...users]
+    .filter(
+      (u) =>
+        !userSearch ||
+        (u.name || u.displayName)
+          ?.toLowerCase()
+          .includes(userSearch.toLowerCase()) ||
+        u.email?.toLowerCase().includes(userSearch.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === "alphabetical") return (a.name || a.displayName || "").localeCompare(b.name || b.displayName || "");
+      if (sortBy === "points-high") return (b.loyaltyPoints || 0) - (a.loyaltyPoints || 0);
+      if (sortBy === "points-low") return (a.loyaltyPoints || 0) - (b.loyaltyPoints || 0);
+      return (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0);
+    });
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-8 gap-4">
-        <div className="relative flex-1 max-w-none sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-          <input
-            type="text"
-            placeholder="Search Name or Email..."
-            value={userSearch}
-            onChange={(e) => setUserSearch(e.target.value)}
-            className="w-full bg-white border border-neutral-100 py-3 pl-10 pr-4 text-xs focus:outline-none focus:border-gold-500"
-          />
+        <div className="flex flex-1 gap-4 items-center">
+          <div className="relative flex-1 max-w-none sm:max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+            <input
+              type="text"
+              placeholder="Search Name or Email..."
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              className="w-full bg-white border border-neutral-100 py-3 pl-10 pr-4 text-xs focus:outline-none focus:border-gold-500"
+            />
+          </div>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="hidden md:block bg-white border border-neutral-100 px-4 py-2 text-[10px] uppercase tracking-widest font-bold text-neutral-500 focus:outline-none focus:border-gold-500"
+          >
+            <option value="newest">Latest Joiners</option>
+            <option value="alphabetical">A - Z Order</option>
+            <option value="points-high">Points: High to Low</option>
+            <option value="points-low">Points: Low to High</option>
+          </select>
         </div>
         <p className="text-[10px] uppercase tracking-widest text-neutral-400 hidden md:block">
-          {users.length} registered accounts
+          {sortedUsers.length} registered accounts
         </p>
       </div>
 
@@ -45,16 +75,7 @@ const UserSection = ({ users, userSearch, setUserSearch, updateUserRole }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 text-sm">
-            {users
-              .filter(
-                (u) =>
-                  !userSearch ||
-                  (u.name || u.displayName)
-                    ?.toLowerCase()
-                    .includes(userSearch.toLowerCase()) ||
-                  u.email?.toLowerCase().includes(userSearch.toLowerCase())
-              )
-              .map((u) => (
+            {sortedUsers.map((u) => (
                 <tr key={u.id} className="hover:bg-neutral-50 transition-colors">
                   <td className="px-6 py-4 font-mono text-xs text-neutral-500">
                     {u.id.slice(0, 10)}…

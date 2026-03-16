@@ -182,6 +182,7 @@ const FilterPanel = ({
 
 const Services = () => {
   const [services, setServices] = useState([]);
+  const [staffData, setStaffData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -210,7 +211,19 @@ const Services = () => {
         setLoading(false);
       }
     };
+
+    const fetchStaff = async () => {
+      try {
+        const snap = await getDocs(collection(db, "staff"));
+        const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setStaffData(data);
+      } catch (err) {
+        console.error("Error fetching staff:", err);
+      }
+    };
+
     fetchServices();
+    fetchStaff();
   }, []);
 
   const categories = ["All", ...new Set(services.map((s) => s.category))];
@@ -499,6 +512,7 @@ const Services = () => {
       
       <ServiceQuickView 
         service={selectedQuickView}
+        staff={staffData}
         isOpen={isQuickViewOpen}
         onClose={() => setIsQuickViewOpen(false)}
       />
