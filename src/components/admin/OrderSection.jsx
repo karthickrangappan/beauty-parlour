@@ -323,6 +323,7 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [showOnlyReturns, setShowOnlyReturns] = useState(false);
+  const [sortBy, setSortBy] = useState("newest");
 
   const filteredOrders = orders.filter(o => {
     const matchesSearch = o.id?.toLowerCase().includes(orderSearch.toLowerCase()) ||
@@ -333,7 +334,11 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
       return matchesSearch && o.status === "return_requested";
     }
     return matchesSearch;
-  }).sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+  }).sort((a, b) => {
+    if (sortBy === "amount-high") return (b.totalAmount || 0) - (a.totalAmount || 0);
+    if (sortBy === "amount-low") return (a.totalAmount || 0) - (b.totalAmount || 0);
+    return (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0);
+  });
 
   const StatusDiagram = ({ currentStatus }) => {
     const steps = [
@@ -392,31 +397,42 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between bg-white p-4 border border-neutral-100 shadow-sm">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-300" />
-          <input
-            type="text"
-            placeholder="Search by Order ID, Client Name..."
-            className="w-full bg-neutral-50 border border-neutral-100 py-3 pl-10 pr-4 text-xs focus:outline-none focus:border-gold-500 transition-colors italic font-serif"
-            value={orderSearch}
-            onChange={(e) => setOrderSearch(e.target.value)}
-          />
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6 bg-white p-6 border border-neutral-100 shadow-sm">
+        <div className="flex flex-1 gap-4 items-center">
+          <div className="flex-1 max-w-xl relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-300 group-focus-within:text-gold-500 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search transactions, clients or order IDs..."
+              className="w-full bg-neutral-50/50 border border-neutral-100 py-3.5 pl-12 pr-4 text-xs focus:outline-none focus:border-gold-500 transition-all font-medium placeholder:text-neutral-300"
+              value={orderSearch}
+              onChange={(e) => setOrderSearch(e.target.value)}
+            />
+          </div>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="hidden md:block bg-white border border-neutral-100 px-4 py-3.5 text-[10px] uppercase tracking-widest font-black text-neutral-500 focus:outline-none focus:border-gold-500"
+          >
+            <option value="newest">Recent First</option>
+            <option value="amount-high">Total: High to Low</option>
+            <option value="amount-low">Total: Low to High</option>
+          </select>
         </div>
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
           <button 
             onClick={() => setShowOnlyReturns(!showOnlyReturns)}
-            className={`px-4 py-2.5 text-[10px] uppercase tracking-widest font-black transition-all flex items-center gap-2 border ${
+            className={`flex-1 sm:flex-none px-6 py-3.5 text-[10px] uppercase tracking-widest font-black transition-all flex items-center justify-center gap-3 border ${
               showOnlyReturns 
-                ? "bg-gold-500 text-white border-gold-600 shadow-md" 
+                ? "bg-gold-500 text-white border-gold-600 shadow-lg shadow-gold-500/20" 
                 : "bg-white text-neutral-500 border-neutral-100 hover:border-gold-500"
             }`}
           >
-            <Clock className={`w-3 h-3 ${showOnlyReturns ? "animate-pulse" : ""}`} />
-            {showOnlyReturns ? "Viewing Returns" : "Refund Requests"}
+            <Clock className={`w-3.5 h-3.5 ${showOnlyReturns ? "animate-pulse" : ""}`} />
+            {showOnlyReturns ? "Viewing Returns" : "Refund Queue"}
           </button>
-          <button className="p-3 bg-neutral-50 border border-neutral-100 text-neutral-400 hover:text-gold-500 transition-colors">
-            <Download className="w-4 h-4" />
+          <button className="p-3.5 bg-neutral-50 border border-neutral-100 text-neutral-400 hover:text-gold-500 transition-colors hover:bg-white shadow-sm">
+            <Download className="w-4.5 h-4.5" />
           </button>
         </div>
       </div>
@@ -436,13 +452,13 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
                 <div className="flex flex-col lg:flex-row items-stretch lg:items-start justify-between gap-6 mb-8">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                      <span className="text-[10px] uppercase tracking-[0.3em] font-black text-neutral-400">Order Ref</span>
+                      <span className="text-[10px] uppercase tracking-[0.3em] font-black text-neutral-400">ID</span>
                       <h3 className="text-sm font-bold text-neutral-800 font-mono tracking-tighter">
-                        #{order.id.slice(0, 12).toUpperCase()}...
+                        #{order.id.slice(0, 12).toUpperCase()}
                       </h3>
                     </div>
                     <p className="text-[10px] text-neutral-400 font-medium">
-                      Plotted on {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString() : new Date(order.createdAt).toLocaleString()}
+                      Ordered on {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString() : new Date(order.createdAt).toLocaleString()}
                     </p>
                   </div>
 
@@ -452,66 +468,58 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
                     <div className="h-8 w-[1px] bg-neutral-100 hidden sm:block" />
 
                     <div className="text-left sm:text-right w-full sm:w-auto">
-                      <p className="text-[9px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">Grand Total</p>
-                      <p className="text-lg font-light text-gold-600" style={{ fontFamily: 'ui-serif, Georgia, serif'}}>
+                      <p className="text-[9px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">Total Amount</p>
+                      <p className="text-xl font-bold text-gold-600">
                         {fmtCurrency(order.totalAmount)}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6 border-t border-neutral-50">
-                  <div className="lg:col-span-4 space-y-4">
-                    <div className="bg-neutral-50/50 p-4 border border-neutral-50">
-                      <p className="text-[9px] uppercase tracking-widest font-black text-neutral-400 mb-3 flex items-center gap-2">
-                        <Users className="w-3 h-3 text-gold-500" /> Customer Portfolio
-                      </p>
-                      <h4 className="text-xs font-bold text-neutral-800 uppercase tracking-wider mb-1">
-                        {order.customer?.name}
-                      </h4>
-                      <p className="text-[10px] text-neutral-500 mb-2">{order.customer?.email}</p>
-                      <p className="text-[10px] text-neutral-400 italic leading-relaxed">
-                        {order.customer?.address}, {order.customer?.city} - {order.customer?.zip}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-5">
-                    <p className="text-[9px] uppercase tracking-widest font-black text-neutral-400 mb-3 flex items-center gap-2">
-                        <Package className="w-3 h-3 text-gold-500" /> Consignment Manifest
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-8 border-t border-neutral-100/50">
+                  <div className="lg:col-span-9">
+                    <p className="text-[10px] uppercase tracking-widest font-black text-neutral-400 mb-4 flex items-center gap-3">
+                        <Package className="w-3.5 h-3.5 text-gold-500" /> Items List
                     </p>
-                    <div className="bg-neutral-50/30 border border-neutral-100/50 rounded-sm overflow-hidden">
-                      <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                    <div className="bg-neutral-50/20 border border-neutral-100 rounded-sm overflow-hidden shadow-sm">
+                      <div className="w-full">
                         <table className="w-full text-left border-collapse">
-                          <thead className="sticky top-0 bg-neutral-100 z-10">
+                          <thead className="bg-neutral-100/60">
                             <tr>
-                              <th className="p-3 text-[9px] uppercase tracking-widest text-neutral-500 font-black">Item</th>
-                              <th className="p-3 text-[9px] uppercase tracking-widest text-neutral-500 font-black text-center">Qty</th>
-                              <th className="p-3 text-[9px] uppercase tracking-widest text-neutral-500 font-black text-right">Price</th>
+                              <th className="p-5 text-[9px] uppercase tracking-widest text-neutral-500 font-bold">Product Name</th>
+                              <th className="p-5 text-[9px] uppercase tracking-widest text-neutral-500 font-bold text-center">Price</th>
+                              <th className="p-5 text-[9px] uppercase tracking-widest text-neutral-500 font-bold text-center">Qty</th>
+                              <th className="p-5 text-[9px] uppercase tracking-widest text-neutral-500 font-bold text-right">Sum</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-neutral-50">
+                          <tbody className="divide-y divide-neutral-100/50">
                             {order.items?.map((item, i) => (
-                              <tr key={i} className="group/item hover:bg-white transition-colors">
-                                <td className="p-3">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-white border border-neutral-100 p-0.5 flex-shrink-0">
+                              <tr key={i} className="group/item hover:bg-white transition-all duration-300">
+                                <td className="p-5">
+                                  <div className="flex items-center gap-5">
+                                    <div className="w-16 h-16 bg-white border border-neutral-200 p-1 flex-shrink-0 shadow-sm group-hover/item:border-gold-400 transition-colors">
                                       <img 
                                         src={item.image} 
                                         alt={item.name} 
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover grayscale-[20%] group-hover/item:grayscale-0 transition-all"
                                         onError={(e) => { e.target.src = "https://placehold.co/100x100?text=No+Img"; }}
                                       />
                                     </div>
-                                    <span className="text-[10px] font-bold text-neutral-700 uppercase tracking-tighter truncate max-w-[120px]">
-                                      {item.name}
-                                    </span>
+                                    <div className="flex flex-col">
+                                      <span className="text-xs font-bold text-neutral-800 uppercase tracking-tight mb-1">
+                                        {item.name}
+                                      </span>
+                                      <span className="text-[9px] text-neutral-400 font-mono tracking-widest uppercase">item #{i+1}</span>
+                                    </div>
                                   </div>
                                 </td>
-                                <td className="p-3 text-center text-[10px] font-medium text-neutral-500">
-                                  {item.qty || item.quantity}
+                                <td className="p-5 text-center text-[10px] font-bold text-neutral-500 italic">
+                                  {fmtCurrency(item.price)}
                                 </td>
-                                <td className="p-3 text-right text-[10px] font-black text-neutral-800">
+                                <td className="p-5 text-center">
+                                   <span className="bg-neutral-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">{item.qty || item.quantity}</span>
+                                </td>
+                                <td className="p-5 text-right text-[12px] font-black text-neutral-900 font-mono">
                                   {fmtCurrency(item.price * (item.qty || item.quantity))}
                                 </td>
                               </tr>
@@ -522,53 +530,70 @@ const OrderSection = ({ orders, orderSearch, setOrderSearch, updateOrderStatus, 
                     </div>
                   </div>
 
-                  <div className="lg:col-span-3 flex flex-col justify-end gap-3">
-                    <div className="relative group/select">
-                      <select
-                        className={`w-full appearance-none px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] font-black border transition-all cursor-pointer focus:outline-none ${statusColors[order.status] || 'bg-neutral-100 border-neutral-200 text-neutral-600'}`}
-                        value={order.status}
-                        onChange={(e) => updateOrderStatus(order, e.target.value)}
-                      >
-                        {ORDER_STATUS_SEQUENCE.map((status, idx) => {
-                          const currentIdx = ORDER_STATUS_SEQUENCE.indexOf(order.status);
-                          
-                          // Logic: Hide previous statuses
-                          if (idx < currentIdx) return null;
-
-                          // Logic: Move forward "step by step" -> only show current and immediate next
-                          if (idx > currentIdx + 1) return null;
-
-                          const labelMap = {
-                             confirmed: "Confirm",
-                             processing: "Process",
-                             packed: "Pack",
-                             shipped: "Ship Items",
-                             out_for_delivery: "Out for Delivery",
-                             delivered: "Delivered",
-                             return_requested: "Return Requested",
-                             return_accepted: "Accept Return",
-                             refunded: "Refunded"
-                          };
-
-                          return <option key={status} value={status}>{labelMap[status] || status}</option>
-                        })}
-                        {/* Logic: Show cancel option only for standard delivery flow, hide during return flow */}
-                        {!['refunded', 'cancelled', 'return_accepted', 'return_requested'].includes(order.status) && (
-                           <option value="cancelled">Cancel Order</option>
-                        )}
-                      </select>
-                      <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none rotate-90" />
+                  <div className="lg:col-span-3 space-y-8 flex flex-col h-full">
+                    <div className="bg-neutral-50/50 p-6 border border-neutral-100 flex-1">
+                      <p className="text-[10px] uppercase tracking-widest font-black text-neutral-400 mb-5 flex items-center gap-2">
+                        <Users className="w-3.5 h-3.5 text-gold-500" /> Customer Info
+                      </p>
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="text-[11px] font-bold text-neutral-800 uppercase tracking-widest mb-1.5">
+                            {order.customer?.name}
+                          </h4>
+                          <p className="text-[11px] text-gold-600 font-semibold lowercase tracking-tight">{order.customer?.email}</p>
+                        </div>
+                        <div className="pt-4 border-t border-neutral-100/50">
+                          <p className="text-[10px] text-neutral-500 leading-relaxed font-medium">
+                            {order.customer?.address}<br/>
+                            {order.customer?.city} &bull; {order.customer?.zip}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
-                    <button 
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setShowInvoice(true);
-                      }}
-                      className="w-full py-2.5 bg-neutral-900 text-white text-[10px] uppercase tracking-widest font-black hover:bg-gold-600 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Printer className="w-3.5 h-3.5" /> Print Manifest
-                    </button>
+                    <div className="space-y-3 mt-auto pt-6 border-t border-neutral-100">
+                      <div className="relative group/select">
+                        <select
+                          className={`w-full appearance-none px-5 py-3.5 text-[11px] uppercase tracking-[0.2em] font-black border transition-all cursor-pointer focus:outline-none shadow-sm ${statusColors[order.status] || 'bg-neutral-100 border-neutral-200 text-neutral-600'}`}
+                          value={order.status}
+                          onChange={(e) => updateOrderStatus(order, e.target.value)}
+                        >
+                          {ORDER_STATUS_SEQUENCE.map((status, idx) => {
+                            const currentIdx = ORDER_STATUS_SEQUENCE.indexOf(order.status);
+                            if (idx < currentIdx) return null;
+                            if (idx > currentIdx + 1) return null;
+
+                            const labelMap = {
+                               confirmed: "Confirm Order",
+                               processing: "Start Processing",
+                               packed: "Mark Packed",
+                               shipped: "Assign Shipping",
+                               out_for_delivery: "Out for Delivery",
+                               delivered: "Finalize Delivery",
+                               return_requested: "Process Return",
+                               return_accepted: "Accept Return",
+                               refunded: "Issue Refund"
+                            };
+
+                            return <option key={status} value={status}>{labelMap[status] || status}</option>
+                          })}
+                          {!['refunded', 'cancelled', 'return_accepted', 'return_requested'].includes(order.status) && (
+                             <option value="cancelled">Abort Transaction</option>
+                          )}
+                        </select>
+                        <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none rotate-90" />
+                      </div>
+
+                      <button 
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setShowInvoice(true);
+                        }}
+                        className="w-full py-3.5 bg-neutral-900 text-white text-[10px] uppercase tracking-widest font-black hover:bg-gold-600 transition-all flex items-center justify-center gap-3 shadow-lg shadow-neutral-900/10 hover:shadow-gold-600/20"
+                      >
+                        <Printer className="w-4 h-4" /> Print Invoice Bill
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

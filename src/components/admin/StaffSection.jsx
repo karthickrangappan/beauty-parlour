@@ -28,21 +28,46 @@ const StaffSection = ({
   fileRef,
   serviceCategoryOptions,
 }) => {
+  const [sortBy, setSortBy] = React.useState("newest");
+
+  const sortedStaff = [...staff]
+    .filter(
+      (s) =>
+        !staffSearch ||
+        s.name?.toLowerCase().includes(staffSearch.toLowerCase()) ||
+        s.role?.toLowerCase().includes(staffSearch.toLowerCase()) ||
+        s.category?.toLowerCase().includes(staffSearch.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === "alphabetical") return (a.name || "").localeCompare(b.name || "");
+      return (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0);
+    });
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-8 gap-4">
-        <div className="flex-1 max-w-none sm:max-w-sm relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input
-            type="text"
-            placeholder="Search specialists..."
-            value={staffSearch}
-            onChange={(e) => setStaffSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
-          />
+        <div className="flex flex-1 gap-4">
+          <div className="flex-1 max-w-none sm:max-w-sm relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+            <input
+              type="text"
+              placeholder="Search specialists..."
+              value={staffSearch}
+              onChange={(e) => setStaffSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
+            />
+          </div>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="hidden md:block bg-white border border-neutral-200 px-4 py-2 text-[10px] uppercase tracking-widest font-bold focus:outline-none focus:border-gold-500"
+          >
+            <option value="newest">Latest Hired</option>
+            <option value="alphabetical">Name (A-Z)</option>
+          </select>
         </div>
         <p className="text-xs text-neutral-500 hidden md:block">
-          {staff.filter((s) => !staffSearch || s.name?.toLowerCase().includes(staffSearch.toLowerCase())).length} specialists
+          {sortedStaff.length} specialists
         </p>
         <div className="flex items-center justify-center">
           <button
@@ -243,17 +268,7 @@ const StaffSection = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 text-sm">
-              {staff
-                .filter(
-                  (s) =>
-                    !staffSearch ||
-                    s.name?.toLowerCase().includes(staffSearch.toLowerCase()) ||
-                    s.role?.toLowerCase().includes(staffSearch.toLowerCase()) ||
-                    s.category
-                      ?.toLowerCase()
-                      .includes(staffSearch.toLowerCase()),
-                )
-                .map((s) => (
+              {sortedStaff.map((s) => (
                   <tr
                     key={s.id}
                     className="hover:bg-neutral-50 transition-colors"

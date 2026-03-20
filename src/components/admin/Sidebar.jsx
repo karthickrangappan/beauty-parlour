@@ -8,10 +8,9 @@ const Sidebar = ({ tabs, activeTab, setActiveTab, isOpen, onClose }) => {
       <div className="px-8 mb-12 flex items-center justify-between flex-shrink-0">
         <div>
           <span
-            className="text-2xl tracking-widest uppercase font-light text-gold-500"
-            style={{ fontFamily: "ui-serif, Georgia, serif" }}
+            className="text-2xl tracking-[0.2em] font-black text-gold-500"
           >
-            Lumière
+            LUMIÈRE
           </span>
           <p className="text-[10px] uppercase tracking-widest text-neutral-400 mt-1">
             Admin Portal

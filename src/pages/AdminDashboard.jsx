@@ -588,13 +588,13 @@ const AdminDashboard = () => {
 
   /* ─── sidebar tabs config ─────────────────────────── */
   const tabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard },
-    { id: "products", label: "Products", icon: Box },
-    { id: "services", label: "Services", icon: Sparkles },
+    { id: "overview", label: "Home Base", icon: LayoutDashboard },
+    { id: "products", label: "Shop Stock", icon: Box },
+    { id: "services", label: "Beauty Menu", icon: Sparkles },
     { id: "staff", label: "Specialists", icon: Users },
-    { id: "orders", label: "Orders", icon: ShoppingBag },
-    { id: "appointments", label: "Reservations", icon: Calendar },
-    { id: "users", label: "Users", icon: Users },
+    { id: "orders", label: "Sales & Orders", icon: ShoppingBag },
+    { id: "appointments", label: "Calendar Bookings", icon: Calendar },
+    { id: "users", label: "Client List", icon: Users },
   ];
 
   /* ─── derived stats ───────────────────────────────── */

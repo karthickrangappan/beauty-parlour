@@ -15,21 +15,19 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   Calendar,
   Clock,
-  User,
   Sparkles,
   CheckCircle,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
   ShieldCheck,
   CreditCard,
-  Loader2
+  Loader2,
+  ChevronUp,
+  ChevronDown
 } from "lucide-react";
 
 import { generateTimeSlots } from "../utils/logicUtils";
 import { loadRazorpay } from "../utils/loadRazorpay";
 import { toast } from "react-hot-toast";
-import { APP_NAME } from "../constants/config";
+import { APP_NAME, RAZORPAY_KEY_ID } from "../constants/config";
 import PageHeader from "../components/PageHeader";
 
 const Appointments = () => {
@@ -38,64 +36,56 @@ const Appointments = () => {
   const location = useLocation();
 
   const [step, setStep] = useState(1);
-
   const [selectedService, setSelectedService] = useState(null);
-  const [selectedStaff, setSelectedStaff] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
+  const [userDetails, setUserDetails] = useState({
+    name: user?.displayName || "",
+    phone: "",
+    notes: "", // User's specific requirements or service-related info
+  });
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
   const [services, setServices] = useState([]);
-  const [staffList, setStaffList] = useState([]);
-  const [availableStaff, setAvailableStaff] = useState([]);
+  const [staffCount, setStaffCount] = useState(0);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      const sSnap = await getDocs(collection(db, "services"));
-      const sData = sSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setServices(sData);
+      try {
+        const sSnap = await getDocs(collection(db, "services"));
+        setServices(sSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
-      const stSnap = await getDocs(collection(db, "staff"));
-      const stData = stSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setStaffList(stData);
+        const stSnap = await getDocs(collection(db, "staff"));
+        setStaffCount(stSnap.docs.length);
 
-      if (location.state?.selectedService) {
-        const preSelected = location.state.selectedService;
-        setSelectedService(preSelected);
-        setAvailableStaff(stData);
-        setStep(2);
+        if (location.state?.selectedService) {
+          setSelectedService(location.state.selectedService);
+          setStep(2);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
       }
     };
     fetchData();
   }, [location.state]);
 
-  const [isBooking, setIsBooking] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
-
   const resetSelections = () => {
     setStep(1);
     setSelectedService(null);
-    setSelectedStaff(null);
     setSelectedDate("");
     setSelectedSlot("");
+    setUserDetails({ name: user?.displayName || "", phone: "", notes: "" });
   };
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
-    setAvailableStaff(staffList);
-    setSelectedStaff(null);
     setSelectedDate("");
     setSelectedSlot("");
     setStep(2);
-  };
-
-  const handleStaffSelect = (staff) => {
-    setSelectedStaff(staff);
-    setSelectedDate("");
-    setSelectedSlot("");
-    setStep(3);
   };
 
   const handleDateSelect = async (e) => {
@@ -103,132 +93,109 @@ const Appointments = () => {
     setSelectedDate(dateStr);
     setSelectedSlot("");
 
-    if (!selectedStaff || !selectedService) return;
-
-    const allSlots = generateTimeSlots(selectedStaff, selectedService, dateStr);
-
-    if (allSlots.length === 0) {
-      setAvailableSlots([]);
-      toast.error("No working sessions available on this day.");
-      return;
-    }
+    if (!selectedService || staffCount === 0) return;
 
     setIsLoadingSlots(true);
     try {
+      // Fetch dummy/first staff to generate slot patterns
+      const staffSnap = await getDocs(collection(db, "staff"));
+      const firstStaff = staffSnap.docs[0]?.data();
+      
+      const allSlots = generateTimeSlots(firstStaff || {}, selectedService, dateStr);
+
+      if (allSlots.length === 0) {
+        setAvailableSlots([]);
+        toast.error("No sessions available on this day.");
+        return;
+      }
+
       const appointmentsRef = collection(db, "appointments");
-      const q = query(
-        appointmentsRef,
-        where("staffId", "==", selectedStaff.id),
-        where("date", "==", dateStr),
-      );
+      const q = query(appointmentsRef, where("date", "==", dateStr));
       const querySnapshot = await getDocs(q);
 
-      const confirmedBookings = querySnapshot.docs.filter(d => d.data().status !== "cancelled");
+      const bookedSlots = querySnapshot.docs
+        .filter(d => d.data().status !== "cancelled")
+        .map(d => d.data().time);
 
-      if (confirmedBookings.length > 0) {
-        setAvailableSlots([]);
-        toast.error(`${selectedStaff.name} is fully booked for ${dateStr}`);
-      } else {
-        setAvailableSlots(allSlots);
-      }
+      const slotUsage = bookedSlots.reduce((acc, time) => {
+        acc[time] = (acc[time] || 0) + 1;
+        return acc;
+      }, {});
+
+      // A slot is available if current bookings < total staff count
+      const filteredSlots = allSlots.filter(slot => (slotUsage[slot] || 0) < staffCount);
+      
+      setAvailableSlots(filteredSlots);
     } catch (error) {
-      console.error("Slot check error:", error);
-      toast.error("Failed to check availability. Please try again.");
-      setAvailableSlots([]);
+      toast.error("Availability check failed.");
     } finally {
       setIsLoadingSlots(false);
     }
   };
 
-  const handleSlotSelect = (slot) => {
-    setSelectedSlot(slot);
-    setStep(4);
-  };
-
   const confirmBooking = async () => {
     if (!user) {
-      toast.error("Please login to book an appointment");
+      toast.error("Login required for booking");
       navigate("/auth/login", { state: { returnTo: "/appointments" } });
       return;
     }
 
+    if (!userDetails.phone) {
+      toast.error("Phone number is required");
+      return;
+    }
+
     setIsBooking(true);
-
     try {
-      const slotDocId = `${selectedStaff.id}_${selectedDate}_${selectedSlot}`;
-      const slotDocRef = doc(db, "appointments", slotDocId);
-
-      const checkSnap = await getDocs(query(collection(db, "appointments"),
-        where("staffId", "==", selectedStaff.id),
-        where("date", "==", selectedDate)
-      ));
-
-      if (checkSnap.docs.some(d => d.data().status !== 'cancelled')) {
-        throw new Error("This date was just claimed by someone else.");
-      }
-
       const isLoaded = await loadRazorpay();
-      if (!isLoaded) {
-        throw new Error("Razorpay SDK failed to load. Please check your connection.");
-      }
+      if (!isLoaded) throw new Error("Payment system unavailable");
 
       const options = {
-        key: "rzp_test_2ORD27rb7vGhwj",
+        key: RAZORPAY_KEY_ID,
         amount: selectedService.price * 100,
         currency: "INR",
         name: APP_NAME,
-        description: `Booking: ${selectedService.name}`,
+        description: `Experience: ${selectedService.name}`,
         handler: async function (response) {
           try {
             const appointmentData = {
               userId: user.uid,
               serviceId: selectedService.id,
               serviceName: selectedService.name,
-              staffId: selectedStaff.id,
-              staffName: selectedStaff.name,
               date: selectedDate,
               time: selectedSlot,
-              duration: selectedService.duration,
+              customerName: userDetails.name,
+              customerPhone: userDetails.phone,
+              customerNotes: userDetails.notes,
               price: selectedService.price,
               paymentId: response.razorpay_payment_id,
-              bookingId: `LUM-APT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-              status: "confirmed",
+              bookingId: `LUM-${Date.now()}`,
+              status: "pending",
+              staffId: "any", 
               createdAt: Timestamp.now(),
             };
 
-            await runTransaction(db, async (transaction) => {
-              transaction.set(slotDocRef, appointmentData);
+            await runTransaction(db, async (t) => {
+              const ref = doc(collection(db, "appointments"));
+              t.set(ref, appointmentData);
             });
 
-            setSuccessMsg(`Reservation confirmed! Your payment ID is ${response.razorpay_payment_id}.`);
-            toast.success("Appointment Booked Successfully!");
-
-            setTimeout(() => {
-              navigate("/profile");
-            }, 3000);
+            setSuccessMsg("Your sanctuary awaits. Booking confirmed!");
+            setStep(4);
+            toast.success("Experience Booked!");
           } catch (err) {
-            console.error("Post-payment save failed", err);
-            toast.error("Payment successful but booking failed. Please contact support immediately.");
+            toast.error("Payment received but save failed. Contact Us.");
           }
         },
-        prefill: {
-          name: user.displayName || "",
-          email: user.email || "",
-        },
-        theme: { color: "#D4AF37" },
-        modal: {
-          ondismiss: () => {
-            setIsBooking(false);
-          }
-        }
+        prefill: { email: user.email },
+        theme: { color: "#D4AF37" }
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-
     } catch (error) {
-      console.error("Booking failed:", error.message);
-      toast.error(error.message || "Booking failed");
+      toast.error(error.message);
+    } finally {
       setIsBooking(false);
     }
   };
@@ -236,167 +203,83 @@ const Appointments = () => {
   const todayStr = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="min-h-screen bg-cream-50 pb-24">
+    <div className="min-h-screen bg-cream-50 pb-24 font-inter">
       <PageHeader
-        eyebrow="Reserve Your Journey"
-        titleStart="A Moment of"
-        titleItalic="Tranquility"
-        description="Select your treatment, specialist, and preferred time. We will handle the rest with care and precision."
+        eyebrow="Boutique Experience"
+        titleStart="Your Personalized"
+        titleItalic="Ritual"
+        description="Select your desired treatment and schedule. Provide any specific details to help us tailor your experience."
       />
+
       <div className="max-w-6xl mx-auto px-6">
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          <div className="lg:col-span-4 bg-white shadow-xl shadow-gold-300/5 border border-gold-300/10 sticky top-16 sm:top-20 lg:top-32 z-30 transition-all duration-300">
-            <button
-              onClick={() => setIsSummaryOpen(!isSummaryOpen)}
-              className="w-full flex items-center justify-between p-6 lg:p-0 lg:px-10 lg:pt-10 lg:pb-8 text-left"
-            >
-              <h3 className="text-sm lg:text-xl text-neutral-800 uppercase tracking-widest lg:border-b lg:border-gold-300/20 lg:flex-1 lg:pb-4 m-0 font-bold lg:font-normal">
-                Your Selection
-                {selectedService && (
-                  <span className="lg:hidden ml-2 text-[10px] text-gold-600 font-normal tracking-normal normal-case italic font-serif">
-                    • {selectedService.name}
-                  </span>
-                )}
-              </h3>
-              <div className="lg:hidden">
-                {isSummaryOpen ? <ChevronUp className="w-5 h-5 text-gold-500" /> : <ChevronDown className="w-5 h-5 text-neutral-400" />}
-              </div>
-            </button>
-
-            <div className={`${isSummaryOpen ? 'block' : 'hidden'} lg:block px-6 pb-6 lg:px-10 lg:pb-10 space-y-4 lg:space-y-6`}>
-              <div
-                className={`p-4 border ${selectedService ? "border-gold-300/40 bg-cream-50/30" : "border-neutral-100"} transition-all`}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Summary Sidebar */}
+          <div className="lg:col-span-4 lg:sticky lg:top-32 h-fit space-y-6">
+            <div className="bg-white border border-gold-300/10 shadow-xl shadow-gold-300/5 overflow-hidden">
+              <button 
+                onClick={() => setIsSummaryOpen(!isSummaryOpen)}
+                className="w-full flex items-center justify-between p-6 lg:p-8 bg-neutral-900 text-white"
               >
-                <div className="flex gap-4 items-center mb-2">
-                  <Sparkles
-                    className={`w-5 h-5 ${selectedService ? "text-gold-500" : "text-neutral-300"}`}
-                  />
-                  <h4 className="text-xs uppercase tracking-widest text-neutral-500">
-                    Service
-                  </h4>
-                </div>
-                {selectedService ? (
-                  <div className="flex justify-between items-end">
-                    <p className="text-sm font-medium text-neutral-800">
-                      {selectedService.name}
-                    </p>
-                    <p className="text-gold-600 text-xs italic font-serif">
-                      ${selectedService.price} &bull; {selectedService.duration}{" "}
-                      min
-                    </p>
+                <h3 className="text-xs uppercase tracking-[0.3em] font-black">Your Selection</h3>
+                <div className="lg:hidden">{isSummaryOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</div>
+              </button>
+
+              <div className={`${isSummaryOpen ? 'block' : 'hidden'} lg:block p-8 space-y-6`}>
+                <div className={`p-4 border transition-all ${selectedService ? "border-gold-300 bg-gold-50/20" : "border-neutral-100 italic text-neutral-400"}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <Sparkles className="w-4 h-4 text-gold-500" />
+                    <span className="text-[10px] uppercase tracking-widest font-bold">Treatment</span>
                   </div>
-                ) : (
-                  <p className="text-xs text-neutral-400 font-light italic">
-                    Pending selection...
-                  </p>
-                )}
-              </div>
-
-              <div
-                className={`p-4 border ${selectedStaff ? "border-gold-300/40 bg-cream-50/30" : "border-neutral-100"} transition-all`}
-              >
-                <div className="flex gap-4 items-center mb-2">
-                  <User
-                    className={`w-5 h-5 ${selectedStaff ? "text-gold-500" : "text-neutral-300"}`}
-                  />
-                  <h4 className="text-xs uppercase tracking-widest text-neutral-500">
-                    Specialist
-                  </h4>
+                  {selectedService ? (
+                    <div>
+                      <p className="text-sm font-bold text-neutral-800">{selectedService.name}</p>
+                      <p className="text-[10px] text-gold-600 mt-1 uppercase font-black">₹{selectedService.price} &bull; {selectedService.duration}m</p>
+                    </div>
+                  ) : <p className="text-xs">Unselected</p>}
                 </div>
-                {selectedStaff ? (
-                  <div className="flex gap-3 items-center">
-                    <img
-                      src={selectedStaff.image}
-                      alt={selectedStaff.name}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <p className="text-sm font-medium text-neutral-800">
-                      {selectedStaff.name}
-                    </p>
+
+                <div className={`p-4 border transition-all ${selectedSlot ? "border-gold-300 bg-gold-50/20" : "border-neutral-100 italic text-neutral-400"}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <Calendar className="w-4 h-4 text-gold-500" />
+                    <span className="text-[10px] uppercase tracking-widest font-bold">Schedule</span>
                   </div>
-                ) : (
-                  <p className="text-xs text-neutral-400 font-light italic">
-                    Pending selection...
-                  </p>
-                )}
-              </div>
-
-              <div
-                className={`p-4 border ${selectedSlot ? "border-gold-300/40 bg-cream-50/30" : "border-neutral-100"} transition-all`}
-              >
-                <div className="flex gap-4 items-center mb-2">
-                  <Calendar
-                    className={`w-5 h-5 ${selectedSlot ? "text-gold-500" : "text-neutral-300"}`}
-                  />
-                  <h4 className="text-xs uppercase tracking-widest text-neutral-500">
-                    Time & Date
-                  </h4>
+                  {selectedSlot ? (
+                    <div>
+                      <p className="text-sm font-bold text-neutral-800">{new Date(selectedDate).toLocaleDateString()}</p>
+                      <p className="text-[10px] text-gold-600 mt-1 uppercase font-black">{selectedSlot}</p>
+                    </div>
+                  ) : <p className="text-xs">Unscheduled</p>}
                 </div>
-                {selectedDate && selectedSlot ? (
-                  <p className="text-sm font-medium text-neutral-800">
-                    {new Date(selectedDate).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                    })}{" "}
-                    at {selectedSlot}
-                  </p>
-                ) : (
-                  <p className="text-xs text-neutral-400 font-light italic">
-                    Pending selection...
-                  </p>
+
+                {step > 1 && (
+                  <button onClick={resetSelections} className="w-full text-[10px] uppercase tracking-widest text-neutral-400 hover:text-gold-600 font-black pt-4 border-t border-neutral-100">
+                    Restart Booking
+                  </button>
                 )}
               </div>
-
-              {step > 1 && (
-                <button
-                  onClick={resetSelections}
-                  className="w-full py-3 text-[10px] lg:text-xs lg:mt-4 uppercase tracking-widest text-neutral-400 hover:text-gold-500 transition-colors border-t border-neutral-100 lg:border-none"
-                >
-                  Reset Booking
-                </button>
-              )}
             </div>
           </div>
 
-
+          {/* Main Content Areas */}
           <div className="lg:col-span-8">
             <AnimatePresence mode="wait">
-
               {step === 1 && (
-                <motion.div
-                  key="step1"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <h3
-                    className="text-2xl text-neutral-800 font-light mb-8"
-                    style={{ fontFamily: "ui-serif, Georgia, serif" }}
-                  >
-                    1. Select a Treatment
-                  </h3>
+                <motion.div key="step1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                  <h3 className="text-2xl font-light italic border-b border-gold-200 pb-4" style={{ fontFamily: "ui-serif, Georgia, serif" }}>1. Explore Treatments</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {services.map((service) => (
-                      <div
-                        key={service.id}
-                        onClick={() => handleServiceSelect(service)}
-                        className="group cursor-pointer bg-white border border-gold-300/10 p-6 hover:shadow-xl hover:shadow-gold-300/5 hover:border-gold-300/40 transition-all duration-500 relative overflow-hidden"
+                    {services.map(s => (
+                      <div 
+                        key={s.id} 
+                        onClick={() => handleServiceSelect(s)}
+                        className="group cursor-pointer bg-white p-8 border border-neutral-100 hover:border-gold-400 transition-all duration-500 shadow-sm hover:shadow-xl relative overflow-hidden"
                       >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gold-50/20 blur-3xl rounded-full group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
-                        <h4 className="text-sm uppercase tracking-widest text-neutral-800 mb-2">
-                          {service.name}
-                        </h4>
-                        <p className="text-neutral-400 text-xs italic font-serif mb-6">
-                          {service.category}
-                        </p>
-                        <div className="flex justify-between items-center text-xs uppercase tracking-widest text-neutral-500">
-                          <span>{service.duration} mins</span>
-                          <span className="text-gold-600 font-medium">
-                            ${service.price}
-                          </span>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-gold-50/50 rounded-full blur-3xl group-hover:bg-gold-200/50 transition-colors" />
+                        <span className="text-[9px] uppercase tracking-widest text-gold-600 font-bold block mb-2">{s.category}</span>
+                        <h4 className="text-lg font-bold text-neutral-800 mb-2">{s.name}</h4>
+                        <p className="text-xs text-neutral-400 line-clamp-2 italic mb-6">{s.description}</p>
+                        <div className="flex justify-between items-center text-[10px] uppercase tracking-widest font-black text-neutral-500">
+                           <span>{s.duration} min</span>
+                           <span className="text-gold-700">₹{s.price}</span>
                         </div>
                       </div>
                     ))}
@@ -405,200 +288,91 @@ const Appointments = () => {
               )}
 
               {step === 2 && (
-                <motion.div
-                  key="step2"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div className="flex items-center justify-between mb-8">
-                    <h3
-                      className="text-2xl text-neutral-800 font-light"
-                      style={{ fontFamily: "ui-serif, Georgia, serif" }}
-                    >
-                      2. Select a Specialist
-                    </h3>
-                    <button
-                      onClick={() => setStep(1)}
-                      className="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-gold-500"
-                    >
-                      Back
-                    </button>
+                <motion.div key="step2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                  <div className="flex justify-between items-center border-b border-gold-200 pb-4">
+                    <h3 className="text-2xl font-light italic" style={{ fontFamily: "ui-serif, Georgia, serif" }}>2. Ritual Schedule</h3>
+                    <button onClick={() => setStep(1)} className="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-gold-500">Back</button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {availableStaff.map((staff) => (
-                      <div
-                        key={staff.id}
-                        onClick={() => handleStaffSelect(staff)}
-                        className="group cursor-pointer bg-white border border-gold-300/10 p-6 hover:shadow-xl hover:shadow-gold-300/5 hover:border-gold-300/40 transition-all duration-500 flex items-center gap-6"
-                      >
-                        <img
-                          src={staff.image}
-                          alt={staff.name}
-                          className="w-20 h-20 rounded-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500"
-                        />
-                        <div>
-                          <h4 className="text-sm uppercase tracking-widest text-neutral-800 mb-1">
-                            {staff.name}
-                          </h4>
-                          <p className="text-gold-500 text-[10px] uppercase tracking-widest">
-                            Master Esthetician
-                          </p>
-                        </div>
+                  
+                  <div className="bg-white p-8 border border-neutral-100 space-y-8">
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold block mb-4">Preferred Date</label>
+                      <input type="date" min={todayStr} value={selectedDate} onChange={handleDateSelect} className="w-full bg-neutral-50 border border-neutral-100 p-4 text-sm focus:outline-none focus:border-gold-500" />
+                    </div>
+
+                    {selectedDate && (
+                      <div className="space-y-4">
+                        <label className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold block">Available Time Slots</label>
+                        {isLoadingSlots ? <Loader2 className="w-8 h-8 animate-spin text-gold-500 mx-auto" /> : (
+                          <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                            {availableSlots.map(t => (
+                              <button key={t} onClick={() => { setSelectedSlot(t); setStep(3); }} className={`p-3 text-[10px] font-bold border transition-all ${selectedSlot === t ? "bg-neutral-900 text-white border-neutral-900" : "hover:border-gold-500"}`}>{t}</button>
+                            ))}
+                          </div>
+                        )}
+                        {!isLoadingSlots && availableSlots.length === 0 && <p className="text-xs italic text-neutral-400 text-center py-10">No availability for this date. Please try another day.</p>}
                       </div>
-                    ))}
-                    {availableStaff.length === 0 && (
-                      <p className="text-neutral-500 italic font-serif">
-                        No specialists available for this service currently.
-                      </p>
                     )}
                   </div>
                 </motion.div>
               )}
 
               {step === 3 && (
-                <motion.div
-                  key="step3"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-8"
-                >
-                  <div className="flex items-center justify-between mb-8">
-                    <h3
-                      className="text-2xl text-neutral-800 font-light"
-                      style={{ fontFamily: "ui-serif, Georgia, serif" }}
-                    >
-                      3. Date & Time
-                    </h3>
-                    <button
-                      onClick={() => setStep(2)}
-                      className="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-gold-500"
-                    >
-                      Back
-                    </button>
+                <motion.div key="step3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                  <div className="flex justify-between items-center border-b border-gold-200 pb-4">
+                    <h3 className="text-2xl font-light italic" style={{ fontFamily: "ui-serif, Georgia, serif" }}>3. Your Details</h3>
+                    <button onClick={() => setStep(2)} className="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-gold-500">Back</button>
                   </div>
 
-                  <div className="bg-white p-8 border border-gold-300/10 shadow-sm">
-                    <label className="text-xs uppercase tracking-widest text-neutral-500 block mb-4">
-                      Select Date
-                    </label>
-                    <input
-                      type="date"
-                      min={todayStr}
-                      value={selectedDate}
-                      onChange={handleDateSelect}
-                      className="w-full bg-cream-50/50 p-4 border border-gold-300/20 focus:outline-none focus:border-gold-500 transition-colors uppercase text-sm font-medium text-neutral-800"
-                    />
-                  </div>
-
-                  {selectedDate && (
-                    <div className="bg-white p-8 border border-gold-300/10 shadow-sm">
-                      <label className="text-xs uppercase tracking-widest text-neutral-500 block mb-6">
-                        Available Time Slots
-                      </label>
-                      {isLoadingSlots ? (
-                        <div className="flex justify-center py-8">
-                          <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
-                        </div>
-                      ) : availableSlots.length > 0 ? (
-                        <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
-                          {availableSlots.map((time) => (
-                            <button
-                              key={time}
-                              onClick={() => handleSlotSelect(time)}
-                              className={`py-3 px-2 text-xs tracking-widest transition-all duration-300 border ${selectedSlot === time
-                                ? "bg-neutral-900 text-white border-neutral-900"
-                                : "bg-transparent text-neutral-800 border-gold-300/30 hover:border-gold-500"
-                                }`}
-                            >
-                              {time}
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-neutral-500 italic font-serif">
-                            No slots available for this period.
-                          </p>
-                          <p className="text-[10px] uppercase tracking-widest text-neutral-400 mt-2">
-                            Reason: Fully Booked or Non-working Day
-                          </p>
-                        </div>
-                      )}
+                  <div className="bg-white p-10 border border-neutral-100 space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold block mb-3">Full Name</label>
+                        <input value={userDetails.name} onChange={e => setUserDetails({...userDetails, name: e.target.value})} className="w-full bg-neutral-50 border border-neutral-100 p-4 text-sm focus:outline-none focus:border-gold-500" placeholder="Required" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold block mb-3">Phone Line</label>
+                        <input type="tel" value={userDetails.phone} onChange={e => setUserDetails({...userDetails, phone: e.target.value})} className="w-full bg-neutral-50 border border-neutral-100 p-4 text-sm focus:outline-none focus:border-gold-500" placeholder="+91..." />
+                      </div>
                     </div>
-                  )}
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold block mb-3">Special Requests / Treatment Notes</label>
+                      <textarea value={userDetails.notes} onChange={e => setUserDetails({...userDetails, notes: e.target.value})} className="w-full bg-neutral-50 border border-neutral-100 p-4 text-sm focus:outline-none focus:border-gold-500 h-32" placeholder="Tell us anything that helps us prepare for your visit..."></textarea>
+                    </div>
+                    <button onClick={() => setStep(4)} disabled={!userDetails.name || !userDetails.phone} className="w-full py-5 bg-neutral-900 text-white uppercase tracking-[0.3em] text-xs font-black hover:bg-gold-500 transition-all disabled:opacity-20 shadow-xl">Complete Registration</button>
+                  </div>
                 </motion.div>
               )}
 
               {step === 4 && (
-                <motion.div
-                  key="step4"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-8"
-                >
-                  <div className="flex items-center justify-between mb-8">
-                    <h3
-                      className="text-2xl text-neutral-800 font-light"
-                      style={{ fontFamily: "ui-serif, Georgia, serif" }}
-                    >
-                      4. Finalize Reservation
-                    </h3>
-                    <button
-                      onClick={() => setStep(3)}
-                      className="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-gold-500"
-                    >
-                      Back
-                    </button>
-                  </div>
-
-                  {successMsg ? (
-                    <div className="bg-green-50 border border-green-200 p-8 text-center flex flex-col items-center justify-center space-y-4">
-                      <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-2" />
-                      <h4 className="text-lg text-green-800 font-medium">
-                        Reservation Processed
-                      </h4>
-                      <p className="text-green-600 text-sm font-serif italic">
-                        {successMsg}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="bg-white p-10 border border-gold-300/20 shadow-xl shadow-gold-300/5 text-center">
-                      <div className="flex flex-col items-center justify-center p-4 mb-6 bg-gold-50/30 border border-gold-300/10 rounded-xl">
-                        <CreditCard className="w-8 h-8 text-gold-600 mb-2" />
-                        <p className="text-[10px] uppercase tracking-widest text-gold-700 font-bold">Secure Razorpay Gateway</p>
+                <motion.div key="step4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                  <h3 className="text-2xl font-light italic border-b border-gold-200 pb-4" style={{ fontFamily: "ui-serif, Georgia, serif" }}>4. Finalize Reservation</h3>
+                  
+                  <div className="bg-white p-12 border border-gold-300/20 text-center shadow-2xl shadow-gold-300/5">
+                    {successMsg ? (
+                      <div className="space-y-6">
+                        <CheckCircle className="w-20 h-20 text-green-500 mx-auto" />
+                        <h4 className="text-2xl font-bold text-neutral-800">Reservation Secured</h4>
+                        <p className="text-neutral-500 italic max-w-sm mx-auto">{successMsg}</p>
+                        <button onClick={() => navigate('/profile')} className="px-12 py-4 bg-neutral-900 text-white uppercase text-[10px] tracking-widest font-black">View My Bookings</button>
                       </div>
-                      <h4
-                        className="text-xl text-neutral-800 font-light mb-6"
-                        style={{ fontFamily: "ui-serif, Georgia, serif" }}
-                      >
-                        Ready to Experience Luxury
-                      </h4>
-                      <p className="text-neutral-500 text-sm font-light leading-relaxed mb-10 max-w-md mx-auto">
-                        Your appointment for <span className="text-neutral-900 font-medium">{selectedService.name}</span> on <span className="text-neutral-900 font-medium">{selectedDate}</span> is ready for confirmation. A secure payment is required via <span className="font-bold">Razorpay</span> to finalize your booking.
-                      </p>
-                      <button
-                        onClick={confirmBooking}
-                        disabled={isBooking}
-                        className="w-full md:w-auto md:px-16 bg-neutral-900 text-white py-5 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs hover:bg-gold-500 transition-all duration-500 disabled:opacity-50 mx-auto"
-                      >
-                        {isBooking ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Initializing...
-                          </>
-                        ) : (
-                          <>
-                            Pay ₹{selectedService.price} & Confirm
-                            <ShieldCheck className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="space-y-10">
+                         <div className="max-w-md mx-auto space-y-4">
+                            <ShieldCheck className="w-12 h-12 text-gold-500 mx-auto" />
+                            <h4 className="text-xl font-bold">Secure Checkout</h4>
+                            <p className="text-sm text-neutral-400 leading-relaxed italic">Your booking for <span className="text-neutral-800 font-black">{selectedService.name}</span> on <span className="text-neutral-800 font-black">{selectedDate}</span> is ready. Finalize with a secure payment.</p>
+                         </div>
+                         <button 
+                            onClick={confirmBooking} 
+                            disabled={isBooking}
+                            className="w-full max-w-sm py-5 bg-neutral-900 text-white uppercase tracking-[0.25em] text-[10px] font-black hover:bg-gold-500 transition-all flex items-center justify-center gap-3 mx-auto"
+                         >
+                           {isBooking ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CreditCard className="w-4 h-4" /> Confirm & Pay ₹{selectedService.price}</>}
+                         </button>
+                      </div>
+                    )}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

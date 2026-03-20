@@ -34,18 +34,47 @@ const ServiceSection = ({
   fileRef,
   serviceCategoryOptions,
 }) => {
+  const [sortBy, setSortBy] = React.useState("newest");
+
+  const sortedServices = [...services]
+    .filter(
+      (s) =>
+        !serviceSearch ||
+        s.name?.toLowerCase().includes(serviceSearch.toLowerCase()) ||
+        s.category?.toLowerCase().includes(serviceSearch.toLowerCase()) ||
+        s.description?.toLowerCase().includes(serviceSearch.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === "alphabetical") return (a.name || "").localeCompare(b.name || "");
+      if (sortBy === "price-low") return (a.price || 0) - (b.price || 0);
+      if (sortBy === "price-high") return (b.price || 0) - (a.price || 0);
+      return (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0);
+    });
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-8 gap-4">
-        <div className="flex-1 max-w-none sm:max-w-sm relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input
-            type="text"
-            placeholder="Search services..."
-            value={serviceSearch}
-            onChange={(e) => setServiceSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
-          />
+        <div className="flex flex-1 gap-4">
+          <div className="flex-1 max-w-none sm:max-w-sm relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+            <input
+              type="text"
+              placeholder="Search services..."
+              value={serviceSearch}
+              onChange={(e) => setServiceSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-neutral-200 text-sm focus:outline-none focus:border-gold-500 rounded-sm"
+            />
+          </div>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="hidden md:block bg-white border border-neutral-200 px-4 py-2 text-[10px] uppercase tracking-widest font-bold focus:outline-none focus:border-gold-500"
+          >
+            <option value="newest">Recently Added</option>
+            <option value="alphabetical">Name (A-Z)</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
         </div>
         <div className="flex items-center justify-center">
           <button
@@ -261,15 +290,7 @@ const ServiceSection = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 text-sm">
-              {services
-                .filter(
-                  (s) =>
-                    !serviceSearch ||
-                    s.name?.toLowerCase().includes(serviceSearch.toLowerCase()) ||
-                    s.category?.toLowerCase().includes(serviceSearch.toLowerCase()) ||
-                    s.description?.toLowerCase().includes(serviceSearch.toLowerCase())
-                )
-                .map((s) => (
+              {sortedServices.map((s) => (
                   <tr
                     key={s.id}
                     className="hover:bg-neutral-50 transition-colors"

@@ -7,3 +7,5 @@ export const fmtCurrency = (amount) => {
     maximumFractionDigits: 0
   }).format(amount);
 };
+
+export const RAZORPAY_KEY_ID = "rzp_test_2ORD27rb7vGhwj";
